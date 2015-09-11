@@ -8,7 +8,7 @@ class OutputNode
       topic: 'debug'
       devices: ['some-flow-uuid']
       payload:
-        node: envelope.from
+        node: envelope.nodeId
         msg:
           payload:
             envelope.message

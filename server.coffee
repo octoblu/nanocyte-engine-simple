@@ -16,7 +16,7 @@ app.use meshbluHealthcheck()
 app.use bodyParser.urlencoded limit: '50mb', extended : true
 app.use bodyParser.json limit : '50mb'
 
-app.post '/messages', MessagesController.create
+app.post '/flows/:flowId/messages', MessagesController.create
 
 server = app.listen PORT, ->
   host = server.address().address
