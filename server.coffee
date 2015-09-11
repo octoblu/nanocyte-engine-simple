@@ -8,14 +8,13 @@ debug = require('debug')('nanocyte-engine-simple')
 PORT  = process.env.PORT ? 80
 
 app = express()
-app.use morgan('dev')
+app.use morgan 'dev'
 app.use errorHandler()
 app.use meshbluHealthcheck()
 app.use bodyParser.urlencoded limit: '50mb', extended : true
 app.use bodyParser.json limit : '50mb'
 
 app.post '/messages', (req, res) ->
-  console.log 'got a message'
 
 server = app.listen PORT, ->
   host = server.address().address
