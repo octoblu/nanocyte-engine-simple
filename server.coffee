@@ -5,6 +5,8 @@ errorHandler = require 'errorhandler'
 meshbluHealthcheck = require 'express-meshblu-healthcheck'
 debug = require('debug')('nanocyte-engine-simple')
 
+MessagesController = require './src/controllers/messages-controller'
+
 PORT  = process.env.PORT ? 80
 
 app = express()
@@ -14,7 +16,7 @@ app.use meshbluHealthcheck()
 app.use bodyParser.urlencoded limit: '50mb', extended : true
 app.use bodyParser.json limit : '50mb'
 
-app.post '/messages', (req, res) ->
+app.post '/messages', MessagesController.create
 
 server = app.listen PORT, ->
   host = server.address().address
