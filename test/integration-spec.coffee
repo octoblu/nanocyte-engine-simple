@@ -79,10 +79,12 @@ describe 'and now a word from trigger, to the debug node', ->
       message:
         parmesian: 123456
 
-describe 'stay tuned for more words from our debug node', ->
+describe 'stay tuned for more words from our debug node -> meshblu', ->
   beforeEach ->
-    @outputHandler = require '../src/handlers/output-handler'
-    sinon.stub @outputHandler, 'onMessage'
+    @meshbluHttpMessage = sinon.spy()
+
+    MeshbluHttp = require 'meshblu-http'
+    MeshbluHttp.prototype.message = @meshbluHttpMessage
 
     @debugNode = require '../src/models/unwrapped-debug-node-to-be-replaced'
     sinon.stub(@debugNode, 'onMessage').yields null,
@@ -98,11 +100,14 @@ describe 'stay tuned for more words from our debug node', ->
 
   afterEach ->
     @triggerNode.onMessage.restore()
-    @outputHandler.onMessage.restore()
     @debugNode.onMessage.restore()
 
-  it 'should call onMessage on the outputHandler', ->
-    expect(@outputHandler.onMessage).to.have.been.calledWith
-      from: 'some-debug-uuid'
-      message:
-        something: 'completely-different'
+  it 'should call message on a MeshbluHttp instance', ->
+    expect(@meshbluHttpMessage).to.have.been.calledWith
+      devices: ['some-flow-uuid']
+      topic: 'debug'
+      payload:
+        node: "some-debug-uuid",
+        msg:
+          payload:
+            something: 'completely-different'

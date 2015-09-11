@@ -8,6 +8,7 @@ class InputNode
 
   onMessage: (message) =>
     payload = _.omit message.payload, 'from'
+
     @triggerNode.onMessage payload, (error, envelope) =>
       return console.error error.message if error?
       @debugNode.onMessage envelope, (error, envelope) =>
