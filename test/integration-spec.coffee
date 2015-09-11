@@ -21,9 +21,8 @@ describe 'sending a message to a trigger node', ->
           devices: ['some-flow-uuid']
           payload:
             from: 'some-trigger-uuid'
-            params: {
+            params:
               foo: 'bar'
-            }
 
       @sut.create request, @response
 
@@ -54,3 +53,26 @@ describe 'sending a message to a trigger node', ->
     it 'should call response.status with a 201 and send', ->
       expect(@response.status).to.have.been.calledWith 201
       expect(@response.end).to.have.been.called
+
+describe 'and now a word from trigger, to the debug node', ->
+  beforeEach ->
+    @inputHandler = require '../src/handlers/input-handler'
+    @triggerNode = require '../src/models/unwrapped-trigger-node-to-be-replaced'
+    @debugNode = require '../src/models/unwrapped-debug-node-to-be-replaced'
+    sinon.stub(@triggerNode, 'onMessage').yields null, from: 'some-trigger-uuid', message: 123456
+    sinon.stub @debugNode, 'onMessage'
+
+    @inputHandler.onMessage
+      topic: 'button'
+      devices: ['some-flow-uuid']
+      payload:
+        from: 'some-trigger-uuid'
+        parmesian:
+          something: 'completely-different'
+
+  afterEach ->
+    @triggerNode.onMessage.restore()
+    @debugNode.onMessage.restore()
+
+  it 'should call onMessage on the debug node', ->
+    expect(@debugNode.onMessage).to.have.been.called

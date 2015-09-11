@@ -2,14 +2,14 @@ MessagesController = require '../../src/controllers/messages-controller'
 
 describe '/messages', ->
   beforeEach ->
-    @inputNode =
+    @inputHandler =
       onMessage: sinon.spy()
 
     @response =
       status: sinon.spy => @response
       end: sinon.spy => @response
 
-    @sut = new MessagesController inputNode: @inputNode
+    @sut = new MessagesController inputHandler: @inputHandler
 
   describe 'when /messages receives a message', ->
     beforeEach ->
@@ -20,7 +20,7 @@ describe '/messages', ->
       @sut.create request, @response
 
     it 'should call onMessage on the appropriate node', ->
-      expect(@inputNode.onMessage).to.have.been.calledWith foo: 'bar'
+      expect(@inputHandler.onMessage).to.have.been.calledWith foo: 'bar'
 
     it 'should call response.status with a 201 and send', ->
       expect(@response.status).to.have.been.calledWith 201
@@ -35,4 +35,4 @@ describe '/messages', ->
       @sut.create request, @response
 
     it 'should call onMessage on the appropriate node', ->
-      expect(@inputNode.onMessage).to.have.been.calledWith shoe: 'spar'
+      expect(@inputHandler.onMessage).to.have.been.calledWith shoe: 'spar'

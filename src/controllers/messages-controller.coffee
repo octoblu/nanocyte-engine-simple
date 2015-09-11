@@ -1,10 +1,10 @@
 class MessagesController
   constructor: (options={}) ->
-    {@inputNode} = options
-    @inputNode ?= require '../models/input-node'
+    {@inputHandler} = options
+    @inputHandler ?= require '../handlers/input-handler'
 
   create: (req, res) =>
-    @inputNode.onMessage(req.body)
+    @inputHandler.onMessage(req.body)
     res.status(201).end()
 
 module.exports = MessagesController
