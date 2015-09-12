@@ -45,7 +45,7 @@ describe 'Router', ->
 
       describe 'when given an envelope', ->
         beforeEach ->
-          @debugNode = require '../../src/models/unwrapped-debug-node-to-be-replaced'
+          @debugNode = require '../../src/models/wrapped-debug-node'
           sinon.stub @debugNode, 'onMessage'
           @sut.onMessage nodeId: 'some-trigger-uuid', message: 12455663
 
@@ -57,6 +57,10 @@ describe 'Router', ->
 
         it 'should call onMessage in the debugNode twice', ->
           expect(@debugNode.onMessage).to.have.been.calledTwice
+
+        it 'should call onMessage in the debugNode', ->
+          expect(@debugNode.onMessage).to.have.been.calledWith nodeId: 'some-debug-uuid', flowId: 'some-flow-uuid', message: 12455663
+          expect(@debugNode.onMessage).to.have.been.calledWith nodeId: 'some-other-debug-uuid', flowId: 'some-flow-uuid', message: 12455663
 
     describe 'when the trigger node is wired to two debug nodes and another mystery node', ->
       beforeEach ->
