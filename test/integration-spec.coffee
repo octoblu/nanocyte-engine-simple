@@ -58,7 +58,7 @@ describe 'sending a message to a trigger node', ->
       expect(@response.status).to.have.been.calledWith 201
       expect(@response.end).to.have.been.called
 
-xdescribe 'and now a word from trigger, to the debug node', ->
+describe 'and now a word from trigger, to the debug node', ->
   beforeEach ->
     @inputHandler = require '../src/handlers/input-handler'
     @triggerNode = require '../src/models/unwrapped-trigger-node-to-be-replaced'

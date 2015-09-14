@@ -1,8 +1,9 @@
 _ = require 'lodash'
+Router = require './router'
 
 class InputNode
   constructor: (dependencies={}) ->
-    @router = dependencies.router ? require './router'
+    @router = dependencies.router ? new Router
     @triggerNode = require './unwrapped-trigger-node-to-be-replaced'
 
   onMessage: (message) =>
