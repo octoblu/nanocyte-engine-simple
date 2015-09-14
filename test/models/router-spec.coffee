@@ -26,7 +26,7 @@ describe 'Router', ->
           @debugNode.onMessage.restore()
 
         it 'should call datastore.get', ->
-          expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid'
+          expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid/router/config'
 
         it 'should call onMessage in the debugNode one time', ->
           expect(@debugNode.onMessage).to.have.been.calledOnce

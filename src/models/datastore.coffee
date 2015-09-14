@@ -1,14 +1,12 @@
+redis = require 'redis'
+
 class Datastore
+  constructor: (dependencies={})->
+    {@client} = dependencies
+    @client ?= redis.createClient()
+
   get: (key, callback=->) =>
-    callback null,
-      'some-trigger-uuid':
-        type: 'nanocyte-node-trigger'
-        linkedTo: ['some-debug-uuid']
-      'some-debug-uuid':
-        type: 'nanocyte-node-debug'
-        linkedTo: ['meshblu-output']
-      'meshblu-output':
-        type: 'meshblu-output'
-        linkedTo: []
+    @client.get key, (error, data) =>
+      callback error, JSON.parse data
 
 module.exports = Datastore

@@ -2,18 +2,14 @@ InputNode = require '../../src/models/input-node'
 
 describe 'InputNode', ->
   beforeEach ->
-    @triggerNode = require '../../src/models/unwrapped-trigger-node-to-be-replaced'
-    @debugNode = require '../../src/models/unwrapped-debug-node-to-be-replaced'
+    @triggerNode = require '../../src/models/wrapped-trigger-node'
     sinon.stub @triggerNode, 'onMessage'
-    sinon.stub @debugNode, 'onMessage'
-
     @router = onMessage: sinon.spy()
 
     @sut = new InputNode router: @router
 
   afterEach ->
     @triggerNode.onMessage.restore()
-    @debugNode.onMessage.restore()
 
   it 'should be', ->
     expect(@sut).to.exist
@@ -27,13 +23,17 @@ describe 'InputNode', ->
         @sut.onMessage
           topic: 'button'
           devices: ['some-flow-uuid']
+          flowId: 'some-flow-uuid'
           payload:
             from: 'some-trigger-uuid'
             params:
               foo: 'bar'
 
       it 'should send a converted message to triggerNode', ->
-        expect(@triggerNode.onMessage).to.have.been.calledWith params: {foo: 'bar'}
+        expect(@triggerNode.onMessage).to.have.been.calledWith
+          flowId: 'some-flow-uuid'
+          nodeId: 'some-trigger-uuid'
+          message: {params: {foo: 'bar'}}
 
       describe 'when the triggerNode yields an error', ->
         beforeEach ->
@@ -54,9 +54,13 @@ describe 'InputNode', ->
         @sut.onMessage
           topic: 'button'
           devices: ['some-flow-uuid']
+          flowId: 'some-flow-uuid'
           payload:
             from: 'some-trigger-uuid'
             pep: 'step'
 
       it 'should send a converted message to triggerNode', ->
-        expect(@triggerNode.onMessage).to.have.been.calledWith pep: 'step'
+        expect(@triggerNode.onMessage).to.have.been.calledWith
+          flowId: 'some-flow-uuid'
+          nodeId: 'some-trigger-uuid'
+          message: {pep: 'step'}

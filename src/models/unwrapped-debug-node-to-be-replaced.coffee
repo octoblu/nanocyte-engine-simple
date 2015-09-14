@@ -1,2 +1,4 @@
-module.exports = 
+class DebugNode
   onMessage: ->
+    
+module.exports = DebugNode

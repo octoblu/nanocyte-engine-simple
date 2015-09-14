@@ -10,7 +10,7 @@ class Router
       'meshblu-output':      require './wrapped-meshblu-output-node'
 
   onMessage: (envelope) =>
-    @datastore.get envelope.flowId, (error, routerConfig) =>
+    @datastore.get "#{envelope.flowId}/router/config", (error, routerConfig) =>
       senderNodeConfig = routerConfig[envelope.nodeId]
 
       _.each senderNodeConfig.linkedTo, (uuid) =>
