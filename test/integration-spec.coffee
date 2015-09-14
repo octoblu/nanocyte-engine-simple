@@ -63,7 +63,11 @@ describe 'and now a word from trigger, to the debug node', ->
     @inputHandler = require '../src/handlers/input-handler'
     @triggerNode = require '../src/models/unwrapped-trigger-node-to-be-replaced'
     @debugNode = require '../src/models/unwrapped-debug-node-to-be-replaced'
-    sinon.stub(@triggerNode, 'onMessage').yields null, nodeId: 'some-trigger-uuid', message: {parmesian: 123456}
+    sinon.stub(@triggerNode, 'onMessage').yields null,
+      flowId: 'some-flow-uuid'
+      nodeId: 'some-trigger-uuid'
+      message: {parmesian: 123456}
+
     sinon.stub @debugNode, 'onMessage'
 
     @inputHandler.onMessage
@@ -79,11 +83,12 @@ describe 'and now a word from trigger, to the debug node', ->
 
   it 'should call onMessage on the debug node', ->
     expect(@debugNode.onMessage).to.have.been.calledWith
-      nodeId: 'some-trigger-uuid'
+      nodeId: 'some-debug-uuid'
+      flowId: 'some-flow-uuid'
       message:
         parmesian: 123456
 
-xdescribe 'stay tuned for more words nodeId our debug node -> meshblu', ->
+describe 'stay tuned for more words nodeId our debug node -> meshblu', ->
   beforeEach ->
     @meshbluHttpMessage = sinon.spy()
 
@@ -92,12 +97,17 @@ xdescribe 'stay tuned for more words nodeId our debug node -> meshblu', ->
 
     @debugNode = require '../src/models/unwrapped-debug-node-to-be-replaced'
     sinon.stub(@debugNode, 'onMessage').yields null,
+      flowId: 'some-flow-uuid'
       nodeId: 'some-debug-uuid'
       message:
         something: 'completely-different'
 
     @triggerNode = require '../src/models/unwrapped-trigger-node-to-be-replaced'
-    sinon.stub(@triggerNode, 'onMessage').yields null
+    sinon.stub(@triggerNode, 'onMessage').yields null,
+      flowId: 'some-flow-uuid'
+      nodeId: 'some-trigger-uuid'
+      message:
+        something: 'completely-different'
 
     @inputHandler = require '../src/handlers/input-handler'
     @inputHandler.onMessage({})
