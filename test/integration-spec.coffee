@@ -140,33 +140,48 @@ describe 'a flow with one trigger connected to a debug', ->
     it 'should call onMessage on the debug node', ->
       expect(@debugNodeOnMessage).to.have.been.calledWith parmesian: 123456
 
-  xdescribe 'stay tuned for more words nodeId our debug node -> meshblu', ->
-    beforeEach ->
-      @meshbluHttpMessage = sinon.spy()
+  describe 'stay tuned for more words nodeId our debug node -> meshblu', ->
+    beforeEach (done) ->
+      @meshbluHttpMessage = sinon.spy => done()
 
       MeshbluHttp = require 'meshblu-http'
       MeshbluHttp.prototype.message = @meshbluHttpMessage
 
-      @debugNode = require '../src/models/unwrapped-debug-node-to-be-replaced'
-      sinon.stub(@debugNode, 'onMessage').yields null,
+      @triggerNodeOnMessage = sinon.stub()
+
+      @TriggerNode = require '../src/models/unwrapped-trigger-node-to-be-replaced'
+      @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
+      @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
+
+      @debugNodeOnMessage = sinon.stub()
+
+      @DebugNode = require '../src/models/unwrapped-debug-node-to-be-replaced'
+      @originalDebugNodeOnMessage = @DebugNode.prototype.onMessage
+      @DebugNode.prototype.onMessage = @debugNodeOnMessage
+
+      @debugNodeOnMessage.yields null,
         flowId: 'some-flow-uuid'
         nodeId: 'some-debug-uuid'
         message:
           something: 'completely-different'
 
-      @triggerNode = require '../src/models/unwrapped-trigger-node-to-be-replaced'
-      sinon.stub(@triggerNode, 'onMessage').yields null,
+      @triggerNodeOnMessage.yields null,
         flowId: 'some-flow-uuid'
         nodeId: 'some-trigger-uuid'
         message:
           something: 'completely-different'
 
       @inputHandler = require '../src/handlers/input-handler'
-      @inputHandler.onMessage({})
+      @inputHandler.onMessage
+        devices: ['some-flow-uuid']
+        flowId: 'some-flow-uuid'
+        payload:
+          from: 'some-trigger-uuid'
+          something: 'completely-different'
 
     afterEach ->
-      @triggerNode.onMessage.restore()
-      @debugNode.onMessage.restore()
+      @TriggerNode.onMessage = @originalTriggerNodeOnMessage
+      @DebugNode.onMessage = @originalDebugNodeOnMessage
 
     it 'should call message on a MeshbluHttp instance', ->
       expect(@meshbluHttpMessage).to.have.been.calledOnce
