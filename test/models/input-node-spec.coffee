@@ -11,12 +11,6 @@ describe 'InputNode', ->
   afterEach ->
     @triggerNode.onMessage.restore()
 
-  it 'should be', ->
-    expect(@sut).to.exist
-
-  it 'should create a trigger node', ->
-    expect(@sut.triggerNode).to.exist
-
   describe 'onMessage', ->
     describe 'with a meshblu message', ->
       beforeEach ->
