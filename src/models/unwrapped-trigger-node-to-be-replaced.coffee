@@ -1,5 +1,5 @@
 class TriggerNode
-  onMessage: =>
-    console.log "I accidentally got called anyway"
+  onMessage: (message, callback) =>
+    callback null, message
 
 module.exports = TriggerNode

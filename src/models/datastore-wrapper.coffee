@@ -19,6 +19,11 @@ class DatastoreWrapper
         return
 
       node = new @classToWrap(config)
-      node.onMessage envelope.message, callback
+      node.onMessage envelope.message, (error, message) =>
+        responseEnvelope =
+          nodeId: envelope.nodeId
+          flowId: envelope.flowId
+          message: message
+        callback error, responseEnvelope
 
 module.exports = DatastoreWrapper

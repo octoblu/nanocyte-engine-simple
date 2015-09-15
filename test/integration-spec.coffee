@@ -120,10 +120,7 @@ describe 'a flow with one trigger connected to a debug', ->
       @originalDebugNodeOnMessage = @DebugNode.prototype.onMessage
       @DebugNode.prototype.onMessage = @debugNodeOnMessage
 
-      @triggerNodeOnMessage.yields null,
-        flowId: 'some-flow-uuid'
-        nodeId: 'some-trigger-uuid'
-        message: {parmesian: 123456}
+      @triggerNodeOnMessage.yields null, parmesian: 123456
 
       @inputHandler.onMessage
         topic: 'button'
