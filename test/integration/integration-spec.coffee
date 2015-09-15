@@ -51,7 +51,7 @@ describe 'a flow with one trigger connected to a debug', ->
         status: sinon.spy => @response
         end: sinon.spy => @respons
 
-      MessagesController = require '../src/controllers/messages-controller'
+      MessagesController = require '../../src/controllers/messages-controller'
       @sut = new MessagesController
 
     afterEach ->
@@ -106,7 +106,7 @@ describe 'a flow with one trigger connected to a debug', ->
 
   describe 'and now a word from trigger, to the debug node', ->
     beforeEach (done) ->
-      @inputHandler = require '../src/handlers/input-handler'
+      @inputHandler = require '../../src/handlers/input-handler'
 
       @triggerNodeOnMessage = sinon.stub()
 
@@ -162,7 +162,7 @@ describe 'a flow with one trigger connected to a debug', ->
       @triggerNodeOnMessage.yields null,
         something: 'completely-different'
 
-      @inputHandler = require '../src/handlers/input-handler'
+      @inputHandler = require '../../src/handlers/input-handler'
       @inputHandler.onMessage
         devices: ['some-flow-uuid']
         flowId: 'some-flow-uuid'

@@ -1,4 +1,4 @@
-DatastoreInStream = require '../../src/models/datastore-in-stream'
+DatastoreInStream = require '../../src/models/datastore-get-stream'
 
 describe 'DatastoreInStream', ->
   describe '->onEnvelope', ->

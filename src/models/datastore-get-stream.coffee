@@ -1,6 +1,6 @@
 _ = require 'lodash'
 
-class DatastoreInStream
+class DatastoreGetStream
   constructor: (options, dependencies={}) ->
     {@datastore} = dependencies
     @datastore ?= require '../handlers/datastore-handler'
@@ -10,4 +10,4 @@ class DatastoreInStream
       @datastore.get "#{envelope.flowId}/#{envelope.toNodeId}/data", (error, data) =>
         callback null, _.extend {}, envelope, config: config, data: data
 
-module.exports = DatastoreInStream
+module.exports = DatastoreGetStream

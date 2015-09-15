@@ -1,6 +1,6 @@
 NanocyteNodeWrapper = require '../../src/models/nanocyte-node-wrapper'
 
-describe 'WrapperFactory', ->
+describe 'NanocyteNodeWrapper', ->
   describe '->onEnvelope', ->
     beforeEach ->
       @mahNodeOnMessage = sinon.stub().yields()
