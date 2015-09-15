@@ -43,7 +43,7 @@ describe 'a flow with one trigger connected to a debug', ->
     beforeEach ->
       @triggerNodeOnMessage = sinon.spy => @triggerNodeOnMessage.done()
 
-      @TriggerNode = require '../src/models/unwrapped-trigger-node-to-be-replaced'
+      @TriggerNode = require 'nanocyte-node-trigger'
       @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
       @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
 
@@ -110,13 +110,13 @@ describe 'a flow with one trigger connected to a debug', ->
 
       @triggerNodeOnMessage = sinon.stub()
 
-      @TriggerNode = require '../src/models/unwrapped-trigger-node-to-be-replaced'
+      @TriggerNode = require 'nanocyte-node-trigger'
       @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
       @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
 
       @debugNodeOnMessage = sinon.spy => done()
 
-      @DebugNode = require '../src/models/unwrapped-debug-node-to-be-replaced'
+      @DebugNode = require 'nanocyte-node-debug'
       @originalDebugNodeOnMessage = @DebugNode.prototype.onMessage
       @DebugNode.prototype.onMessage = @debugNodeOnMessage
 
@@ -146,13 +146,13 @@ describe 'a flow with one trigger connected to a debug', ->
 
       @triggerNodeOnMessage = sinon.stub()
 
-      @TriggerNode = require '../src/models/unwrapped-trigger-node-to-be-replaced'
+      @TriggerNode = require 'nanocyte-node-trigger'
       @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
       @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
 
       @debugNodeOnMessage = sinon.stub()
 
-      @DebugNode = require '../src/models/unwrapped-debug-node-to-be-replaced'
+      @DebugNode = require 'nanocyte-node-debug'
       @originalDebugNodeOnMessage = @DebugNode.prototype.onMessage
       @DebugNode.prototype.onMessage = @debugNodeOnMessage
 

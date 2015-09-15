@@ -3,16 +3,17 @@ class NodeAssembler
     {@NanocyteNodeWrapper,@OutputNodeWrapper,@DatastoreInStream} = dependencies
     @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
     @OutputNodeWrapper   ?= require './output-node-wrapper'
+    @DatastoreInStream   ?= require './datastore-in-stream'
 
-    {@DebugNode,@TriggerNode,@OutputNode} = dependencies
+    {@DebugNode,@OutputNode} = dependencies
     @DebugNode   ?= require 'nanocyte-node-debug'
     @OutputNode  ?= require './meshblu-output-node'
 
   assembleNodes: =>
-    'nanocyte-node-debug':  onEnvelope: (callback) =>
+    'nanocyte-node-debug':  onEnvelope: (envelope, callback) =>
                               datastoreInStream = new @DatastoreInStream
-                              datastoreInStream.onEnvelope (error, envelope) =>
-                                wrapper = new @NanocyteNodeWrapper {}
+                              datastoreInStream.onEnvelope envelope, (error, envelope) =>
+                                wrapper = new @NanocyteNodeWrapper nodeClass: @DebugNode
                                 wrapper.onEnvelope envelope, callback
 
     'meshblu-output':        new @OutputNodeWrapper   nodeClass: @OutputNode
