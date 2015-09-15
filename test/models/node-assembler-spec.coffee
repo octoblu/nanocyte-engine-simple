@@ -5,8 +5,7 @@ describe 'NodeAssembler', ->
   describe '->assembleNodes', ->
     beforeEach ->
       class NanocyteNodeWrapper
-        constructor: (@klass) ->
-          console.log 'NanocyteNodeWrapper', @klass
+        constructor: ({nodeClass: @nodeClass}) ->
         onEnvelope: sinon.spy()
 
       @NanocyteNodeWrapper = sinon.spy NanocyteNodeWrapper
@@ -52,7 +51,7 @@ describe 'NodeAssembler', ->
 
     it 'should pass the debug node class to the node wrapper', ->
       node = @nodes['nanocyte-node-debug']
-      expect(node.klass).to.equal @DebugNode
+      expect(node.nodeClass).to.equal @DebugNode
 
     it 'should return a nanocyte-node-wrapper for the trigger node', ->
       node = @nodes['nanocyte-node-trigger']
@@ -60,7 +59,7 @@ describe 'NodeAssembler', ->
 
     it 'should pass the trigger node class to the node wrapper', ->
       node = @nodes['nanocyte-node-trigger']
-      expect(node.klass).to.equal @TriggerNode
+      expect(node.nodeClass).to.equal @TriggerNode
 
     it 'should construct an OutputNodeWrapper with an OutputNode class', ->
-      expect(@OutputNodeWrapper).to.have.been.calledWith @OutputNode
+      expect(@OutputNodeWrapper).to.have.been.calledWith nodeClass: @OutputNode

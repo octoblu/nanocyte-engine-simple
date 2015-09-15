@@ -17,6 +17,10 @@ class InputNode
 
     @triggerNode.onMessage envelope, (error, responseEnvelope) =>
       return console.error error.message if error?
-      @router.onMessage responseEnvelope
+
+      @router.onMessage
+        flowId:     envelope.flowId
+        fromNodeId: envelope.toNodeId
+        message:    responseEnvelope.message
 
 module.exports = InputNode

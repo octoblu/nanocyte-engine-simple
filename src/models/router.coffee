@@ -1,29 +1,28 @@
 _ = require 'lodash'
+NodeAssembler = require './node-assembler'
 
 class Router
   constructor: (dependencies={}) ->
-    {@datastore} = dependencies
+    {nodeAssembler,@datastore} = dependencies
+
     @datastore ?= require '../handlers/datastore-handler'
 
-
-    # @nodes = assembler.assembleNodes()
-    @nodes =
-      'nanocyte-node-debug': require './wrapped-debug-node'
-      'meshblu-output':      require '../handlers/meshblu-output-handler'
+    nodeAssembler ?= new NodeAssembler()
+    @nodes = nodeAssembler.assembleNodes()
 
   onMessage: (envelope) =>
     @datastore.get "#{envelope.flowId}/router/config", (error, routerConfig) =>
-      senderNodeConfig = routerConfig[envelope.toNodeId]
+      senderNodeConfig = routerConfig[envelope.fromNodeId]
 
       _.each senderNodeConfig.linkedTo, (uuid) =>
         receiverNodeConfig = routerConfig[uuid]
         receiverNode = @nodes[receiverNodeConfig.type]
 
-        receiverNode.onMessage
+        receiverNode.onEnvelope
           flowId:  envelope.flowId
           message: envelope.message
           toNodeId:  uuid
-          fromNodeId: envelope.toNodeId
+          fromNodeId: envelope.fromNodeId
         , (error, envelope) =>
           @onMessage envelope
 

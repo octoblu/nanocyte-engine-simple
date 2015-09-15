@@ -39,10 +39,13 @@ describe 'InputNode', ->
 
       describe 'when the triggerNode yields an envelope', ->
         beforeEach ->
-          @triggerNode.onMessage.yield null, some: 'envelope'
+          @triggerNode.onMessage.yield null, message: {some: 'message'}
 
-        it 'should call onMessage on the router with the envelope', ->
-          expect(@router.onMessage).to.have.been.calledWith some: 'envelope'
+        it 'should call onMessage on the router with a reconstructed envelope', ->
+          expect(@router.onMessage).to.have.been.calledWith
+            flowId:     'some-flow-uuid'
+            fromNodeId: 'some-trigger-uuid'
+            message:    some: 'message'
 
     describe 'with a different meshblu message', ->
       beforeEach ->
