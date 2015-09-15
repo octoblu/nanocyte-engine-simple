@@ -4,7 +4,7 @@ describe 'InputNode', ->
   beforeEach ->
     @triggerNode = require '../../src/models/wrapped-trigger-node'
     sinon.stub @triggerNode, 'onMessage'
-    @router = onMessage: sinon.spy()
+    @router = onEnvelope: sinon.spy()
 
     @sut = new InputNode router: @router
 
@@ -34,15 +34,15 @@ describe 'InputNode', ->
         beforeEach ->
           @triggerNode.onMessage.yield new Error
 
-        it 'should not call onMessage on the router with the envelope', ->
-          expect(@router.onMessage).not.to.have.been.called
+        it 'should not call onEnvelope on the router with the envelope', ->
+          expect(@router.onEnvelope).not.to.have.been.called
 
       describe 'when the triggerNode yields an envelope', ->
         beforeEach ->
           @triggerNode.onMessage.yield null, message: {some: 'message'}
 
-        it 'should call onMessage on the router with a reconstructed envelope', ->
-          expect(@router.onMessage).to.have.been.calledWith
+        it 'should call onEnvelope on the router with a reconstructed envelope', ->
+          expect(@router.onEnvelope).to.have.been.calledWith
             flowId:     'some-flow-uuid'
             fromNodeId: 'some-trigger-uuid'
             message:    some: 'message'

@@ -4,7 +4,7 @@ describe 'Router', ->
   beforeEach ->
     @datastore = get: sinon.stub()
 
-  describe 'onMessage', ->
+  describe 'onEnvelope', ->
     describe 'when the nodeAssembler returns some nodes', ->
       beforeEach ->
         @debugNodeOnEnvelope = debugNodeOnEnvelope = sinon.spy()
@@ -29,15 +29,15 @@ describe 'Router', ->
 
         describe 'when given an envelope', ->
           beforeEach ->
-            @sut.onMessage fromNodeId: 'some-trigger-uuid', flowId: 'some-flow-uuid', message: 12455663
+            @sut.onEnvelope fromNodeId: 'some-trigger-uuid', flowId: 'some-flow-uuid', message: 12455663
 
           it 'should call datastore.get', ->
             expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid/router/config'
 
-          it 'should call onMessage in the debugNode from assembleNodes one time', ->
+          it 'should call onEnvelope in the debugNode from assembleNodes one time', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledOnce
 
-          it 'should call onMessage in the debugNode with the envelope', ->
+          it 'should call onEnvelope in the debugNode with the envelope', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledWith
               fromNodeId: 'some-trigger-uuid'
               toNodeId: 'some-debug-uuid'
@@ -59,15 +59,15 @@ describe 'Router', ->
 
         describe 'when given an envelope', ->
           beforeEach ->
-            @sut.onMessage flowId: 'some-flow-uuid', fromNodeId: 'some-trigger-uuid', message: 12455663
+            @sut.onEnvelope flowId: 'some-flow-uuid', fromNodeId: 'some-trigger-uuid', message: 12455663
 
           it 'should call datastore.get', ->
             expect(@datastore.get).to.have.been.called
 
-          it 'should call onMessage in the debugNode twice', ->
+          it 'should call onEnvelope in the debugNode twice', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledTwice
 
-          it 'should call onMessage in the debugNode', ->
+          it 'should call onEnvelope in the debugNode', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledWith
               fromNodeId: 'some-trigger-uuid'
               toNodeId: 'some-debug-uuid'
@@ -98,10 +98,10 @@ describe 'Router', ->
 
         describe 'when given an envelope', ->
           beforeEach ->
-            @sut.onMessage fromNodeId: 'some-trigger-uuid', message: 12455663
+            @sut.onEnvelope fromNodeId: 'some-trigger-uuid', message: 12455663
 
           it 'should call datastore.get', ->
             expect(@datastore.get).to.have.been.called
 
-          it 'should call onMessage in the debugNode twice', ->
+          it 'should call onEnvelope in the debugNode twice', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledTwice

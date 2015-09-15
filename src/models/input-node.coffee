@@ -18,7 +18,7 @@ class InputNode
     @triggerNode.onMessage envelope, (error, responseEnvelope) =>
       return console.error error.message if error?
 
-      @router.onMessage
+      @router.onEnvelope
         flowId:     envelope.flowId
         fromNodeId: envelope.toNodeId
         message:    responseEnvelope.message

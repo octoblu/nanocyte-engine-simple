@@ -10,7 +10,7 @@ class Router
     nodeAssembler ?= new NodeAssembler()
     @nodes = nodeAssembler.assembleNodes()
 
-  onMessage: (envelope) =>
+  onEnvelope: (envelope) =>
     @datastore.get "#{envelope.flowId}/router/config", (error, routerConfig) =>
       senderNodeConfig = routerConfig[envelope.fromNodeId]
 
@@ -24,6 +24,6 @@ class Router
           toNodeId:  uuid
           fromNodeId: envelope.fromNodeId
         , (error, envelope) =>
-          @onMessage envelope
+          @onEnvelope envelope
 
 module.exports = Router
