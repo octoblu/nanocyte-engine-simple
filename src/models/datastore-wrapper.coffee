@@ -21,8 +21,7 @@ class DatastoreWrapper
       node = new @classToWrap(config)
       node.onMessage envelope.message, (error, message) =>
         responseEnvelope =
-          toNodeId: envelope.toNodeId
-          fromNodeId: envelope.fromNodeId
+          fromNodeId: envelope.toNodeId
           flowId: envelope.flowId
           message: message
         callback error, responseEnvelope
