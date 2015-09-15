@@ -1,12 +1,20 @@
 _ = require 'lodash'
 NodeAssembler = require '../../src/models/node-assembler'
+{Readable}  = require 'stream'
 
 describe 'NodeAssembler', ->
   describe '->assembleNodes', ->
     beforeEach ->
       @datastoreInStreamOnEnvelope = datastoreInStreamOnEnvelope = sinon.stub()
-      class DatastoreInStream
-        onEnvelope: datastoreInStreamOnEnvelope
+
+      class DatastoreInStream extends Readable
+        constructor: ({envelope: @envelope}) ->
+          super objectMode: true
+
+        _read: =>
+          datastoreInStreamOnEnvelope @envelope, (error, newEnvelope) =>
+            @push newEnvelope
+            @push null
 
       @nanocyteNodeWrapperOnEnvelope = nanocyteNodeWrapperOnEnvelope = sinon.stub()
       class NanocyteNodeWrapper
