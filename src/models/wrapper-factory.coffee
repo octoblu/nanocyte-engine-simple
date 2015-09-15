@@ -2,14 +2,12 @@ _ = require 'lodash'
 async = require 'async'
 
 class WrapperFactory
-  constructor: (options={}) ->
-    {@nodeClasses} = options
+  constructor: ({wrappers: @wrappers}) ->
 
   onEnvelope: (envelope, callback) =>
     functions = []
     functions.push (cb) => cb null, envelope
-
-    _.each @nodeClasses, (klass) => functions.push (new klass).onEnvelope
+    functions = functions.concat _.pluck(@wrappers, 'onEnvelope')
 
     async.waterfall functions, callback
 
