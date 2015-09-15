@@ -28,6 +28,8 @@
     "express": "^4.13.3",
     "express-meshblu-healthcheck": "^1.0.1",
     "lodash": "^3.10.1",
+    "escape-string-regexp": "^1.0.3",
+    "lodash-deep": "^1.6.0",
     "meshblu-http": "^3.4.1",
     "morgan": "^1.6.1",
     "redis": "^1.0.0"
