@@ -5,6 +5,8 @@ class Router
     {@datastore} = dependencies
     @datastore ?= require '../handlers/datastore-handler'
 
+
+    # @nodes = assembler.assembleNodes()
     @nodes =
       'nanocyte-node-debug': require './wrapped-debug-node'
       'meshblu-output':      require '../handlers/meshblu-output-handler'
