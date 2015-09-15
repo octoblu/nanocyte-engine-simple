@@ -12,7 +12,7 @@ class DatastoreWrapper
       console.error error.stack
       return
 
-    @datastore.get "#{envelope.flowId}/#{envelope.nodeId}/config", (error, config) =>
+    @datastore.get "#{envelope.flowId}/#{envelope.toNodeId}/config", (error, config) =>
       if error?
         console.error "ERROR: DatastoreWrapper->onMessage"
         console.error error.stack
@@ -21,7 +21,8 @@ class DatastoreWrapper
       node = new @classToWrap(config)
       node.onMessage envelope.message, (error, message) =>
         responseEnvelope =
-          nodeId: envelope.nodeId
+          toNodeId: envelope.toNodeId
+          fromNodeId: envelope.fromNodeId
           flowId: envelope.flowId
           message: message
         callback error, responseEnvelope

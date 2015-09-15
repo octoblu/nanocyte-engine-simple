@@ -32,7 +32,8 @@ describe 'InputNode', ->
       it 'should send a converted message to triggerNode', ->
         expect(@triggerNode.onMessage).to.have.been.calledWith
           flowId: 'some-flow-uuid'
-          nodeId: 'some-trigger-uuid'
+          fromNodeId: 'meshblu-input'
+          toNodeId: 'some-trigger-uuid'
           message: {params: {foo: 'bar'}}
 
       describe 'when the triggerNode yields an error', ->
@@ -62,5 +63,6 @@ describe 'InputNode', ->
       it 'should send a converted message to triggerNode', ->
         expect(@triggerNode.onMessage).to.have.been.calledWith
           flowId: 'some-flow-uuid'
-          nodeId: 'some-trigger-uuid'
+          fromNodeId: 'meshblu-input'
+          toNodeId: 'some-trigger-uuid'
           message: {pep: 'step'}

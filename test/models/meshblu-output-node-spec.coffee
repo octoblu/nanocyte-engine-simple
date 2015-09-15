@@ -1,6 +1,6 @@
 MeshbluOutputNode = require '../../src/models/meshblu-output-node'
 
-describe.only 'MeshbluOutputNode', ->
+describe 'MeshbluOutputNode', ->
   describe '->onMessage', ->
     beforeEach ->
       @meshbluHttpMessage = sinon.spy => @meshbluHttpMessage.done()
@@ -10,7 +10,7 @@ describe.only 'MeshbluOutputNode', ->
 
       @datastore = get: sinon.stub()
       @sut = new MeshbluOutputNode datastore: @datastore
-      @sut.onMessage flowId: 'some-flow-uuid', fromNodeId: 'some-trigger-uuid', nodeId: 'meshblu-output', message: 'boo'
+      @sut.onMessage flowId: 'some-flow-uuid', fromNodeId: 'some-trigger-uuid', toNodeId: 'meshblu-output', message: 'boo'
 
     describe 'on successful request', ->
       beforeEach (done) ->

@@ -7,11 +7,11 @@ class Router
 
     @nodes =
       'nanocyte-node-debug': require './wrapped-debug-node'
-      'meshblu-output':      require './wrapped-meshblu-output-node'
+      'meshblu-output':      require '../handlers/meshblu-output-handler'
 
   onMessage: (envelope) =>
     @datastore.get "#{envelope.flowId}/router/config", (error, routerConfig) =>
-      senderNodeConfig = routerConfig[envelope.nodeId]
+      senderNodeConfig = routerConfig[envelope.toNodeId]
 
       _.each senderNodeConfig.linkedTo, (uuid) =>
         receiverNodeConfig = routerConfig[uuid]
@@ -20,7 +20,8 @@ class Router
         receiverNode.onMessage
           flowId:  envelope.flowId
           message: envelope.message
-          nodeId:  uuid
+          toNodeId:  uuid
+          fromNodeId: envelope.toNodeId
         , (error, envelope) =>
           @onMessage envelope
 

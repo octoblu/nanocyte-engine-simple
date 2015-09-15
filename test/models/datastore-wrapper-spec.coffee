@@ -18,7 +18,7 @@ describe 'DatastoreWrapper', ->
       @sut = new DatastoreWrapper {classToWrap: @someClass}, {datastore: @datastore}
       @sut.onMessage
         flowId: 'flow-uuid'
-        nodeId: 'node-uuid'
+        toNodeId: 'node-uuid'
         message: {more: 'of the things', i: 'want'}
 
     describe 'on successful request', ->

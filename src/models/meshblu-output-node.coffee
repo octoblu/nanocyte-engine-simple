@@ -12,7 +12,7 @@ class MeshbluOutputNode
         devices: [envelope.flowId]
         topic: 'debug'
         payload:
-          node: "some-debug-uuid",
+          node: envelope.fromNodeId,
           msg:
             payload:
               envelope.message

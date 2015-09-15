@@ -20,7 +20,7 @@ describe 'Router', ->
         beforeEach ->
           @debugNode = require '../../src/models/wrapped-debug-node'
           sinon.stub @debugNode, 'onMessage'
-          @sut.onMessage nodeId: 'some-trigger-uuid', flowId: 'some-flow-uuid', message: 12455663
+          @sut.onMessage toNodeId: 'some-trigger-uuid', flowId: 'some-flow-uuid', message: 12455663
 
         afterEach ->
           @debugNode.onMessage.restore()
@@ -32,7 +32,11 @@ describe 'Router', ->
           expect(@debugNode.onMessage).to.have.been.calledOnce
 
         it 'should call onMessage in the debugNode with envelope.message', ->
-          expect(@debugNode.onMessage).to.have.been.calledWith nodeId: 'some-debug-uuid', flowId: 'some-flow-uuid', message: 12455663
+          expect(@debugNode.onMessage).to.have.been.calledWith
+            fromNodeId: 'some-trigger-uuid'
+            toNodeId: 'some-debug-uuid'
+            flowId: 'some-flow-uuid'
+            message: 12455663
 
     describe 'when the trigger node is wired to two debug nodes', ->
       beforeEach ->
@@ -51,7 +55,7 @@ describe 'Router', ->
         beforeEach ->
           @debugNode = require '../../src/models/wrapped-debug-node'
           sinon.stub @debugNode, 'onMessage'
-          @sut.onMessage flowId: 'some-flow-uuid', nodeId: 'some-trigger-uuid', message: 12455663
+          @sut.onMessage flowId: 'some-flow-uuid', toNodeId: 'some-trigger-uuid', message: 12455663
 
         afterEach ->
           @debugNode.onMessage.restore()
@@ -63,8 +67,17 @@ describe 'Router', ->
           expect(@debugNode.onMessage).to.have.been.calledTwice
 
         it 'should call onMessage in the debugNode', ->
-          expect(@debugNode.onMessage).to.have.been.calledWith nodeId: 'some-debug-uuid', flowId: 'some-flow-uuid', message: 12455663
-          expect(@debugNode.onMessage).to.have.been.calledWith nodeId: 'some-other-debug-uuid', flowId: 'some-flow-uuid', message: 12455663
+          expect(@debugNode.onMessage).to.have.been.calledWith
+            fromNodeId: 'some-trigger-uuid'
+            toNodeId: 'some-debug-uuid'
+            flowId: 'some-flow-uuid'
+            message: 12455663
+
+          expect(@debugNode.onMessage).to.have.been.calledWith
+            toNodeId: 'some-other-debug-uuid'
+            fromNodeId: 'some-trigger-uuid'
+            flowId: 'some-flow-uuid'
+            message: 12455663
 
     describe 'when the trigger node is wired to two debug nodes and another mystery node', ->
       beforeEach ->
@@ -86,7 +99,7 @@ describe 'Router', ->
         beforeEach ->
           @debugNode = require '../../src/models/wrapped-debug-node'
           sinon.stub @debugNode, 'onMessage'
-          @sut.onMessage nodeId: 'some-trigger-uuid', message: 12455663
+          @sut.onMessage toNodeId: 'some-trigger-uuid', message: 12455663
 
         afterEach ->
           @debugNode.onMessage.restore()

@@ -137,7 +137,7 @@ describe 'a flow with one trigger connected to a debug', ->
     it 'should call onMessage on the debug node', ->
       expect(@debugNodeOnMessage).to.have.been.calledWith parmesian: 123456
 
-  describe 'stay tuned for more words nodeId our debug node -> meshblu', ->
+  describe 'stay tuned for more words from our debug node -> meshblu', ->
     beforeEach (done) ->
       @meshbluHttpMessage = sinon.spy => done()
 
@@ -157,16 +157,10 @@ describe 'a flow with one trigger connected to a debug', ->
       @DebugNode.prototype.onMessage = @debugNodeOnMessage
 
       @debugNodeOnMessage.yields null,
-        flowId: 'some-flow-uuid'
-        nodeId: 'some-debug-uuid'
-        message:
-          something: 'completely-different'
+        something: 'completely-different'
 
       @triggerNodeOnMessage.yields null,
-        flowId: 'some-flow-uuid'
-        nodeId: 'some-trigger-uuid'
-        message:
-          something: 'completely-different'
+        something: 'completely-different'
 
       @inputHandler = require '../src/handlers/input-handler'
       @inputHandler.onMessage

@@ -11,7 +11,8 @@ class InputNode
 
     envelope =
       flowId:  message.flowId
-      nodeId:  message.payload.from
+      fromNodeId: 'meshblu-input'
+      toNodeId:  message.payload.from
       message: payload
 
     @triggerNode.onMessage envelope, (error, responseEnvelope) =>
