@@ -1,5 +1,4 @@
 Datastore = require './datastore'
-dynamicNode = require '../stash/dynamicNode'
 
 class DatastoreWrapper
   constructor: (options={}, dependencies={}) ->
@@ -18,8 +17,6 @@ class DatastoreWrapper
         console.error "ERROR: DatastoreWrapper->onMessage"
         console.error error.stack
         return
-
-      config = dynamicNode(config, envelope.message)
 
       node = new @classToWrap(config)
       node.onMessage envelope.message, (error, message) =>
