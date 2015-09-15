@@ -4,13 +4,20 @@ NodeAssembler = require '../../src/models/node-assembler'
 describe 'NodeAssembler', ->
   describe '->assembleNodes', ->
     beforeEach ->
-      @NanocyteNodeWrapper = sinon.spy =>
+      class NanocyteNodeWrapper
+        constructor: (@klass) ->
+          console.log 'NanocyteNodeWrapper', @klass
         onEnvelope: sinon.spy()
+
+      @NanocyteNodeWrapper = sinon.spy NanocyteNodeWrapper
 
       @OutputNodeWrapper = sinon.spy =>
         onEnvelope: sinon.spy()
 
       @DebugNode = sinon.spy =>
+        onMessage: sinon.spy()
+
+      @TriggerNode = sinon.spy =>
         onMessage: sinon.spy()
 
       @OutputNode = sinon.spy =>
@@ -20,6 +27,7 @@ describe 'NodeAssembler', ->
         NanocyteNodeWrapper: @NanocyteNodeWrapper
         OutputNodeWrapper: @OutputNodeWrapper
         DebugNode: @DebugNode
+        TriggerNode: @TriggerNode
         OutputNode: @OutputNode
 
       @nodes = @sut.assembleNodes()
@@ -30,6 +38,7 @@ describe 'NodeAssembler', ->
     it 'should return an object with keys for each node', ->
       expect(@nodes).to.have.all.keys [
         'nanocyte-node-debug'
+        'nanocyte-node-trigger'
         'meshblu-output'
       ]
 
@@ -38,7 +47,20 @@ describe 'NodeAssembler', ->
         expect(node.onEnvelope).to.exist
 
     it 'should return a nanocyte-node-wrapper for the debug node', ->
-      expect(@NanocyteNodeWrapper).to.have.been.calledWithNew
+      node = @nodes['nanocyte-node-debug']
+      expect(node).to.be.an.instanceOf @NanocyteNodeWrapper
+
+    it 'should pass the debug node class to the node wrapper', ->
+      node = @nodes['nanocyte-node-debug']
+      expect(node.klass).to.equal @DebugNode
+
+    it 'should return a nanocyte-node-wrapper for the trigger node', ->
+      node = @nodes['nanocyte-node-trigger']
+      expect(node).to.be.an.instanceOf @NanocyteNodeWrapper
+
+    it 'should pass the trigger node class to the node wrapper', ->
+      node = @nodes['nanocyte-node-trigger']
+      expect(node.klass).to.equal @TriggerNode
 
     it 'should construct an OutputNodeWrapper with an OutputNode class', ->
       expect(@OutputNodeWrapper).to.have.been.calledWith @OutputNode
