@@ -5,14 +5,22 @@ describe 'NodeAssembler', ->
   describe '->assembleNodes', ->
     beforeEach ->
       @NanocyteNodeWrapper = sinon.spy =>
-        onEnvelope: true
+        onEnvelope: sinon.spy()
 
-      @NanocyteDebug = sinon.spy =>
-        onMessage: true
+      @OutputNodeWrapper = sinon.spy =>
+        onEnvelope: sinon.spy()
+
+      @DebugNode = sinon.spy =>
+        onMessage: sinon.spy()
+
+      @OutputNode = sinon.spy =>
+        onMessage: sinon.spy()
 
       @sut = new NodeAssembler {},
         NanocyteNodeWrapper: @NanocyteNodeWrapper
-        NanocyteDebug: @NanocyteDebug
+        OutputNodeWrapper: @OutputNodeWrapper
+        DebugNode: @DebugNode
+        OutputNode: @OutputNode
 
       @nodes = @sut.assembleNodes()
 
@@ -32,5 +40,5 @@ describe 'NodeAssembler', ->
     it 'should return a nanocyte-node-wrapper for the debug node', ->
       expect(@NanocyteNodeWrapper).to.have.been.calledWithNew
 
-    it 'should construct a NanoCyteNodeWrapper with the debug node', ->
-      expect(@NanocyteNodeWrapper).to.have.been.calledWith @NanocyteDebug
+    it 'should construct an OutputNodeWrapper with an OutputNode class', ->
+      expect(@OutputNodeWrapper).to.have.been.calledWith @OutputNode
