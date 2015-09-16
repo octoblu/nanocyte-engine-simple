@@ -57,13 +57,13 @@ describe 'a flow with one trigger connected to a debug', ->
     @client.set 'some-flow-uuid/meshblu-output/config', data, done
 
   afterEach (done) ->
-    # console.log 'afterEach running'
-    # async.parallel [
-    #   (done) => @client.del 'some-flow-uuid/router/config', done
-    #   (done) => @client.del 'some-flow-uuid/some-trigger-uuid/config', done
-    #   (done) => @client.del 'some-flow-uuid/some-debug-uuid/config', done
-    #   (done) => @client.del 'some-flow-uuid/meshblu-output/config', done
-    # ], =>
+    console.log 'afterEach running'
+    async.parallel [
+      (done) => @client.del 'some-flow-uuid/router/config', done
+      (done) => @client.del 'some-flow-uuid/some-trigger-uuid/config', done
+      (done) => @client.del 'some-flow-uuid/some-debug-uuid/config', done
+      (done) => @client.del 'some-flow-uuid/meshblu-output/config', done
+    ], =>
       console.log 'afterEach done'
       done()
 
