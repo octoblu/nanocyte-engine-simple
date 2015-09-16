@@ -1,5 +1,8 @@
+stream = require 'stream'
+path = require 'path'
 async = require 'async'
 redis = require 'redis'
+_ = require 'lodash'
 
 describe 'a flow with one trigger connected to a debug', ->
   beforeEach ->
@@ -114,11 +117,19 @@ describe 'a flow with one trigger connected to a debug', ->
       @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
       @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
 
-      @debugNodeOnMessage = sinon.spy => done()
+      @debugNodeWrite = debugNodeWrite = sinon.spy => done()
+      class FakeDebugNode extends stream.Writable
+        constructor: ->
+          super objectMode: true
+          @messageOutStream = new stream.PassThrough
 
-      @DebugNode = require 'nanocyte-node-debug'
-      @originalDebugNodeOnMessage = @DebugNode.prototype.onMessage
-      @DebugNode.prototype.onMessage = @debugNodeOnMessage
+        _write: (envelope, encoding, next) =>
+          debugNodeWrite envelope
+          # @messageOutStream.write envelope.message, next
+
+      require 'nanocyte-node-debug'
+      thing = require.cache[path.join(__dirname, '../../node_modules/nanocyte-node-debug/index.js')]
+      thing.exports = FakeDebugNode
 
       @triggerNodeOnMessage.yields null, parmesian: 123456
 
@@ -132,10 +143,12 @@ describe 'a flow with one trigger connected to a debug', ->
 
     afterEach ->
       @TriggerNode.onMessage = @originalTriggerNodeOnMessage
-      @DebugNode.onMessage = @originalDebugNodeOnMessage
 
     it 'should call onMessage on the debug node', ->
-      expect(@debugNodeOnMessage).to.have.been.calledWith parmesian: 123456
+      expect(@debugNodeWrite).to.have.been.calledWith
+        config: {}
+        data: null
+        message: { parmesian: 123456 }
 
   describe 'stay tuned for more words from our debug node -> meshblu', ->
     beforeEach (done) ->
@@ -150,13 +163,13 @@ describe 'a flow with one trigger connected to a debug', ->
       @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
       @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
 
-      @debugNodeOnMessage = sinon.stub()
+      @debugNodeWrite = sinon.stub()
 
       @DebugNode = require 'nanocyte-node-debug'
       @originalDebugNodeOnMessage = @DebugNode.prototype.onMessage
-      @DebugNode.prototype.onMessage = @debugNodeOnMessage
+      @DebugNode.prototype.onMessage = @debugNodeWrite
 
-      @debugNodeOnMessage.yields null,
+      @debugNodeWrite.yields null,
         something: 'completely-different'
 
       @triggerNodeOnMessage.yields null,

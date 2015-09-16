@@ -7,38 +7,39 @@ describe 'NodeAssembler', ->
     beforeEach ->
       @datastoreGetStreamOnEnvelope = datastoreGetStreamOnEnvelope = sinon.stub()
 
-      class DatastoreGetStream extends stream.Readable
-        constructor: ({envelope: @envelope}) ->
+      class DatastoreGetStream extends stream.Transform
+        constructor: ->
           super objectMode: true
 
-        _read: =>
-          datastoreGetStreamOnEnvelope @envelope, (error, newEnvelope) =>
+        _transform: (envelope, enc, next)=>
+          datastoreGetStreamOnEnvelope envelope, (error, newEnvelope) =>
             @push newEnvelope
             @push null
 
       @debugOnWriteMessage = debugOnWriteMessage = sinon.stub()
 
-      class DebugNode extends stream.Writable
+      class NanocyteNodeWrapper extends stream.Writable
         constructor: ->
           super objectMode: true
-          @messageOutputStream = new stream.PassThrough objectMode: true
+          @messageOutStream = new stream.PassThrough objectMode: true
 
         _write: (envelope, enc, next) =>
           debugOnWriteMessage envelope, (error, nextEnvelope) =>
-            @messageOutputStream.push nextEnvelope
-            @messageOutputStream.push null
-            next()
+            @messageOutStream.write nextEnvelope, next
+
+      @NanocyteNodeWrapper = sinon.spy NanocyteNodeWrapper
 
       @OutputNodeWrapper = sinon.spy =>
         onEnvelope: ->
 
-      @DebugNode = DebugNode
+      @DebugNode = sinon.spy()
 
       @OutputNode = ->
         onMessage: ->
 
       @sut = new NodeAssembler {},
         DatastoreGetStream: DatastoreGetStream
+        NanocyteNodeWrapper: @NanocyteNodeWrapper
         OutputNodeWrapper: @OutputNodeWrapper
         DebugNode: @DebugNode
         OutputNode: @OutputNode
@@ -70,10 +71,11 @@ describe 'NodeAssembler', ->
           @debugNode = @nodes['nanocyte-node-debug']
           @debugNode.onEnvelope envelope, (@error, @result) => done()
 
-        it 'should construct a DebugNode', ->
-          expect(@debugNode.onEnvelope).to.exist
+        it 'should construct an NanocyteNodeWrapper with an DebugNode class', ->
+          expect(@NanocyteNodeWrapper).to.have.been.calledWithNew
+          expect(@NanocyteNodeWrapper).to.have.been.calledWith nodeClass: @DebugNode
 
-        it 'should call DatastoreGetStream.onEnvelope with the envelope', ->
+        it 'should write the envelope to a DatastoreGetStream', ->
           expect(@datastoreGetStreamOnEnvelope).to.have.been.calledWith message: 'in a bottle'
 
         it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->

@@ -1,21 +1,34 @@
 NanocyteNodeWrapper = require '../../src/models/nanocyte-node-wrapper'
+stream = require 'stream'
 
 describe 'NanocyteNodeWrapper', ->
-  describe '->onEnvelope', ->
+  describe 'on write', ->
     beforeEach ->
-      @mahNodeOnMessage = sinon.stub().yields()
-      @MahNode = sinon.spy =>
-        onMessage: @mahNodeOnMessage
+      @mahNodeOnWrite = mahNodeOnWrite = sinon.stub()
 
-      @sut = new NanocyteNodeWrapper nodeClass: @MahNode
+      class MahNode extends stream.Writable
+        constructor: ->
+          super objectMode: true
+          @messageOutStream = new stream.PassThrough objectMode: true
 
-    describe 'when called with an envelope', ->
+        _write: (envelope, enc, next) =>
+          mahNodeOnWrite envelope, (error, nextEnvelope) =>
+            @messageOutStream.write nextEnvelope, enc, next
+
+      @sut = new NanocyteNodeWrapper nodeClass: MahNode
+
+    describe 'when an envelope is written to it', ->
       beforeEach (done) ->
-        @sut.onEnvelope config: {contains: 'config'}, data: {is: 'data'}, message: {foo: 'bar'}, done
-
-      it 'should instantiate MahNode', ->
-        expect(@MahNode).to.have.been.calledWithNew
-        expect(@MahNode).to.have.been.calledWith {contains: 'config'}, {is: 'data'}
+        @mahNodeOnWrite.yields null, message: {some: 'message'}
+        @sut.write flowId: 5, config: {contains: 'config'}, data: {is: 'data'}, message: {foo: 'bar'}, done
 
       it 'should call onMessage on MahNode', ->
-        expect(@mahNodeOnMessage).to.have.been.called
+        expect(@mahNodeOnWrite).to.have.been.calledWith
+          config: {contains: 'config'}
+          data: {is: 'data'}
+          message: {foo: 'bar'}
+
+      it 'should have the output message waiting in the messageOutStream', ->
+        expect(@sut.messageOutStream.read()).to.deep.equal
+          flowId: 5
+          message: {some: 'message'}

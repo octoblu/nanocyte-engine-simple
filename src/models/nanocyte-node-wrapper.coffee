@@ -1,13 +1,21 @@
-class NanocyteNodeWrapper
-  constructor: ({nodeClass: @nodeClass}) ->
+_ = require 'lodash'
+{PassThrough,Writable} = require 'stream'
 
-  onEnvelope: (envelope, callback) =>
-    node = new @nodeClass envelope.config, envelope.data
-    node.onMessage envelope.message, (error, message) =>
-      callback error,
-        fromNodeId: envelope.toNodeId
-        flowId:     envelope.flowId
-        message:    message
+class NanocyteNodeWrapper extends Writable
+  constructor: ({nodeClass}) ->
+    super objectMode: true
+    @node = new nodeClass
+
+    @messageOutStream = new PassThrough objectMode: true
+    @node.messageOutStream.on 'readable', =>
+      {message} = @node.messageOutStream.read()
+      envelope  = _.omit @envelope, 'config', 'data'
+
+      @messageOutStream.write _.extend {}, envelope, message: message
+
+  _write: (@envelope, enc, next) =>
+    newEnvelope = _.cloneDeep _.pick(@envelope, 'config', 'data', 'message')
+    @node.write newEnvelope, enc, next
 
 
 module.exports = NanocyteNodeWrapper

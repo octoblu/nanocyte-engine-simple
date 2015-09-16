@@ -1,6 +1,7 @@
 class NodeAssembler
   constructor: (options, dependencies={}) ->
-    {@OutputNodeWrapper,@DatastoreGetStream} = dependencies
+    {@OutputNodeWrapper,@DatastoreGetStream,@NanocyteNodeWrapper} = dependencies
+    @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
     @OutputNodeWrapper   ?= require './output-node-wrapper'
     @DatastoreGetStream   ?= require './datastore-get-stream'
 
@@ -10,11 +11,13 @@ class NodeAssembler
 
   assembleNodes: =>
     'nanocyte-node-debug':  onEnvelope: (envelope, callback) =>
-                              datastoreGetStream = new @DatastoreGetStream envelope: envelope
-                              node = new @DebugNode
+                              datastoreGetStream = new @DatastoreGetStream
+                              datastoreGetStream.write envelope
 
-                              node.messageOutputStream.on 'readable', =>
-                                callback null, node.messageOutputStream.read()
+                              node = new @NanocyteNodeWrapper nodeClass: @DebugNode
+
+                              node.messageOutStream.on 'readable', =>
+                                callback null, node.messageOutStream.read()
 
                               datastoreGetStream.pipe node
 
