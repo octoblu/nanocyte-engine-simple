@@ -4,6 +4,28 @@ async = require 'async'
 redis = require 'redis'
 _ = require 'lodash'
 
+fakeOutDebugNode = (onWrite=->) ->
+
+  class FakeDebugNode extends stream.Writable
+    constructor: ->
+      super objectMode: true
+      @messageOutStream = new stream.PassThrough objectMode: true
+
+    _write: (envelope, encoding, next) =>
+      console.log "_write from debug, #{JSON.stringify(envelope, null, 2)}"
+      onWrite envelope
+      @messageOutStream.write envelope.message, next
+
+  require 'nanocyte-node-debug'
+
+  debugModule = require.cache[path.join(__dirname, '../../node_modules/nanocyte-node-debug/index.js')]
+  debugModule.exports.original = debugModule.exports.prototype
+  debugModule.exports.prototype = FakeDebugNode.prototype
+
+restoreDebugNode = ->
+  debugModule = require.cache[path.join(__dirname, '../../node_modules/nanocyte-node-debug/index.js')]
+  debugModule.exports.prototype = debugModule.exports.original
+
 describe 'a flow with one trigger connected to a debug', ->
   beforeEach ->
     @client = redis.createClient()
@@ -35,12 +57,15 @@ describe 'a flow with one trigger connected to a debug', ->
     @client.set 'some-flow-uuid/meshblu-output/config', data, done
 
   afterEach (done) ->
-    async.parallel [
-      (done) => @client.del 'some-flow-uuid/router/config', done
-      (done) => @client.del 'some-flow-uuid/some-trigger-uuid/config', done
-      (done) => @client.del 'some-flow-uuid/some-debug-uuid/config', done
-      (done) => @client.del 'some-flow-uuid/meshblu-output/config', done
-    ], done
+    # console.log 'afterEach running'
+    # async.parallel [
+    #   (done) => @client.del 'some-flow-uuid/router/config', done
+    #   (done) => @client.del 'some-flow-uuid/some-trigger-uuid/config', done
+    #   (done) => @client.del 'some-flow-uuid/some-debug-uuid/config', done
+    #   (done) => @client.del 'some-flow-uuid/meshblu-output/config', done
+    # ], =>
+      console.log 'afterEach done'
+      done()
 
   describe 'sending a message to a trigger node', ->
     beforeEach ->
@@ -116,20 +141,9 @@ describe 'a flow with one trigger connected to a debug', ->
       @TriggerNode = require 'nanocyte-node-trigger'
       @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
       @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
+      @debugNodeWrite = sinon.spy => done()
 
-      @debugNodeWrite = debugNodeWrite = sinon.spy => done()
-      class FakeDebugNode extends stream.Writable
-        constructor: ->
-          super objectMode: true
-          @messageOutStream = new stream.PassThrough
-
-        _write: (envelope, encoding, next) =>
-          debugNodeWrite envelope
-          # @messageOutStream.write envelope.message, next
-
-      require 'nanocyte-node-debug'
-      thing = require.cache[path.join(__dirname, '../../node_modules/nanocyte-node-debug/index.js')]
-      thing.exports = FakeDebugNode
+      fakeOutDebugNode @debugNodeWrite
 
       @triggerNodeOnMessage.yields null, parmesian: 123456
 
@@ -143,8 +157,9 @@ describe 'a flow with one trigger connected to a debug', ->
 
     afterEach ->
       @TriggerNode.onMessage = @originalTriggerNodeOnMessage
+      restoreDebugNode()
 
-    it 'should call onMessage on the debug node', ->
+    it 'should write the message to the debug node', ->
       expect(@debugNodeWrite).to.have.been.calledWith
         config: {}
         data: null
@@ -165,9 +180,7 @@ describe 'a flow with one trigger connected to a debug', ->
 
       @debugNodeWrite = sinon.stub()
 
-      @DebugNode = require 'nanocyte-node-debug'
-      @originalDebugNodeOnMessage = @DebugNode.prototype.onMessage
-      @DebugNode.prototype.onMessage = @debugNodeWrite
+      fakeOutDebugNode @debugNodeWrite
 
       @debugNodeWrite.yields null,
         something: 'completely-different'
@@ -185,7 +198,7 @@ describe 'a flow with one trigger connected to a debug', ->
 
     afterEach ->
       @TriggerNode.onMessage = @originalTriggerNodeOnMessage
-      @DebugNode.onMessage = @originalDebugNodeOnMessage
+      restoreDebugNode()
 
     it 'should call message on a MeshbluHttp instance', ->
       expect(@meshbluHttpMessage).to.have.been.calledOnce
