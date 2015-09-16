@@ -1,21 +1,20 @@
 _ = require 'lodash'
-{PassThrough,Writable} = require 'stream'
+{Transform} = require 'stream'
 
-class NanocyteNodeWrapper extends Writable
+class NanocyteNodeWrapper extends Transform
   constructor: ({nodeClass}) ->
     super objectMode: true
+    
     @node = new nodeClass
-
-    @messageOutStream = new PassThrough objectMode: true
-    @node.messageOutStream.on 'readable', =>
-      {message} = @node.messageOutStream.read()
+    @node.on 'readable', =>
+      message = @node.read()
       envelope  = _.omit @envelope, 'config', 'data'
+      @push _.extend {}, envelope, message: message
 
-      @messageOutStream.write _.extend {}, envelope, message: message
+    @node.on 'end', => @push null
 
-  _write: (@envelope, enc, next) =>
+  _transform: (@envelope, enc, next) =>
     newEnvelope = _.cloneDeep _.pick(@envelope, 'config', 'data', 'message')
     @node.write newEnvelope, enc, next
-
 
 module.exports = NanocyteNodeWrapper
