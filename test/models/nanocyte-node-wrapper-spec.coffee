@@ -45,11 +45,12 @@ describe 'NanocyteNodeWrapper', ->
             @result = @sut.read()
             done()
 
-          @sut.write flowId: 555
+          @sut.write flowId: 555, toNodeId: 7
 
         it 'should call onMessage on MahNode', ->
           expect(@result).to.deep.equal
             flowId: 555
+            fromNodeId: 7
             message: 5
 
     describe 'when mah node emits two messages', ->
@@ -70,7 +71,7 @@ describe 'NanocyteNodeWrapper', ->
         beforeEach (done) ->
           @results = []
 
-          @sut.write flowId: 555
+          @sut.write flowId: 555, toNodeId: 3
           @sut.on 'readable', =>
             while result = @sut.read()
               @results.push result
@@ -80,9 +81,11 @@ describe 'NanocyteNodeWrapper', ->
         it 'should emit the first message', ->
           expect(@results).to.deep.contain
             flowId: 555
+            fromNodeId: 3
             message: 1
 
         it 'should emit the second message', ->
           expect(@results).to.deep.contain
             flowId: 555
+            fromNodeId: 3
             message: 2
