@@ -18,14 +18,15 @@ describe 'NodeAssembler', ->
 
       @debugOnWriteMessage = debugOnWriteMessage = sinon.stub()
 
-      class NanocyteNodeWrapper extends stream.Writable
+      class NanocyteNodeWrapper extends stream.Transform
         constructor: ->
           super objectMode: true
-          @messageOutStream = new stream.PassThrough objectMode: true
 
-        _write: (envelope, enc, next) =>
+        _transform: (envelope, enc, next) =>
           debugOnWriteMessage envelope, (error, nextEnvelope) =>
-            @messageOutStream.write nextEnvelope, next
+            @push nextEnvelope
+
+          next()
 
       @NanocyteNodeWrapper = sinon.spy NanocyteNodeWrapper
 

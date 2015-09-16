@@ -4,7 +4,7 @@ _ = require 'lodash'
 class NanocyteNodeWrapper extends Transform
   constructor: ({nodeClass}) ->
     super objectMode: true
-    
+
     @node = new nodeClass
     @node.on 'readable', =>
       message = @node.read()
