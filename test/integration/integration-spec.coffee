@@ -4,12 +4,14 @@ async = require 'async'
 redis = require 'redis'
 _ = require 'lodash'
 
-fakeOutDebugNode = (onWrite=->) ->
+fakeOutDebugNode = (onWrite, messageOutStream) ->
+  onWrite ?= ->
+  messageOutStream ?= new stream.PassThrough objectMode: true
 
   class FakeDebugNode extends stream.Writable
     constructor: ->
       super objectMode: true
-      @messageOutStream = new stream.PassThrough objectMode: true
+      @messageOutStream = messageOutStream
 
     _write: (envelope, encoding, next) =>
       console.log "_write from debug, #{JSON.stringify(envelope, null, 2)}"
@@ -57,13 +59,13 @@ describe 'a flow with one trigger connected to a debug', ->
     @client.set 'some-flow-uuid/meshblu-output/config', data, done
 
   afterEach (done) ->
-    console.log 'afterEach running'
-    async.parallel [
-      (done) => @client.del 'some-flow-uuid/router/config', done
-      (done) => @client.del 'some-flow-uuid/some-trigger-uuid/config', done
-      (done) => @client.del 'some-flow-uuid/some-debug-uuid/config', done
-      (done) => @client.del 'some-flow-uuid/meshblu-output/config', done
-    ], =>
+    # console.log 'afterEach running'
+    # async.parallel [
+    #   (done) => @client.del 'some-flow-uuid/router/config', done
+    #   (done) => @client.del 'some-flow-uuid/some-trigger-uuid/config', done
+    #   (done) => @client.del 'some-flow-uuid/some-debug-uuid/config', done
+    #   (done) => @client.del 'some-flow-uuid/meshblu-output/config', done
+    # ], =>
       console.log 'afterEach done'
       done()
 
@@ -178,11 +180,11 @@ describe 'a flow with one trigger connected to a debug', ->
       @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
       @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
 
-      @debugNodeWrite = sinon.stub()
+      @debugNodeMessageOutStream = new stream.PassThrough objectMode: true
 
-      fakeOutDebugNode @debugNodeWrite
+      fakeOutDebugNode null, @debugNodeMessageOutStream
 
-      @debugNodeWrite.yields null,
+      @debugNodeMessageOutStream.write
         something: 'completely-different'
 
       @triggerNodeOnMessage.yields null,

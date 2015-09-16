@@ -17,6 +17,7 @@ class NodeAssembler
                               node = new @NanocyteNodeWrapper nodeClass: @DebugNode
 
                               node.messageOutStream.on 'readable', =>
+                                console.log "I have stuff to read!"
                                 callback null, node.messageOutStream.read()
 
                               datastoreGetStream.pipe node
