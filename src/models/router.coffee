@@ -11,10 +11,11 @@ class Router
     @nodes = nodeAssembler.assembleNodes()
 
   onEnvelope: (envelope) =>
-    @datastore.get "#{envelope.flowId}/router/config", (error, routerConfig) =>
+    @datastore.get "#{envelope.flowId}/b028a0f0-5cca-11e5-ba53-cbe60492eee3/router/config", (error, routerConfig) =>
       senderNodeConfig = routerConfig[envelope.fromNodeId]
 
       _.each senderNodeConfig.linkedTo, (uuid) =>
+        debugger
         receiverNodeConfig = routerConfig[uuid]
         receiverNode = @nodes[receiverNodeConfig.type]
 
