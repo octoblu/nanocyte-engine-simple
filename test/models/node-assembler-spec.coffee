@@ -54,7 +54,7 @@ describe 'NodeAssembler', ->
     it 'should return an object with keys for each node', ->
       expect(@nodes).to.have.all.keys [
         'nanocyte-node-debug'
-        'meshblu-output'
+        'engine-output'
       ]
 
     it 'should construct an OutputNodeWrapper with an OutputNode class', ->

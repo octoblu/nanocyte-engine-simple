@@ -36,9 +36,9 @@ describe 'a flow with one trigger connected to a debug', ->
         linkedTo: ['some-debug-uuid']
       'some-debug-uuid':
         type: 'nanocyte-node-debug'
-        linkedTo: ['meshblu-output']
-      'meshblu-output':
-        type: 'meshblu-output'
+        linkedTo: ['engine-output']
+      'engine-output':
+        type: 'engine-output'
         linkedTo: []
 
     @client.set 'some-flow-uuid/instance-uuid/router/config', data, done
@@ -53,14 +53,14 @@ describe 'a flow with one trigger connected to a debug', ->
 
   beforeEach (done) ->
     data = JSON.stringify {}
-    @client.set 'some-flow-uuid/instance-uuid/meshblu-output/config', data, done
+    @client.set 'some-flow-uuid/instance-uuid/engine-output/config', data, done
 
   afterEach (done) ->
     async.parallel [
       (done) => @client.del 'some-flow-uuid/instance-uuid/router/config', done
       (done) => @client.del 'some-flow-uuid/instance-uuid/some-trigger-uuid/config', done
       (done) => @client.del 'some-flow-uuid/instance-uuid/some-debug-uuid/config', done
-      (done) => @client.del 'some-flow-uuid/instance-uuid/meshblu-output/config', done
+      (done) => @client.del 'some-flow-uuid/instance-uuid/engine-output/config', done
     ], done
 
   describe 'sending a message to a trigger node', ->

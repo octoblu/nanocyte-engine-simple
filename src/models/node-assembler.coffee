@@ -21,6 +21,6 @@ class NodeAssembler
 
                               datastoreGetStream.pipe node
 
-    'meshblu-output':        new @OutputNodeWrapper   nodeClass: @OutputNode
+    'engine-output':        new @OutputNodeWrapper   nodeClass: @OutputNode
 
 module.exports = NodeAssembler
