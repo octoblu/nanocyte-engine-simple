@@ -18,6 +18,7 @@ describe 'DatastoreWrapper', ->
       @sut = new DatastoreWrapper {classToWrap: @someClass}, {datastore: @datastore}
       @sut.onMessage
         flowId: 'flow-uuid'
+        instanceId: 'instance-uuid'
         toNodeId: 'node-uuid'
         message: {more: 'of the things', i: 'want'}
 
@@ -26,7 +27,7 @@ describe 'DatastoreWrapper', ->
         @datastore.get.yield null, anything: 'i want'
 
       it 'should call get on the datastore', ->
-        expect(@datastore.get).to.have.been.calledWith 'flow-uuid/node-uuid/config'
+        expect(@datastore.get).to.have.been.calledWith 'flow-uuid/instance-uuid/node-uuid/config'
 
       it 'should instantiate the node with the datastore config', ->
         expect(@someClass).to.have.been.calledWithNew
