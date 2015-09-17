@@ -32,20 +32,21 @@ describe 'Router', ->
             @sut.onEnvelope
               fromNodeId: 'some-trigger-uuid'
               flowId: 'some-flow-uuid'
-              deploymentId: 'raging-rhino'
+              instanceId: 'instance-uuid'
               message: 12455663
 
           it 'should call datastore.get', ->
-            expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid/raging-rhino/router/config'
+            expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid/instance-uuid/router/config'
 
           it 'should call onEnvelope in the debugNode from assembleNodes one time', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledOnce
 
           it 'should call onEnvelope in the debugNode with the envelope', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledWith
+              flowId: 'some-flow-uuid'
+              instanceId: 'instance-uuid'
               fromNodeId: 'some-trigger-uuid'
               toNodeId: 'some-debug-uuid'
-              flowId: 'some-flow-uuid'
               message: 12455663
 
       describe 'when the trigger node is wired to two debug nodes', ->
@@ -63,7 +64,12 @@ describe 'Router', ->
 
         describe 'when given an envelope', ->
           beforeEach ->
-            @sut.onEnvelope flowId: 'some-flow-uuid', deploymentId: 'raging-rhino', fromNodeId: 'some-trigger-uuid', message: 12455663
+            @sut.onEnvelope
+              flowId: 'some-flow-uuid'
+              instanceId: 'some-instance-uuid'
+              deploymentId: 'raging-rhino'
+              fromNodeId: 'some-trigger-uuid'
+              message: 12455663
 
           it 'should call datastore.get', ->
             expect(@datastore.get).to.have.been.called
@@ -73,17 +79,17 @@ describe 'Router', ->
 
           it 'should call onEnvelope in the debugNode', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledWith
+              flowId: 'some-flow-uuid'
+              instanceId: 'some-instance-uuid'
               fromNodeId: 'some-trigger-uuid'
               toNodeId: 'some-debug-uuid'
-              flowId: 'some-flow-uuid'
-              deploymentId: 'raging-rhino'
               message: 12455663
 
             expect(@debugNodeOnEnvelope).to.have.been.calledWith
+              flowId: 'some-flow-uuid'
+              instanceId: 'some-instance-uuid'
               toNodeId: 'some-other-debug-uuid'
               fromNodeId: 'some-trigger-uuid'
-              flowId: 'some-flow-uuid'
-              deploymentId: 'raging-rhino'
               message: 12455663
 
       describe 'when the trigger node is wired to two debug nodes and another mystery node', ->

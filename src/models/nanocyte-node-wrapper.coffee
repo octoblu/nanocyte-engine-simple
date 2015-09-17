@@ -14,8 +14,7 @@ class NanocyteNodeWrapper extends Transform
 
     @node.on 'end', => @push null
 
-  _transform: (@envelope, enc, next) =>
-    console.log "NanocyteNodeWrapper transformin #{JSON.stringify @envelope, null, 2}"
+  _transform: (@envelope, enc, next=->) =>
     newEnvelope = _.cloneDeep _.pick(@envelope, 'config', 'data', 'message')
     @node.write newEnvelope, enc, next
 

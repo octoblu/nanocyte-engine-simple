@@ -8,9 +8,9 @@ class InputNode
 
   onMessage: (message) =>
     payload = _.omit message.payload, 'from'
-
     envelope =
-      flowId:  message.flowId
+      flowId:     message.flowId
+      instanceId: message.instanceId
       fromNodeId: 'meshblu-input'
       toNodeId:  message.payload.from
       message: payload
@@ -20,6 +20,7 @@ class InputNode
 
       @router.onEnvelope
         flowId:     envelope.flowId
+        instanceId: envelope.instanceId
         fromNodeId: envelope.toNodeId
         message:    responseEnvelope.message
 

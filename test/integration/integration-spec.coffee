@@ -4,15 +4,12 @@ async = require 'async'
 redis = require 'redis'
 _ = require 'lodash'
 
-fakeOutDebugNode = (onWrite=_.noop, messageOutStream) ->
-  messageOutStream ?= new stream.PassThrough objectMode: true
-
+fakeOutDebugNode = (onWrite=_.noop) ->
   class FakeDebugNode extends stream.Transform
     constructor: ->
       super objectMode: true
 
-    _transform: (envelope, encoding, next) =>
-      console.log "_write from debug, #{JSON.stringify(envelope, null, 2)}"
+    _transform: (envelope, encoding, next=->) =>
       onWrite envelope, =>
         @push envelope.message
 
@@ -21,12 +18,12 @@ fakeOutDebugNode = (onWrite=_.noop, messageOutStream) ->
   require 'nanocyte-node-debug'
 
   debugModule = require.cache[path.join(__dirname, '../../node_modules/nanocyte-node-debug/index.js')]
-  debugModule.exports.original = debugModule.exports.prototype
-  debugModule.exports.prototype = FakeDebugNode.prototype
+  debugModule.exports = FakeDebugNode
+  debugModule.original = debugModule.exports.prototype
 
 restoreDebugNode = ->
   debugModule = require.cache[path.join(__dirname, '../../node_modules/nanocyte-node-debug/index.js')]
-  debugModule.exports.prototype = debugModule.exports.original
+  debugModule.exports = debugModule.original
 
 describe 'a flow with one trigger connected to a debug', ->
   beforeEach ->
@@ -44,26 +41,26 @@ describe 'a flow with one trigger connected to a debug', ->
         type: 'meshblu-output'
         linkedTo: []
 
-    @client.set 'some-flow-uuid/router/config', data, done
+    @client.set 'some-flow-uuid/instance-uuid/router/config', data, done
 
   beforeEach (done) ->
     data = JSON.stringify {}
-    @client.set 'some-flow-uuid/some-trigger-uuid/config', data, done
+    @client.set 'some-flow-uuid/instance-uuid/some-trigger-uuid/config', data, done
 
   beforeEach (done) ->
     data = JSON.stringify {}
-    @client.set 'some-flow-uuid/some-debug-uuid/config', data, done
+    @client.set 'some-flow-uuid/instance-uuid/some-debug-uuid/config', data, done
 
   beforeEach (done) ->
     data = JSON.stringify {}
-    @client.set 'some-flow-uuid/meshblu-output/config', data, done
+    @client.set 'some-flow-uuid/instance-uuid/meshblu-output/config', data, done
 
   afterEach (done) ->
     async.parallel [
-      (done) => @client.del 'some-flow-uuid/router/config', done
-      (done) => @client.del 'some-flow-uuid/some-trigger-uuid/config', done
-      (done) => @client.del 'some-flow-uuid/some-debug-uuid/config', done
-      (done) => @client.del 'some-flow-uuid/meshblu-output/config', done
+      (done) => @client.del 'some-flow-uuid/instance-uuid/router/config', done
+      (done) => @client.del 'some-flow-uuid/instance-uuid/some-trigger-uuid/config', done
+      (done) => @client.del 'some-flow-uuid/instance-uuid/some-debug-uuid/config', done
+      (done) => @client.del 'some-flow-uuid/instance-uuid/meshblu-output/config', done
     ], done
 
   describe 'sending a message to a trigger node', ->
@@ -84,11 +81,12 @@ describe 'a flow with one trigger connected to a debug', ->
     afterEach ->
       @TriggerNode.prototype.onMessage = @originalTriggerNodeOnMessage
 
-    describe 'when /flows/:flowId/messages receives a message', ->
+    describe 'when /flows/:flowId/instances/:instanceId/messages receives a message', ->
       beforeEach (done) ->
         request =
           params:
             flowId: 'some-flow-uuid'
+            instanceId: 'instance-uuid'
           body:
             topic: 'button'
             devices: ['some-flow-uuid']
@@ -107,11 +105,12 @@ describe 'a flow with one trigger connected to a debug', ->
         expect(@response.status).to.have.been.calledWith 201
         expect(@response.end).to.have.been.called
 
-    describe 'when /flows/some-flow-uuid/messages receives a different message', ->
+    describe 'when /flows/:flowId/instances/:instanceId/messages receives a different message', ->
       beforeEach (done) ->
         request =
           params:
             flowId: 'some-flow-uuid'
+            instanceId: 'instance-uuid'
           body:
             topic: 'button'
             devices: ['some-flow-uuid']
@@ -134,24 +133,20 @@ describe 'a flow with one trigger connected to a debug', ->
   describe 'and now a word from trigger, to the debug node', ->
     beforeEach (done) ->
       @inputHandler = require '../../src/handlers/input-handler'
-
       @triggerNodeOnMessage = sinon.stub()
-
       @TriggerNode = require 'nanocyte-node-trigger'
       @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
       @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
       @debugNodeWrite = sinon.spy =>
-        console.log "Debug node is done"
         done()
 
       fakeOutDebugNode @debugNodeWrite
-
       @triggerNodeOnMessage.yields null, parmesian: 123456
-
       @inputHandler.onMessage
         topic: 'button'
         devices: ['some-flow-uuid']
         flowId: 'some-flow-uuid'
+        instanceId: 'instance-uuid'
         payload:
           from: 'some-trigger-uuid'
           parmesian: 123456
@@ -169,9 +164,8 @@ describe 'a flow with one trigger connected to a debug', ->
   describe 'stay tuned for more words from our debug node -> meshblu', ->
     beforeEach (done) ->
       @meshbluHttpMessage = sinon.spy =>
-        console.log 'meshbluHttpMessage hit'
         done()
-
+      @debugOnWrite = sinon.stub().yields()
       MeshbluHttp = require 'meshblu-http'
       MeshbluHttp.prototype.message = @meshbluHttpMessage
 
@@ -181,7 +175,7 @@ describe 'a flow with one trigger connected to a debug', ->
       @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
       @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
 
-      # fakeOutDebugNode null, @debugNodeMessageOutStream
+      fakeOutDebugNode @debugOnWrite
 
       @triggerNodeOnMessage.yields null,
         something: 'completely-different'
@@ -190,13 +184,14 @@ describe 'a flow with one trigger connected to a debug', ->
       @inputHandler.onMessage
         devices: ['some-flow-uuid']
         flowId: 'some-flow-uuid'
+        instanceId: 'instance-uuid'
         payload:
           from: 'some-trigger-uuid'
           something: 'completely-different'
 
     afterEach ->
       @TriggerNode.onMessage = @originalTriggerNodeOnMessage
-      # restoreDebugNode()
+      restoreDebugNode()
 
     it 'should call message on a MeshbluHttp instance', ->
       expect(@meshbluHttpMessage).to.have.been.calledOnce

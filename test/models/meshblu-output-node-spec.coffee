@@ -10,7 +10,12 @@ describe 'MeshbluOutputNode', ->
 
       @datastore = get: sinon.stub()
       @sut = new MeshbluOutputNode datastore: @datastore
-      @sut.onMessage flowId: 'some-flow-uuid', fromNodeId: 'some-trigger-uuid', toNodeId: 'meshblu-output', message: 'boo'
+      @sut.onMessage
+        flowId: 'some-flow-uuid'
+        instanceId: 'another-instance-id'
+        fromNodeId: 'some-trigger-uuid'
+        toNodeId: 'meshblu-output'
+        message: 'boo'
 
     describe 'on successful request', ->
       beforeEach (done) ->
@@ -18,7 +23,7 @@ describe 'MeshbluOutputNode', ->
         @datastore.get.yield null, anything: 'i want'
 
       it 'should call get on the datastore', ->
-        expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid/meshblu-output/config'
+        expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid/another-instance-id/meshblu-output/config'
 
       it 'should call MeshbluHttp.message', ->
         expect(@meshbluHttpMessage).to.have.been.calledWith

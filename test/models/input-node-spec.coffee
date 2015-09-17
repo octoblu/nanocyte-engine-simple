@@ -18,6 +18,7 @@ describe 'InputNode', ->
           topic: 'button'
           devices: ['some-flow-uuid']
           flowId: 'some-flow-uuid'
+          instanceId: 'some-instance-uuid'
           payload:
             from: 'some-trigger-uuid'
             params:
@@ -26,6 +27,7 @@ describe 'InputNode', ->
       it 'should send a converted message to triggerNode', ->
         expect(@triggerNode.onMessage).to.have.been.calledWith
           flowId: 'some-flow-uuid'
+          instanceId: 'some-instance-uuid'
           fromNodeId: 'meshblu-input'
           toNodeId: 'some-trigger-uuid'
           message: {params: {foo: 'bar'}}
@@ -44,6 +46,7 @@ describe 'InputNode', ->
         it 'should call onEnvelope on the router with a reconstructed envelope', ->
           expect(@router.onEnvelope).to.have.been.calledWith
             flowId:     'some-flow-uuid'
+            instanceId: 'some-instance-uuid'
             fromNodeId: 'some-trigger-uuid'
             message:    some: 'message'
 
@@ -53,6 +56,7 @@ describe 'InputNode', ->
           topic: 'button'
           devices: ['some-flow-uuid']
           flowId: 'some-flow-uuid'
+          instanceId: 'some-other-instance-uuid'
           payload:
             from: 'some-trigger-uuid'
             pep: 'step'
@@ -60,6 +64,7 @@ describe 'InputNode', ->
       it 'should send a converted message to triggerNode', ->
         expect(@triggerNode.onMessage).to.have.been.calledWith
           flowId: 'some-flow-uuid'
+          instanceId: 'some-other-instance-uuid'
           fromNodeId: 'meshblu-input'
           toNodeId: 'some-trigger-uuid'
           message: {pep: 'step'}
