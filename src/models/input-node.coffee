@@ -8,20 +8,11 @@ class InputNode
 
   onMessage: (message) =>
     payload = _.omit message.payload, 'from'
-    envelope =
+
+    @router.onEnvelope
       flowId:     message.flowId
       instanceId: message.instanceId
-      fromNodeId: 'meshblu-input'
-      toNodeId:  message.payload.from
-      message: payload
-
-    @triggerNode.onMessage envelope, (error, responseEnvelope) =>
-      return console.error error.message if error?
-
-      @router.onEnvelope
-        flowId:     envelope.flowId
-        instanceId: envelope.instanceId
-        fromNodeId: envelope.toNodeId
-        message:    responseEnvelope.message
+      fromNodeId: message.payload.from
+      message:    payload
 
 module.exports = InputNode

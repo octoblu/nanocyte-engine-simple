@@ -54,6 +54,7 @@ describe 'NodeAssembler', ->
     it 'should return an object with keys for each node', ->
       expect(@nodes).to.have.all.keys [
         'nanocyte-node-debug'
+        'nanocyte-node-trigger'
         'engine-output'
       ]
 
@@ -61,46 +62,92 @@ describe 'NodeAssembler', ->
       expect(@OutputNodeWrapper).to.have.been.calledWithNew
       expect(@OutputNodeWrapper).to.have.been.calledWith nodeClass: @OutputNode
 
-    describe "when the DatastoreGetStream yields an object with a config", ->
-      beforeEach ->
-        @datastoreGetStreamOnEnvelope.yields null, config: 5
-        @debugOnWriteMessage.yields null, something: 'yielded'
+    describe 'nanocyte-node-debug', ->
+      describe "when the DatastoreGetStream yields an object with a config", ->
+        beforeEach ->
+          @datastoreGetStreamOnEnvelope.yields null, config: 5
+          @debugOnWriteMessage.yields null, something: 'yielded'
 
-      describe "nanocyte-node-debug node's onEnvelope is called", ->
-        beforeEach (done) ->
-          envelope   = message: 'in a bottle'
-          @debugNode = @nodes['nanocyte-node-debug']
-          @debugNode.onEnvelope envelope, (@error, @result) => done()
+        describe "nanocyte-node-debug node's onEnvelope is called", ->
+          beforeEach (done) ->
+            envelope   = message: 'in a bottle'
+            @debugNode = @nodes['nanocyte-node-debug']
+            @debugNode.onEnvelope envelope, (@error, @result) => done()
 
-        it 'should construct an NanocyteNodeWrapper with an DebugNode class', ->
-          expect(@NanocyteNodeWrapper).to.have.been.calledWithNew
-          expect(@NanocyteNodeWrapper).to.have.been.calledWith nodeClass: @DebugNode
+          it 'should construct an NanocyteNodeWrapper with an DebugNode class', ->
+            expect(@NanocyteNodeWrapper).to.have.been.calledWithNew
+            expect(@NanocyteNodeWrapper).to.have.been.calledWith nodeClass: @DebugNode
 
-        it 'should write the envelope to a DatastoreGetStream', ->
-          expect(@datastoreGetStreamOnEnvelope).to.have.been.calledWith message: 'in a bottle'
+          it 'should write the envelope to a DatastoreGetStream', ->
+            expect(@datastoreGetStreamOnEnvelope).to.have.been.calledWith message: 'in a bottle'
 
-        it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->
-          expect(@debugOnWriteMessage).to.have.been.calledWith config: 5
+          it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->
+            expect(@debugOnWriteMessage).to.have.been.calledWith config: 5
 
-        it "should have called the callback with whatever debug yielded", ->
-          expect(@result).to.deep.equal something: 'yielded'
+          it "should have called the callback with whatever debug yielded", ->
+            expect(@result).to.deep.equal something: 'yielded'
 
-    describe "when the DatastoreGetStream yields an object with a different config", ->
-      beforeEach ->
-        @datastoreGetStreamOnEnvelope.yields null, config: 'tree'
-        @debugOnWriteMessage.yields null, somethingElse: 'still-yielded'
+      describe "when the DatastoreGetStream yields an object with a different config", ->
+        beforeEach ->
+          @datastoreGetStreamOnEnvelope.yields null, config: 'tree'
+          @debugOnWriteMessage.yields null, somethingElse: 'still-yielded'
 
-      describe "nanocyte-node-debug node's onEnvelope is called with an envelope", ->
-        beforeEach (done) ->
-          envelope   = message: 'message'
-          @debugNode = @nodes['nanocyte-node-debug']
-          @debugNode.onEnvelope envelope, (@error, @result) => done()
+        describe "nanocyte-node-debug node's onEnvelope is called with an envelope", ->
+          beforeEach (done) ->
+            envelope   = message: 'message'
+            @debugNode = @nodes['nanocyte-node-debug']
+            @debugNode.onEnvelope envelope, (@error, @result) => done()
 
-        it 'should call DatastoreGetStream.onEnvelope with the envelope', ->
-          expect(@datastoreGetStreamOnEnvelope).to.have.been.calledWith message: 'message'
+          it 'should call DatastoreGetStream.onEnvelope with the envelope', ->
+            expect(@datastoreGetStreamOnEnvelope).to.have.been.calledWith message: 'message'
 
-        it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->
-          expect(@debugOnWriteMessage).to.have.been.calledWith config: 'tree'
+          it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->
+            expect(@debugOnWriteMessage).to.have.been.calledWith config: 'tree'
 
-        it "should have called the callback with whatever debug yielded", ->
-          expect(@result).to.deep.equal somethingElse: 'still-yielded'
+          it "should have called the callback with whatever debug yielded", ->
+            expect(@result).to.deep.equal somethingElse: 'still-yielded'
+
+    describe 'nanocyte-node-trigger', ->
+      describe "when the DatastoreGetStream yields an object with a config", ->
+        beforeEach ->
+          @datastoreGetStreamOnEnvelope.yields null, config: 5
+          @debugOnWriteMessage.yields null, something: 'yielded'
+
+        describe "nanocyte-node-trigger node's onEnvelope is called", ->
+          beforeEach (done) ->
+            envelope   = message: 'in a bottle'
+            @debugNode = @nodes['nanocyte-node-trigger']
+            @debugNode.onEnvelope envelope, (@error, @result) => done()
+
+          it 'should construct an NanocyteNodeWrapper with an DebugNode class', ->
+            expect(@NanocyteNodeWrapper).to.have.been.calledWithNew
+            expect(@NanocyteNodeWrapper).to.have.been.calledWith nodeClass: @DebugNode
+
+          it 'should write the envelope to a DatastoreGetStream', ->
+            expect(@datastoreGetStreamOnEnvelope).to.have.been.calledWith message: 'in a bottle'
+
+          it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->
+            expect(@debugOnWriteMessage).to.have.been.calledWith config: 5
+
+          it "should have called the callback with whatever debug yielded", ->
+            expect(@result).to.deep.equal something: 'yielded'
+
+      describe "when the DatastoreGetStream yields an object with a different config", ->
+        beforeEach ->
+          @datastoreGetStreamOnEnvelope.yields null, config: 'tree'
+          @debugOnWriteMessage.yields null, somethingElse: 'still-yielded'
+
+        describe "nanocyte-node-trigger node's onEnvelope is called with an envelope", ->
+          beforeEach (done) ->
+            envelope   = message: 'message'
+            @debugNode = @nodes['nanocyte-node-trigger']
+            @debugNode.onEnvelope envelope, (@error, @result) => done()
+
+          it 'should call DatastoreGetStream.onEnvelope with the envelope', ->
+            expect(@datastoreGetStreamOnEnvelope).to.have.been.calledWith message: 'message'
+
+          it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->
+            expect(@debugOnWriteMessage).to.have.been.calledWith config: 'tree'
+
+          it "should have called the callback with whatever debug yielded", ->
+            expect(@result).to.deep.equal somethingElse: 'still-yielded'

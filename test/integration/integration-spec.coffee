@@ -31,6 +31,9 @@ describe 'a flow with one trigger connected to a debug', ->
 
   beforeEach (done) ->
     data = JSON.stringify
+      'engine-input':
+        type: 'engine-input'
+        linkedTo: ['some-trigger-uuid']
       'some-trigger-uuid':
         type: 'nanocyte-node-trigger'
         linkedTo: ['some-debug-uuid']
@@ -98,7 +101,7 @@ describe 'a flow with one trigger connected to a debug', ->
         @triggerNodeOnMessage.done = done
         @sut.create request, @response
 
-      it 'should call onMessage on the triggerNode', ->
+      it.only 'should call onMessage on the triggerNode', ->
         expect(@triggerNodeOnMessage).to.have.been.calledWith params: {foo: 'bar'}
 
       it 'should call response.status with a 201 and send', ->

@@ -10,17 +10,21 @@ class NodeAssembler
     @OutputNode  ?= require './meshblu-output-node'
 
   assembleNodes: =>
-    'nanocyte-node-debug':  onEnvelope: (envelope, callback) =>
-                              datastoreGetStream = new @DatastoreGetStream
-                              datastoreGetStream.write envelope
-
-                              node = new @NanocyteNodeWrapper nodeClass: @DebugNode
-
-                              node.on 'readable', =>
-                                callback null, node.read()
-
-                              datastoreGetStream.pipe node
-
+    'nanocyte-node-debug':   @wrapNanocyte()
+    'nanocyte-node-trigger': @wrapNanocyte()
     'engine-output':        new @OutputNodeWrapper   nodeClass: @OutputNode
+
+  wrapNanocyte: =>
+    onEnvelope: (envelope, callback) =>
+      datastoreGetStream = new @DatastoreGetStream
+      datastoreGetStream.write envelope
+
+      node = new @NanocyteNodeWrapper nodeClass: @DebugNode
+
+      node.on 'readable', =>
+        callback null, node.read()
+
+      datastoreGetStream.pipe node
+
 
 module.exports = NodeAssembler
