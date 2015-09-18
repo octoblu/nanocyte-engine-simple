@@ -26,10 +26,9 @@ class NodeAssembler
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope
 
+      engineDebug         = new @EngineDebug
       datastoreGetStream2 = new @DatastoreGetStream
-
-      engineDebug  = new @EngineDebug
-      engineOutput = new @EngineOutput
+      engineOutput        = new @EngineOutput
       datastoreGetStream.pipe(engineDebug).pipe(datastoreGetStream2).pipe(engineOutput)
 
   buildEngineOutput: =>
@@ -45,9 +44,8 @@ class NodeAssembler
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope
 
-      datastoreGetStream2 = new @DatastoreGetStream
-
       enginePulse  = new @EnginePulse
+      datastoreGetStream2 = new @DatastoreGetStream
       engineOutput = new @EngineOutput
       datastoreGetStream.pipe(enginePulse).pipe(datastoreGetStream2).pipe(engineOutput)
 
