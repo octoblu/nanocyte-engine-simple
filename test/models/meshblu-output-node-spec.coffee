@@ -14,7 +14,7 @@ describe 'MeshbluOutputNode', ->
         flowId: 'some-flow-uuid'
         instanceId: 'another-instance-id'
         fromNodeId: 'some-trigger-uuid'
-        toNodeId: 'meshblu-output'
+        toNodeId: 'engine-output'
         message: 'boo'
 
     describe 'on successful request', ->
@@ -23,7 +23,7 @@ describe 'MeshbluOutputNode', ->
         @datastore.get.yield null, anything: 'i want'
 
       it 'should call get on the datastore', ->
-        expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid/another-instance-id/meshblu-output/config'
+        expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid/another-instance-id/engine-output/config'
 
       it 'should call MeshbluHttp.message', ->
         expect(@meshbluHttpMessage).to.have.been.calledWith

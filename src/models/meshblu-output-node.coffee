@@ -6,7 +6,7 @@ class MeshbluOutputNode
     @datastore ?= new Datastore
 
   onMessage: (envelope) =>
-    @datastore.get "#{envelope.flowId}/#{envelope.instanceId}/meshblu-output/config", (error, config) =>
+    @datastore.get "#{envelope.flowId}/#{envelope.instanceId}/engine-output/config", (error, config) =>
       meshbluHttp = new @MeshbluHttp config
       meshbluHttp.message
         devices: [envelope.flowId]

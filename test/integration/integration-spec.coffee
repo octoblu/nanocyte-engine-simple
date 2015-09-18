@@ -4,8 +4,8 @@ async = require 'async'
 redis = require 'redis'
 _ = require 'lodash'
 
-fakeOutDebugNode = (onWrite=_.noop) ->
-  class FakeDebugNode extends stream.Transform
+fakeOutNode = (packageName, onWrite) ->
+  class FakeNode extends stream.Transform
     constructor: ->
       super objectMode: true
 
@@ -15,15 +15,15 @@ fakeOutDebugNode = (onWrite=_.noop) ->
 
       next()
 
-  require 'nanocyte-node-debug'
+  require packageName
 
-  debugModule = require.cache[path.join(__dirname, '../../node_modules/nanocyte-node-debug/index.js')]
-  debugModule.exports = FakeDebugNode
-  debugModule.original = debugModule.exports.prototype
+  theModule = require.cache[path.join(__dirname, '../../node_modules', packageName, 'index.js')]
+  theModule.exports = FakeNode
+  theModule.original = theModule.exports.prototype
 
-restoreDebugNode = ->
-  debugModule = require.cache[path.join(__dirname, '../../node_modules/nanocyte-node-debug/index.js')]
-  debugModule.exports = debugModule.original
+restoreNode = (packageName) ->
+  theModule = require.cache[path.join(__dirname, '../../node_modules', packageName, 'index.js')]
+  theModule.exports = theModule.original
 
 describe 'a flow with one trigger connected to a debug', ->
   beforeEach ->
@@ -55,7 +55,7 @@ describe 'a flow with one trigger connected to a debug', ->
     @client.set 'some-flow-uuid/instance-uuid/some-debug-uuid/config', data, done
 
   beforeEach (done) ->
-    data = JSON.stringify {}
+    data = JSON.stringify {uuid: 'some-flow-uuid', token: 'some-token'}
     @client.set 'some-flow-uuid/instance-uuid/engine-output/config', data, done
 
   afterEach (done) ->
@@ -69,20 +69,17 @@ describe 'a flow with one trigger connected to a debug', ->
   describe 'sending a message to a trigger node', ->
     beforeEach ->
       @triggerNodeOnMessage = sinon.spy => @triggerNodeOnMessage.done()
-
-      @TriggerNode = require 'nanocyte-node-trigger'
-      @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
-      @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
+      fakeOutNode 'nanocyte-node-trigger', @triggerNodeOnMessage
 
       @response =
         status: sinon.spy => @response
-        end: sinon.spy => @respons
+        end: sinon.spy => @response
 
       MessagesController = require '../../src/controllers/messages-controller'
       @sut = new MessagesController
 
     afterEach ->
-      @TriggerNode.prototype.onMessage = @originalTriggerNodeOnMessage
+      restoreNode 'nanocyte-node-trigger'
 
     describe 'when /flows/:flowId/instances/:instanceId/messages receives a message', ->
       beforeEach (done) ->
@@ -94,15 +91,19 @@ describe 'a flow with one trigger connected to a debug', ->
             topic: 'button'
             devices: ['some-flow-uuid']
             payload:
-              from: 'some-trigger-uuid'
+              from: 'engine-input'
               params:
                 foo: 'bar'
 
         @triggerNodeOnMessage.done = done
         @sut.create request, @response
 
-      it.only 'should call onMessage on the triggerNode', ->
-        expect(@triggerNodeOnMessage).to.have.been.calledWith params: {foo: 'bar'}
+      it 'should call onMessage on the triggerNode', ->
+        expect(@triggerNodeOnMessage).to.have.been.calledWith
+          config: {}
+          data: null
+          message:
+            params: {foo: 'bar'}
 
       it 'should call response.status with a 201 and send', ->
         expect(@response.status).to.have.been.calledWith 201
@@ -118,7 +119,7 @@ describe 'a flow with one trigger connected to a debug', ->
             topic: 'button'
             devices: ['some-flow-uuid']
             payload:
-              from: 'some-trigger-uuid'
+              from: 'engine-input'
               parmesian: {
                 something: 'completely-different'
               }
@@ -127,7 +128,11 @@ describe 'a flow with one trigger connected to a debug', ->
         @sut.create request, @response
 
       it 'should call onMessage on the triggerNode', ->
-        expect(@triggerNodeOnMessage).to.have.been.calledWith parmesian: {something: 'completely-different'}
+        expect(@triggerNodeOnMessage).to.have.been.calledWith
+          config: {}
+          data: null
+          message:
+            parmesian: {something: 'completely-different'}
 
       it 'should call response.status with a 201 and send', ->
         expect(@response.status).to.have.been.calledWith 201
@@ -136,15 +141,14 @@ describe 'a flow with one trigger connected to a debug', ->
   describe 'and now a word from trigger, to the debug node', ->
     beforeEach (done) ->
       @inputHandler = require '../../src/handlers/input-handler'
-      @triggerNodeOnMessage = sinon.stub()
-      @TriggerNode = require 'nanocyte-node-trigger'
-      @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
-      @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
+
+      @triggerNodeWrite = sinon.stub().yields parmesian: 123456
       @debugNodeWrite = sinon.spy =>
         done()
 
-      fakeOutDebugNode @debugNodeWrite
-      @triggerNodeOnMessage.yields null, parmesian: 123456
+      fakeOutNode 'nanocyte-node-debug', @debugNodeWrite
+      fakeOutNode 'nanocyte-node-trigger', @triggerNodeWrite
+
       @inputHandler.onMessage
         topic: 'button'
         devices: ['some-flow-uuid']
@@ -155,8 +159,8 @@ describe 'a flow with one trigger connected to a debug', ->
           parmesian: 123456
 
     afterEach ->
-      @TriggerNode.onMessage = @originalTriggerNodeOnMessage
-      restoreDebugNode()
+      restoreNode 'nanocyte-node-debug'
+      restoreNode 'nanocyte-node-trigger'
 
     it 'should write the message to the debug node', ->
       expect(@debugNodeWrite).to.have.been.calledWith
@@ -168,20 +172,16 @@ describe 'a flow with one trigger connected to a debug', ->
     beforeEach (done) ->
       @meshbluHttpMessage = sinon.spy =>
         done()
-      @debugOnWrite = sinon.stub().yields()
+
       MeshbluHttp = require 'meshblu-http'
+      console.log 'overwriting it'
       MeshbluHttp.prototype.message = @meshbluHttpMessage
 
-      @triggerNodeOnMessage = sinon.stub()
+      @debugOnWrite = sinon.stub().yields something: 'completely-different'
+      @triggerOnWrite = sinon.stub().yields()
 
-      @TriggerNode = require 'nanocyte-node-trigger'
-      @originalTriggerNodeOnMessage = @TriggerNode.prototype.onMessage
-      @TriggerNode.prototype.onMessage = @triggerNodeOnMessage
-
-      fakeOutDebugNode @debugOnWrite
-
-      @triggerNodeOnMessage.yields null,
-        something: 'completely-different'
+      fakeOutNode 'nanocyte-node-debug', @debugOnWrite
+      fakeOutNode 'nanocyte-node-trigger', @triggerOnWrite
 
       @inputHandler = require '../../src/handlers/input-handler'
       @inputHandler.onMessage
@@ -193,8 +193,8 @@ describe 'a flow with one trigger connected to a debug', ->
           something: 'completely-different'
 
     afterEach ->
-      @TriggerNode.onMessage = @originalTriggerNodeOnMessage
-      restoreDebugNode()
+      restoreNode 'nanocyte-node-debug'
+      restoreNode 'nanocyte-node-trigger'
 
     it 'should call message on a MeshbluHttp instance', ->
       expect(@meshbluHttpMessage).to.have.been.calledOnce
