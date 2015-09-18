@@ -7,6 +7,8 @@ class InputNode
     @triggerNode = require './wrapped-trigger-node'
 
   onMessage: (message) =>
+    return console.error 'inputNode message was missing "payload"' unless message.payload?
+    return console.error 'inputNode message.payload was missing "from"' unless message.payload.from?
     payload = _.omit message.payload, 'from'
 
     @router.onEnvelope

@@ -17,6 +17,36 @@ describe 'Router', ->
         sinon.spy @nodeAssembler, 'assembleNodes'
         @sut = new Router datastore: @datastore, nodeAssembler: @nodeAssembler
 
+      describe 'when the datastore yields nothing for the flowId', ->
+        beforeEach ->
+          @datastore.get.yields null, null
+
+        describe 'when given an envelope', ->
+          it 'should not be a little sissy about it', ->
+            theCall = => @sut.onEnvelope
+              fromNodeId: 'some-trigger-uuid'
+              flowId: 'some-flow-uuid'
+              instanceId: 'instance-uuid'
+              message: 12455663
+            expect(theCall).not.to.throw()
+
+
+      describe 'when the trigger node is wired to a nonexistent node', ->
+        beforeEach ->
+          @datastore.get.yields null,
+            'some-trigger-uuid':
+              type: 'nanocyte-node-trigger'
+              linkedTo: ['some-debug-uuid']
+
+        it 'should not be a little sissy about it', ->
+          theCall = => @sut.onEnvelope
+            fromNodeId: 'some-trigger-uuid'
+            flowId: 'some-flow-uuid'
+            instanceId: 'instance-uuid'
+            message: 12455663
+          expect(theCall).not.to.throw()
+
+
       describe 'when the trigger node is wired to a debug node', ->
         beforeEach ->
           @datastore.get.yields null,

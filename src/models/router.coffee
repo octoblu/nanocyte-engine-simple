@@ -16,10 +16,13 @@ class Router
     {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
 
     @datastore.get "#{flowId}/#{instanceId}/router/config", (error, routerConfig) =>
+      return console.error 'routerConfig was not defined' unless routerConfig?
       senderNodeConfig = routerConfig[fromNodeId]
 
       _.each senderNodeConfig.linkedTo, (uuid) =>
         receiverNodeConfig = routerConfig[uuid]
+        return console.error 'receiverNodeConfig was not defined' unless receiverNodeConfig?
+
         receiverNode = @nodes[receiverNodeConfig.type]
 
         receiverNode.onEnvelope

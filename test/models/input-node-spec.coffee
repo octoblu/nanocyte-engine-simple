@@ -42,3 +42,39 @@ describe 'InputNode', ->
           instanceId: 'some-other-instance-uuid'
           fromNodeId: 'some-other-trigger-uuid'
           message: {pep: 'step'}
+
+    describe 'with a meshblu message thats missing a from', ->
+      beforeEach ->
+        try
+          @sut.onMessage
+            topic: 'button'
+            devices: ['some-flow-uuid']
+            flowId: 'some-flow-uuid'
+            instanceId: 'some-other-instance-uuid'
+            payload:
+              pep: 'step'
+        catch error
+          @error = error
+
+      it 'should not throw an exception', ->
+        expect(@error).not.to.exist
+
+      it 'should not throw an exception', ->
+        expect(@router.onEnvelope).not.to.have.been.called
+
+    describe 'with a meshblu message thats missing a payload', ->
+      beforeEach ->
+        try
+          @sut.onMessage
+            topic: 'button'
+            devices: ['some-flow-uuid']
+            flowId: 'some-flow-uuid'
+            instanceId: 'some-other-instance-uuid'
+        catch error
+          @error = error
+
+      it 'should not throw an exception', ->
+        expect(@error).not.to.exist
+
+      it 'should not throw an exception', ->
+        expect(@router.onEnvelope).not.to.have.been.called
