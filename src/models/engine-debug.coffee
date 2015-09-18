@@ -13,7 +13,7 @@ class EngineDebug extends Transform
       instanceId: envelope.instanceId
       toNodeId: 'engine-output'
       message:
-        devices: [envelope.flowId]
+        devices: ['*']
         topic: 'debug'
         payload:
           node: nodeId

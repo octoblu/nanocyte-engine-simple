@@ -13,7 +13,7 @@ class EnginePulse extends Transform
       instanceId: envelope.instanceId
       toNodeId: 'engine-output'
       message:
-        devices: [envelope.flowId]
+        devices: ['*']
         topic: 'pulse'
         payload:
           node: nodeId

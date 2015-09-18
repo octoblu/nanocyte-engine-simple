@@ -203,7 +203,7 @@ describe 'a flow with one trigger connected to a debug', ->
     it 'should call message on a MeshbluHttp instance', ->
       expect(@meshbluHttpMessage).to.have.been.calledOnce
       expect(@meshbluHttpMessage).to.have.been.calledWith
-        devices: ['some-flow-uuid']
+        devices: ['*']
         topic: 'debug'
         payload:
           node: "original-debug-uuid",

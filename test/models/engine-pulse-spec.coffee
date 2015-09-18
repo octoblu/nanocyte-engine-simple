@@ -34,7 +34,7 @@ describe 'EnginePulse', ->
         instanceId: 'instance-id'
         toNodeId:   'engine-output'
         message:
-          devices: ['flow-id']
+          devices: ['*']
           topic: 'pulse'
           payload:
             node: 'dat-uuid'

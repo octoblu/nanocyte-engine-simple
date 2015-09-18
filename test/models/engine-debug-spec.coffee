@@ -34,7 +34,7 @@ describe 'EngineDebug', ->
         instanceId: 'instance-id'
         toNodeId:   'engine-output'
         message:
-          devices: ['flow-id']
+          devices: ['*']
           topic: 'debug'
           payload:
             node: 'dat-uuid'
