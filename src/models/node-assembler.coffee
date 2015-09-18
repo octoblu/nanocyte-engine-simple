@@ -10,12 +10,18 @@ class NodeAssembler
     @TriggerNode ?= require 'nanocyte-node-trigger'
     @OutputNode  ?= require './meshblu-output-node'
 
+    @EngineDebug  ?= require './engine-debug'
+    @EngineOutput ?= require './engine-output'
+    @EnginePulse  ?= require './engine-pulse'
+
   assembleNodes: =>
+    'engine-output':         @wrapDatastore @EngineOutput
+    # 'engine-debug':          @wrapDatastore @EngineDebug, @EngineOutput
+    # 'engine-pulse':          @wrapDatastore @EnginePulse, @EngineOutput
     'nanocyte-node-debug':   @wrapNanocyte @DebugNode
     'nanocyte-node-trigger': @wrapNanocyte @TriggerNode
-    'engine-output':        new @OutputNodeWrapper   nodeClass: @OutputNode # onEnvelope: => console.log 'engine-output'
-    'engine-debug':         new @OutputNodeWrapper   nodeClass: @OutputNode
-    'engine-pulse':         new @OutputNodeWrapper   nodeClass: @OutputNode # onEnvelope: => console.log 'engine-pulse'
+
+  wrapDatastore: =>
 
   wrapNanocyte: (nodeClass) =>
     onEnvelope: (envelope, callback) =>
