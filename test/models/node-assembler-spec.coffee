@@ -57,7 +57,9 @@ describe 'NodeAssembler', ->
       expect(@nodes).to.have.all.keys [
         'nanocyte-node-debug'
         'nanocyte-node-trigger'
+        'engine-debug'
         'engine-output'
+        'engine-pulse'
       ]
 
     it 'should construct an OutputNodeWrapper with an OutputNode class', ->

@@ -13,7 +13,9 @@ class NodeAssembler
   assembleNodes: =>
     'nanocyte-node-debug':   @wrapNanocyte @DebugNode
     'nanocyte-node-trigger': @wrapNanocyte @TriggerNode
-    'engine-output':        new @OutputNodeWrapper   nodeClass: @OutputNode
+    'engine-output':        new @OutputNodeWrapper   nodeClass: @OutputNode # onEnvelope: => console.log 'engine-output'
+    'engine-debug':         new @OutputNodeWrapper   nodeClass: @OutputNode
+    'engine-pulse':         new @OutputNodeWrapper   nodeClass: @OutputNode # onEnvelope: => console.log 'engine-pulse'
 
   wrapNanocyte: (nodeClass) =>
     onEnvelope: (envelope, callback) =>
