@@ -12,5 +12,4 @@ class EngineOutput extends Writable
     meshbluHttp = new @MeshbluHttp config
     meshbluHttp.message message
 
-
 module.exports = EngineOutput

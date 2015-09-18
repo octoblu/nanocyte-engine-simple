@@ -49,7 +49,6 @@ class NodeAssembler
       engineOutput = new @EngineOutput
       datastoreGetStream.pipe(enginePulse).pipe(datastoreGetStream2).pipe(engineOutput)
 
-
   wrapNanocyte: (nodeClass) =>
     onEnvelope: (envelope, callback) =>
       datastoreGetStream = new @DatastoreGetStream

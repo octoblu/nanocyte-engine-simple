@@ -5,7 +5,6 @@ stream  = require 'stream'
 describe 'NodeAssembler', ->
   describe '->assembleNodes', ->
     beforeEach ->
-
       @datastoreGetStreamOnWrite1 = sinon.stub()
       @datastoreGetStreamOnWrite2 = sinon.stub()
       datastoreGetStreamOnWrites = [@datastoreGetStreamOnWrite1, @datastoreGetStreamOnWrite2]
