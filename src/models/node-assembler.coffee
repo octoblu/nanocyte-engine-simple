@@ -15,30 +15,42 @@ class NodeAssembler
 
 
   assembleNodes: =>
-    'engine-output':         onEnvelope: (envelope) =>
+    'engine-debug':          @buildEngineDebug()
+    'engine-output':         @buildEngineOutput()
+    'engine-pulse':          @buildEnginePulse()
+    'nanocyte-node-debug':   @wrapNanocyte @DebugNode
+    'nanocyte-node-trigger': @wrapNanocyte @TriggerNode
+
+  buildEngineDebug: =>
+    onEnvelope: (envelope) =>
+      datastoreGetStream = new @DatastoreGetStream
+      datastoreGetStream.write envelope
+
+      datastoreGetStream2 = new @DatastoreGetStream
+
+      engineDebug  = new @EngineDebug
+      engineOutput = new @EngineOutput
+      datastoreGetStream.pipe(engineDebug).pipe(datastoreGetStream2).pipe(engineOutput)
+
+  buildEngineOutput: =>
+    onEnvelope: (envelope) =>
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope
 
       engineOutput = new @EngineOutput
       datastoreGetStream.pipe engineOutput
-    'engine-debug':          onEnvelope: (envelope) =>
+
+  buildEnginePulse: =>
+    onEnvelope: (envelope) =>
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope
 
-      engineDebug  = new @EngineDebug
-      engineOutput = new @EngineOutput
-      datastoreGetStream.pipe(engineDebug).pipe(engineOutput)
-    'engine-pulse':          onEnvelope: (envelope) =>
-      datastoreGetStream = new @DatastoreGetStream
-      datastoreGetStream.write envelope
+      datastoreGetStream2 = new @DatastoreGetStream
 
       enginePulse  = new @EnginePulse
       engineOutput = new @EngineOutput
-      datastoreGetStream.pipe(enginePulse).pipe(engineOutput)
-    'nanocyte-node-debug':   @wrapNanocyte @DebugNode
-    'nanocyte-node-trigger': @wrapNanocyte @TriggerNode
+      datastoreGetStream.pipe(enginePulse).pipe(datastoreGetStream2).pipe(engineOutput)
 
-  wrapAndDatastore: =>
 
   wrapNanocyte: (nodeClass) =>
     onEnvelope: (envelope, callback) =>

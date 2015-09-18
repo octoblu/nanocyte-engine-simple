@@ -9,9 +9,13 @@ class EnginePulse extends Transform
     next()
 
     @push
-      devices: [envelope.flowId]
-      topic: 'pulse'
-      payload:
-        node: nodeId
+      flowId: envelope.flowId
+      instanceId: envelope.instanceId
+      toNodeId: 'engine-output'
+      message:
+        devices: [envelope.flowId]
+        topic: 'pulse'
+        payload:
+          node: nodeId
 
 module.exports = EnginePulse

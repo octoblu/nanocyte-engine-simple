@@ -39,12 +39,20 @@ describe 'a flow with one trigger connected to a debug', ->
         linkedTo: ['some-debug-uuid']
       'some-debug-uuid':
         type: 'nanocyte-node-debug'
-        linkedTo: ['engine-output']
-      'engine-output':
-        type: 'engine-output'
+        linkedTo: ['engine-debug']
+      'engine-debug':
+        type: 'engine-debug'
         linkedTo: []
 
     @client.set 'some-flow-uuid/instance-uuid/router/config', data, done
+
+  beforeEach (done) ->
+    data = JSON.stringify {'some-debug-uuid': {nodeId: 'original-debug-uuid'}}
+    @client.set 'some-flow-uuid/instance-uuid/engine-debug/config', data, done
+
+  beforeEach (done) ->
+    data = JSON.stringify {uuid: 'some-flow-uuid', token: 'some-token'}
+    @client.set 'some-flow-uuid/instance-uuid/engine-output/config', data, done
 
   beforeEach (done) ->
     data = JSON.stringify {}
@@ -54,16 +62,13 @@ describe 'a flow with one trigger connected to a debug', ->
     data = JSON.stringify {}
     @client.set 'some-flow-uuid/instance-uuid/some-debug-uuid/config', data, done
 
-  beforeEach (done) ->
-    data = JSON.stringify {uuid: 'some-flow-uuid', token: 'some-token'}
-    @client.set 'some-flow-uuid/instance-uuid/engine-output/config', data, done
-
   afterEach (done) ->
     async.parallel [
       (done) => @client.del 'some-flow-uuid/instance-uuid/router/config', done
+      (done) => @client.del 'some-flow-uuid/instance-uuid/engine-debug/config', done
+      (done) => @client.del 'some-flow-uuid/instance-uuid/engine-output/config', done
       (done) => @client.del 'some-flow-uuid/instance-uuid/some-trigger-uuid/config', done
       (done) => @client.del 'some-flow-uuid/instance-uuid/some-debug-uuid/config', done
-      (done) => @client.del 'some-flow-uuid/instance-uuid/engine-output/config', done
     ], done
 
   describe 'sending a message to a trigger node', ->
@@ -174,7 +179,6 @@ describe 'a flow with one trigger connected to a debug', ->
         done()
 
       MeshbluHttp = require 'meshblu-http'
-      console.log 'overwriting it'
       MeshbluHttp.prototype.message = @meshbluHttpMessage
 
       @debugOnWrite = sinon.stub().yields something: 'completely-different'
@@ -202,7 +206,7 @@ describe 'a flow with one trigger connected to a debug', ->
         devices: ['some-flow-uuid']
         topic: 'debug'
         payload:
-          node: "some-debug-uuid",
+          node: "original-debug-uuid",
           msg:
             payload:
               something: 'completely-different'

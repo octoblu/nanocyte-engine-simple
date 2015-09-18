@@ -9,13 +9,17 @@ class EngineDebug extends Transform
     next()
 
     @push
-      devices: [envelope.flowId]
-      topic: 'debug'
-      payload:
-        node: nodeId
-        msg:
-          payload:
-            envelope.message
+      flowId: envelope.flowId
+      instanceId: envelope.instanceId
+      toNodeId: 'engine-output'
+      message:
+        devices: [envelope.flowId]
+        topic: 'debug'
+        payload:
+          node: nodeId
+          msg:
+            payload:
+              envelope.message
 
 
 module.exports = EngineDebug

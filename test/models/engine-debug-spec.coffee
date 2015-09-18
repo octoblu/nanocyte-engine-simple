@@ -20,6 +20,7 @@ describe 'EngineDebug', ->
         config:
           'dis-uuid': nodeId: 'dat-uuid'
         flowId: 'flow-id'
+        instanceId: 'instance-id'
         fromNodeId: 'dis-uuid'
 
       @sut = new EngineDebug
@@ -27,12 +28,16 @@ describe 'EngineDebug', ->
       @envelopeStream.pipe @sut
       @envelopeStream.write envelope, done
 
-    it 'should have the message waiting in the stream', ->
+    it 'should have the envelope waiting in the stream', ->
       expect(@sut.read()).to.deep.equal
-        devices: ['flow-id']
-        topic: 'debug'
-        payload:
-          node: 'dat-uuid'
-          msg:
-            payload:
-              some: 'data'
+        flowId:     'flow-id'
+        instanceId: 'instance-id'
+        toNodeId:   'engine-output'
+        message:
+          devices: ['flow-id']
+          topic: 'debug'
+          payload:
+            node: 'dat-uuid'
+            msg:
+              payload:
+                some: 'data'

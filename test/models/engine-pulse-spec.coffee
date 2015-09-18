@@ -20,6 +20,7 @@ describe 'EnginePulse', ->
         config:
           'dis-uuid': nodeId: 'dat-uuid'
         flowId: 'flow-id'
+        instanceId: 'instance-id'
         fromNodeId: 'dis-uuid'
 
       @sut = new EnginePulse
@@ -29,7 +30,11 @@ describe 'EnginePulse', ->
 
     it 'should have the message waiting in the stream', ->
       expect(@sut.read()).to.deep.equal
-        devices: ['flow-id']
-        topic: 'pulse'
-        payload:
-          node: 'dat-uuid'
+        flowId:     'flow-id'
+        instanceId: 'instance-id'
+        toNodeId:   'engine-output'
+        message:
+          devices: ['flow-id']
+          topic: 'pulse'
+          payload:
+            node: 'dat-uuid'
