@@ -1,9 +1,7 @@
-redis = require 'redis'
-
 class Datastore
   constructor: (dependencies={})->
     {@client} = dependencies
-    @client ?= redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
+    @client ?= require '../handlers/redis-handler'
 
   get: (key, callback=->) =>
     @client.get key, (error, data) =>

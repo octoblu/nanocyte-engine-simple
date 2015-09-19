@@ -46,6 +46,17 @@ describe 'Router', ->
             message: 12455663
           expect(theCall).not.to.throw()
 
+      describe 'when the trigger node doesnt exist', ->
+        beforeEach ->
+          @datastore.get.yields null, {}
+
+        it 'should not be a little sissy about it', ->
+          theCall = => @sut.onEnvelope
+            fromNodeId: 'some-trigger-uuid'
+            flowId: 'some-flow-uuid'
+            instanceId: 'instance-uuid'
+            message: 12455663
+          expect(theCall).not.to.throw()
 
       describe 'when the trigger node is wired to a debug node', ->
         beforeEach ->
