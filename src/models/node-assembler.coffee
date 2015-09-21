@@ -66,6 +66,6 @@ class NodeAssembler
       node.on 'readable', =>
         callback null, node.read()
 
-      datastoreGetStream.pipe node
+      datastoreGetStream.pipe(debugStream()).pipe node
 
 module.exports = NodeAssembler

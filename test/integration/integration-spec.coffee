@@ -56,6 +56,10 @@ describe 'a flow with one trigger connected to a debug', ->
 
   beforeEach (done) ->
     data = JSON.stringify {}
+    @client.set 'some-flow-uuid/instance-uuid/engine-data/config', data, done
+
+  beforeEach (done) ->
+    data = JSON.stringify {}
     @client.set 'some-flow-uuid/instance-uuid/some-trigger-uuid/config', data, done
 
   beforeEach (done) ->

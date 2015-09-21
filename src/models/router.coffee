@@ -17,6 +17,7 @@ class Router
 
     @datastore.get "#{flowId}/#{instanceId}/router/config", (error, routerConfig) =>
       return console.error 'router.coffee: routerConfig was not defined' unless routerConfig?
+      debug 'routerConfig', routerConfig
       senderNodeConfig = routerConfig[fromNodeId]
       return console.error 'router.coffee: senderNodeConfig was not defined' unless senderNodeConfig?
 
