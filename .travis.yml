@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+- '0.11'
+addons:
+  code_climate:
+    repo_token: a26a6abc2006b73cd82323feb30e102b2bfd0d73c6e43f5f52a472b7faeb5a66
+before_script:
+- npm install -g codeclimate-test-reporter
+after_script:
+- codeclimate-test-reporter < coverage/lcov.info
+deploy:
+  provider: npm
+  email: serveradmin@octoblu.com
+  api_key:
+    secure: gbWzd94dCN79CfDmV5FpGbMrpB2tbIHKXAD7X1W82LXNUPFNjL/0K01nZwFf2WtljYx+kJnTPQ65Bn8uGkmkQnUupgxidB8oF8Xd81F5a085Dpd56hPn1HAMjXcp65QjUEFD06ZMaDkc0ApneTM8lMPsg9Tre0y61xXBASWABiQVGF/1hI93vK4ye2fFQ93pwWGNr5eVPfET/UZD0pwrshacS155bE+6yYwU0/brSE2OartkKoSMEdokN5TBF4FBCm0SgOlGdmWDOL7LpMjnvQWM1k8D9iNV70r49EXcKF/nJTARgpx32VjXytvpMuWNweGreaT1n1iOaWnVHgZZAR5qxcXr1U4kuKki0xqi5+CFGij8AlvZuTcIPterbadRyEqU8SRgM8Wty3qKJdYUY2+1t9wUdWRnvFHGI++FZ1QbQ4Fp+81WyUYfXMjBIcCMlUL8cvov8oN+FNpDHg8/qc7IPVtYHNsZWKilHrIVTHE7g9Vhv5TOr68KmNdHlWWWqIahaPo0e1jGO3ZTpQdNOchqza84BsPGARBKaxFQac+tK2VhxcR4v8h8IAbhCrRhEdQwi/MUsRUB7t9hdN2wO03Lxb/tyBGmKOG9uMb0owZiTcJdi8OUOko4AEH7uNjfZFdOp7hmGvRg63/Ja5JmdSdp06o9n9VUU2MgajSj4uU=
+  on:
+    tags: true
+    branches: true
+    repo: octoblu/nanocyte-component-clear-data

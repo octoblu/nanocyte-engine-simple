@@ -1,3 +1,6 @@
+{PassThrough} = require 'stream'
+debugStream = require('debug-stream')('nanocyte-engine-simple:node-assembler')
+
 class NodeAssembler
   constructor: (options, dependencies={}) ->
     {@OutputNodeWrapper,@DatastoreGetStream,@NanocyteNodeWrapper} = dependencies
@@ -9,15 +12,18 @@ class NodeAssembler
     @EngineOutput ?= require './engine-output'
     @EnginePulse  ?= require './engine-pulse'
 
-    {@DebugNode,@TriggerNode} = dependencies
-    @DebugNode   ?= require 'nanocyte-node-debug'
-    @TriggerNode ?= require 'nanocyte-node-trigger'
+    {@DebugNode,@SelectiveCollect,@TriggerNode} = dependencies
+    @SelectiveCollect ?= require 'nanocyte-component-selective-collect'
+    @DebugNode        ?= require 'nanocyte-node-debug'
+    @TriggerNode      ?= require 'nanocyte-node-trigger'
+
 
 
   assembleNodes: =>
     'engine-debug':          @buildEngineDebug()
     'engine-output':         @buildEngineOutput()
     'engine-pulse':          @buildEnginePulse()
+    'nanocyte-component-selective-collect': @wrapNanocyte @SelectiveCollect
     'nanocyte-node-debug':   @wrapNanocyte @DebugNode
     'nanocyte-node-trigger': @wrapNanocyte @TriggerNode
 
@@ -41,13 +47,12 @@ class NodeAssembler
 
   buildEnginePulse: =>
     onEnvelope: (envelope) =>
-      datastoreGetStream = new @DatastoreGetStream
-      datastoreGetStream.write envelope
-
-      enginePulse  = new @EnginePulse
-      datastoreGetStream2 = new @DatastoreGetStream
-      engineOutput = new @EngineOutput
-      datastoreGetStream.pipe(enginePulse).pipe(datastoreGetStream2).pipe(engineOutput)
+      data = new @DatastoreGetStream
+      data.write envelope
+      data
+        .pipe new @EnginePulse
+        .pipe new @DatastoreGetStream
+        .pipe new @EngineOutput
 
   wrapNanocyte: (nodeClass) =>
     onEnvelope: (envelope, callback) =>
@@ -60,6 +65,5 @@ class NodeAssembler
         callback null, node.read()
 
       datastoreGetStream.pipe node
-
 
 module.exports = NodeAssembler

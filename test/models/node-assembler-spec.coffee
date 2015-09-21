@@ -1,6 +1,7 @@
 _ = require 'lodash'
 NodeAssembler = require '../../src/models/node-assembler'
 stream  = require 'stream'
+debug = require('debug')('nanocyte-engine-simple:node-assembler-spec')
 
 describe 'NodeAssembler', ->
   describe '->assembleNodes', ->
@@ -14,6 +15,7 @@ describe 'NodeAssembler', ->
           @datastoreGetStreamOnWrite = datastoreGetStreamOnWrites.shift()
 
         _transform: (envelope, enc, next)=>
+          debug '_transform'
           @datastoreGetStreamOnWrite envelope, (error, newEnvelope) =>
             @push newEnvelope
 
@@ -35,6 +37,7 @@ describe 'NodeAssembler', ->
         _transform: (envelope, enc, next) =>
           engineDebugOnWrite envelope, (error, nextEnvelope) =>
             @push nextEnvelope
+            @push null
 
       @enginePulseOnWrite = enginePulseOnWrite = sinon.stub()
       class EnginePulse extends stream.Transform
@@ -44,11 +47,13 @@ describe 'NodeAssembler', ->
         _transform: (envelope, enc, next) =>
           enginePulseOnWrite envelope, (error, nextEnvelope) =>
             @push nextEnvelope
+            @push null
 
       @engineOutput = new stream.PassThrough objectMode: true
       EngineOutput = => @engineOutput
 
       @DebugNode = sinon.spy()
+      @SelectiveCollect = sinon.spy()
       @TriggerNode = sinon.spy()
 
       @sut = new NodeAssembler {},
@@ -58,6 +63,7 @@ describe 'NodeAssembler', ->
         EngineOutput: EngineOutput
         EnginePulse: EnginePulse
         DebugNode: @DebugNode
+        SelectiveCollect: @SelectiveCollect
         TriggerNode: @TriggerNode
         OutputNode: @OutputNode
 
@@ -71,6 +77,7 @@ describe 'NodeAssembler', ->
       expect(@nodes).to.have.all.keys [
         'nanocyte-node-debug'
         'nanocyte-node-trigger'
+        'nanocyte-component-selective-collect'
         'engine-debug'
         'engine-output'
         'engine-pulse'
@@ -261,6 +268,51 @@ describe 'NodeAssembler', ->
           it 'should construct an NanocyteNodeWrapper with an DebugNode class', ->
             expect(@NanocyteNodeWrapper).to.have.been.calledWithNew
             expect(@NanocyteNodeWrapper).to.have.been.calledWith nodeClass: @DebugNode
+
+          it 'should write the envelope to a DatastoreGetStream', ->
+            expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith message: 'in a bottle'
+
+          it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->
+            expect(@nanocyteOnWriteMessage).to.have.been.calledWith config: 5
+
+          it "should have called the callback with whatever debug yielded", ->
+            expect(@result).to.deep.equal something: 'yielded'
+
+      describe "when the DatastoreGetStream yields an object with a different config", ->
+        beforeEach ->
+          @datastoreGetStreamOnWrite1.yields null, config: 'tree'
+          @nanocyteOnWriteMessage.yields null, somethingElse: 'still-yielded'
+
+        describe "nanocyte-node-debug node's onEnvelope is called with an envelope", ->
+          beforeEach (done) ->
+            envelope   = message: 'message'
+            @debugNode = @nodes['nanocyte-node-debug']
+            @debugNode.onEnvelope envelope, (@error, @result) => done()
+
+          it 'should call DatastoreGetStream.onEnvelope with the envelope', ->
+            expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith message: 'message'
+
+          it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->
+            expect(@nanocyteOnWriteMessage).to.have.been.calledWith config: 'tree'
+
+          it "should have called the callback with whatever debug yielded", ->
+            expect(@result).to.deep.equal somethingElse: 'still-yielded'
+
+    describe 'nanocyte-component-selective-collect', ->
+      describe "when the DatastoreGetStream yields an object with a config", ->
+        beforeEach ->
+          @datastoreGetStreamOnWrite1.yields null, config: 5
+          @nanocyteOnWriteMessage.yields null, something: 'yielded'
+
+        describe "nanocyte-component-selective-collect node's onEnvelope is called", ->
+          beforeEach (done) ->
+            envelope   = message: 'in a bottle'
+            @selectiveCollectNode = @nodes['nanocyte-component-selective-collect']
+            @selectiveCollectNode.onEnvelope envelope, (@error, @result) => done()
+
+          it 'should construct an NanocyteNodeWrapper with a SelectiveCollect class', ->
+            expect(@NanocyteNodeWrapper).to.have.been.calledWithNew
+            expect(@NanocyteNodeWrapper).to.have.been.calledWith nodeClass: @SelectiveCollect
 
           it 'should write the envelope to a DatastoreGetStream', ->
             expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith message: 'in a bottle'
