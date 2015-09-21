@@ -16,4 +16,4 @@ deploy:
   on:
     tags: true
     branches: true
-    repo: octoblu/nanocyte-component-clear-data
+    repo: octoblu/nanocyte-engine-simple
