@@ -1,4 +1,5 @@
 {PassThrough} = require 'stream'
+debug = require('debug')('nanocyte-engine-simple:node-assembler')
 debugStream = require('debug-stream')('nanocyte-engine-simple:node-assembler')
 
 class NodeAssembler
