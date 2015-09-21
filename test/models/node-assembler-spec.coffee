@@ -78,6 +78,8 @@ describe 'NodeAssembler', ->
         'nanocyte-node-debug'
         'nanocyte-node-trigger'
         'nanocyte-component-selective-collect'
+        'nanocyte-component-clear-data'
+        'nanocyte-component-contains-all-keys'
         'engine-debug'
         'engine-output'
         'engine-pulse'

@@ -13,17 +13,19 @@ class NodeAssembler
     @EnginePulse  ?= require './engine-pulse'
 
     {@DebugNode,@SelectiveCollect,@TriggerNode} = dependencies
+    @ClearData        ?= require 'nanocyte-component-clear-data'
+    @ContainsAllKeys  ?= require 'nanocyte-component-contains-all-keys'
     @SelectiveCollect ?= require 'nanocyte-component-selective-collect'
     @DebugNode        ?= require 'nanocyte-node-debug'
     @TriggerNode      ?= require 'nanocyte-node-trigger'
-
-
 
   assembleNodes: =>
     'engine-debug':          @buildEngineDebug()
     'engine-output':         @buildEngineOutput()
     'engine-pulse':          @buildEnginePulse()
     'nanocyte-component-selective-collect': @wrapNanocyte @SelectiveCollect
+    'nanocyte-component-clear-data': @wrapNanocyte @ClearData
+    'nanocyte-component-contains-all-keys': @wrapNanocyte @ContainsAllKeys
     'nanocyte-node-debug':   @wrapNanocyte @DebugNode
     'nanocyte-node-trigger': @wrapNanocyte @TriggerNode
 
