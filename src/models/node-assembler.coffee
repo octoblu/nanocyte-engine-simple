@@ -48,7 +48,10 @@ class NodeAssembler
       engineDebug         = new @EngineDebug
       datastoreGetStream2 = new @DatastoreGetStream
       engineOutput        = new @EngineOutput
-      datastoreGetStream.pipe(engineDebug).pipe(datastoreGetStream2).pipe(engineOutput)
+      datastoreGetStream
+        .pipe(engineDebug)
+        .pipe(datastoreGetStream2)
+        .pipe(engineOutput)
 
   buildEngineOutput: =>
     onEnvelope: (envelope) =>
@@ -75,8 +78,9 @@ class NodeAssembler
       node = new @NanocyteNodeWrapper nodeClass: nodeClass
 
       node.on 'readable', =>
-        callback null, node.read()
+        read = node.read()
+        callback null, read
 
-      datastoreGetStream.pipe(debugStream()).pipe node
+      datastoreGetStream.pipe node
 
 module.exports = NodeAssembler

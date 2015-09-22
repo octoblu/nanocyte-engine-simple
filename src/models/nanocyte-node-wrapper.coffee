@@ -1,5 +1,6 @@
 _ = require 'lodash'
 {Transform} = require 'stream'
+debug = require('debug')('nanocyte-engine-simple:nanocyte-node-wrapper')
 
 class NanocyteNodeWrapper extends Transform
   constructor: ({nodeClass}) ->
@@ -14,7 +15,7 @@ class NanocyteNodeWrapper extends Transform
 
     @node.on 'end', => @push null
 
-  _transform: (@envelope, enc, next=->) =>
+  _transform: (@envelope, enc, next) =>
     newEnvelope = _.cloneDeep _.pick(@envelope, 'config', 'data', 'message')
     @node.write newEnvelope, enc, next
 

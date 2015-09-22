@@ -10,8 +10,9 @@ fakeOutNode = (packageName, onWrite) ->
       super objectMode: true
 
     _transform: (envelope, encoding, next=->) =>
-      onWrite envelope, =>
-        @push envelope.message
+      onWrite envelope, (error, newEnvelope) =>
+        @push newEnvelope
+        @push null
 
       next()
 
@@ -28,6 +29,10 @@ restoreNode = (packageName) ->
 describe 'a flow with one trigger connected to a debug', ->
   beforeEach ->
     @client = redis.createClient()
+
+    @response =
+      status: sinon.spy => @response
+      end: sinon.spy => @response
 
   beforeEach (done) ->
     data = JSON.stringify
@@ -79,10 +84,6 @@ describe 'a flow with one trigger connected to a debug', ->
     beforeEach ->
       @triggerNodeOnMessage = sinon.spy => @triggerNodeOnMessage.done()
       fakeOutNode 'nanocyte-node-trigger', @triggerNodeOnMessage
-
-      @response =
-        status: sinon.spy => @response
-        end: sinon.spy => @response
 
       MessagesController = require '../../src/controllers/messages-controller'
       @sut = new MessagesController
@@ -149,23 +150,29 @@ describe 'a flow with one trigger connected to a debug', ->
 
   describe 'and now a word from trigger, to the debug node', ->
     beforeEach (done) ->
-      @inputHandler = require '../../src/handlers/input-handler'
-
-      @triggerNodeWrite = sinon.stub().yields parmesian: 123456
+      @triggerNodeWrite = sinon.stub().yields null, parmesian: 123456
       @debugNodeWrite = sinon.spy =>
         done()
 
       fakeOutNode 'nanocyte-node-debug', @debugNodeWrite
       fakeOutNode 'nanocyte-node-trigger', @triggerNodeWrite
 
-      @inputHandler.onMessage
-        topic: 'button'
-        devices: ['some-flow-uuid']
-        flowId: 'some-flow-uuid'
-        instanceId: 'instance-uuid'
-        payload:
-          from: 'some-trigger-uuid'
-          parmesian: 123456
+      MessagesController = require '../../src/controllers/messages-controller'
+      @sut = new MessagesController
+
+      request =
+        params:
+          flowId: 'some-flow-uuid'
+          instanceId: 'instance-uuid'
+        body:
+          topic: 'button'
+          devices: ['some-flow-uuid']
+          payload:
+            from: 'engine-input'
+            params:
+              parmesian: 123456
+
+      @sut.create request, @response
 
     afterEach ->
       restoreNode 'nanocyte-node-debug'
@@ -185,20 +192,28 @@ describe 'a flow with one trigger connected to a debug', ->
       MeshbluHttp = require 'meshblu-http'
       MeshbluHttp.prototype.message = @meshbluHttpMessage
 
-      @debugOnWrite = sinon.stub().yields something: 'completely-different'
-      @triggerOnWrite = sinon.stub().yields()
+      @debugOnWrite = sinon.stub().yields null, something: 'completely-different'
+      @triggerOnWrite = sinon.stub().yields null, something: 'completely-different'
 
       fakeOutNode 'nanocyte-node-debug', @debugOnWrite
       fakeOutNode 'nanocyte-node-trigger', @triggerOnWrite
 
-      @inputHandler = require '../../src/handlers/input-handler'
-      @inputHandler.onMessage
-        devices: ['some-flow-uuid']
-        flowId: 'some-flow-uuid'
-        instanceId: 'instance-uuid'
-        payload:
-          from: 'some-trigger-uuid'
-          something: 'completely-different'
+      MessagesController = require '../../src/controllers/messages-controller'
+      @sut = new MessagesController
+
+      request =
+        params:
+          flowId: 'some-flow-uuid'
+          instanceId: 'instance-uuid'
+        body:
+          topic: 'button'
+          devices: ['some-flow-uuid']
+          payload:
+            from: 'engine-input'
+            params:
+              foo: 'bar'
+
+      @sut.create request, @response
 
     afterEach ->
       restoreNode 'nanocyte-node-debug'

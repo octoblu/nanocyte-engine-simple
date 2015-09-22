@@ -2,14 +2,14 @@ MessagesController = require '../../src/controllers/messages-controller'
 
 describe '/messages', ->
   beforeEach ->
-    @inputHandler =
+    @inputNode =
       onMessage: sinon.spy()
 
     @response =
       status: sinon.spy => @response
       end: sinon.spy => @response
 
-    @sut = new MessagesController inputHandler: @inputHandler
+    @sut = new MessagesController inputNode: @inputNode
 
   describe 'when /messages receives a message', ->
     beforeEach ->
@@ -23,7 +23,7 @@ describe '/messages', ->
       @sut.create request, @response
 
     it 'should call onMessage on the appropriate node', ->
-      expect(@inputHandler.onMessage).to.have.been.calledWith foo: 'bar', flowId: 'some-flow-uuid', instanceId: 'some-instance-uuid'
+      expect(@inputNode.onMessage).to.have.been.calledWith foo: 'bar', flowId: 'some-flow-uuid', instanceId: 'some-instance-uuid'
 
     it 'should call response.status with a 201 and send', ->
       expect(@response.status).to.have.been.calledWith 201
@@ -41,4 +41,4 @@ describe '/messages', ->
       @sut.create request, @response
 
     it 'should call onMessage on the appropriate node', ->
-      expect(@inputHandler.onMessage).to.have.been.calledWith shoe: 'spar', flowId: 'some-other-flow-uuid', instanceId: 'some-instance-uuid'
+      expect(@inputNode.onMessage).to.have.been.calledWith shoe: 'spar', flowId: 'some-other-flow-uuid', instanceId: 'some-instance-uuid'

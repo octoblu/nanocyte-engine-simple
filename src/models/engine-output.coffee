@@ -1,4 +1,5 @@
 {Writable} = require 'stream'
+debug = require('debug')('nanocyte-engine-simple:engine-output')
 
 class EngineOutput extends Writable
   constructor: (options={}, dependencies={})->
