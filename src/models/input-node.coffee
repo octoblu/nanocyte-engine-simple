@@ -4,7 +4,6 @@ Router = require './router'
 class InputNode
   constructor: (dependencies={}) ->
     @router = dependencies.router ? new Router
-    @triggerNode = require './wrapped-trigger-node'
 
   onMessage: (message) =>
     return console.error 'inputNode message was missing "payload"' unless message.payload?
