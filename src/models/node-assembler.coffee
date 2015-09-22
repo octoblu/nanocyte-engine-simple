@@ -8,7 +8,8 @@ class NodeAssembler
     @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
     @DatastoreGetStream   ?= require './datastore-get-stream'
 
-    {@EngineDebug,@EngineOutput,@EnginePulse} = dependencies
+    {@EngineData,@EngineDebug,@EngineOutput,@EnginePulse} = dependencies
+    @EngineData   ?= require './engine-data'
     @EngineDebug  ?= require './engine-debug'
     @EngineOutput ?= require './engine-output'
     @EnginePulse  ?= require './engine-pulse'
@@ -21,6 +22,7 @@ class NodeAssembler
     @TriggerNode      ?= require 'nanocyte-node-trigger'
 
   assembleNodes: =>
+    'engine-data':           @buildEngineData()
     'engine-debug':          @buildEngineDebug()
     'engine-output':         @buildEngineOutput()
     'engine-pulse':          @buildEnginePulse()
@@ -29,6 +31,14 @@ class NodeAssembler
     'nanocyte-component-contains-all-keys': @wrapNanocyte @ContainsAllKeys
     'nanocyte-node-debug':   @wrapNanocyte @DebugNode
     'nanocyte-node-trigger': @wrapNanocyte @TriggerNode
+
+  buildEngineData: =>
+    onEnvelope: (envelope) =>
+      datastoreGetStream = new @DatastoreGetStream
+      datastoreGetStream.write envelope
+
+      engineData = new @EngineData
+      datastoreGetStream.pipe engineData
 
   buildEngineDebug: =>
     onEnvelope: (envelope) =>

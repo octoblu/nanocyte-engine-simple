@@ -52,6 +52,9 @@ describe 'NodeAssembler', ->
       @engineOutput = new stream.PassThrough objectMode: true
       EngineOutput = => @engineOutput
 
+      @engineData = new stream.PassThrough objectMode: true
+      EngineData = => @engineData
+
       @DebugNode = sinon.spy()
       @SelectiveCollect = sinon.spy()
       @TriggerNode = sinon.spy()
@@ -59,6 +62,7 @@ describe 'NodeAssembler', ->
       @sut = new NodeAssembler {},
         DatastoreGetStream: DatastoreGetStream
         NanocyteNodeWrapper: @NanocyteNodeWrapper
+        EngineData: EngineData
         EngineDebug: EngineDebug
         EngineOutput: EngineOutput
         EnginePulse: EnginePulse
@@ -68,7 +72,6 @@ describe 'NodeAssembler', ->
         OutputNode: @OutputNode
 
       @nodes = @sut.assembleNodes()
-
 
     it 'should return something', ->
       expect(@nodes).not.to.be.empty
@@ -80,10 +83,43 @@ describe 'NodeAssembler', ->
         'nanocyte-component-selective-collect'
         'nanocyte-component-clear-data'
         'nanocyte-component-contains-all-keys'
+        'engine-data'
         'engine-debug'
         'engine-output'
         'engine-pulse'
       ]
+
+    describe 'engine-data', ->
+      beforeEach ->
+        @engineDataNode = @nodes['engine-data']
+
+      it 'should have an onEnvelope function', ->
+        expect(@engineDataNode.onEnvelope).to.be.a 'function'
+
+      describe 'when onEnvelope is called', ->
+        beforeEach ->
+          @engineDataNode.onEnvelope
+            flowId: 'flow-id'
+            instanceId: 'instance-id'
+            toNodeId: 'engine-output'
+
+        it 'should pass the envelope on to datastoreGetStream1', ->
+          expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith
+            flowId: 'flow-id'
+            instanceId: 'instance-id'
+            toNodeId: 'engine-output'
+
+        describe 'when datastoreGetStream1 emits an envelope', ->
+          beforeEach (done) ->
+            @engineData.on 'readable', done
+            @datastoreGetStreamOnWrite1.yield null,
+              config: 'some-config'
+              data: 'some-data'
+
+          it 'should write the data to the EngineData instance', ->
+            expect(@engineData.read()).to.deep.equal
+              config: 'some-config'
+              data: 'some-data'
 
     describe 'engine-debug', ->
       beforeEach ->
