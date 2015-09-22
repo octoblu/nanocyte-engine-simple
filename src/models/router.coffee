@@ -6,7 +6,7 @@ class Router
   constructor: (dependencies={}) ->
     {nodeAssembler,@datastore} = dependencies
 
-    @datastore ?= require '../handlers/datastore-handler'
+    @datastore ?= new (require './datastore')
 
     nodeAssembler ?= new NodeAssembler()
     @nodes = nodeAssembler.assembleNodes()

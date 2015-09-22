@@ -5,7 +5,7 @@ class DatastoreGetStream extends Transform
   constructor: (options, dependencies={}) ->
     super objectMode: true
     {@datastore} = dependencies
-    @datastore ?= require '../handlers/datastore-handler'
+    @datastore ?= new (require './datastore')
 
   _transform: (envelope, enc, next) =>
     @datastore.get "#{envelope.flowId}/#{envelope.instanceId}/engine-data/config", (error, dataConfig) =>

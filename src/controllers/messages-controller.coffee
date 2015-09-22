@@ -1,7 +1,7 @@
 class MessagesController
   constructor: (options={}) ->
     {@inputHandler} = options
-    @inputHandler ?= require '../handlers/input-handler'
+    @inputHandler ?= new (require '../models/input-node')
 
   create: (req, res) =>
     req.body.flowId     = req.params.flowId

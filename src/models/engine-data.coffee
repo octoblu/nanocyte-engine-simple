@@ -4,7 +4,7 @@ class EngineData extends Writable
   constructor: (options, dependencies={}) ->
     super objectMode: true
     {@datastore} = dependencies
-    @datastore ?= require '../handlers/datastore-handler'
+    @datastore ?= new (require './datastore')
 
   _write: (envelope, enc, next) =>
     {flowId,instanceId,fromNodeId,message,config} = envelope
