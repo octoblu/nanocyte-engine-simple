@@ -23,6 +23,7 @@
   "dependencies": {
     "async": "^1.4.2",
     "body-parser": "^1.13.3",
+    "christacheio": "^2.0.0",
     "coffee-script": "^1.10.0",
     "debug": "^2.2.0",
     "debug-stream": "^3.0.1",
@@ -36,7 +37,7 @@
     "morgan": "^1.6.1",
     "nanocyte-component-clear-data": "^1.0.1",
     "nanocyte-component-contains-all-keys": "^1.1.0",
-    "nanocyte-component-demultiplex": "^1.0.0",
+    "nanocyte-component-demultiplex": "^2.0.0",
     "nanocyte-component-pass-through": "^1.0.0",
     "nanocyte-component-selective-collect": "^1.1.0",
     "nanocyte-component-trigger": "^1.0.0",
