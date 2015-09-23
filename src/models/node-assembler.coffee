@@ -15,24 +15,28 @@ class NodeAssembler
     @EnginePulse  ?= require './engine-pulse'
 
     {@PassThrough} = dependencies
-    @ClearData        ?= require 'nanocyte-component-clear-data'
-    @ContainsAllKeys  ?= require 'nanocyte-component-contains-all-keys'
-    @Demultiplex      ?= require 'nanocyte-component-demultiplex'
-    @SelectiveCollect ?= require 'nanocyte-component-selective-collect'
-    @Trigger          ?= require 'nanocyte-component-trigger'
-    @PassThrough      ?= require 'nanocyte-component-pass-through'
+    @ClearData          ?= require 'nanocyte-component-clear-data'
+    @ContainsAllKeys    ?= require 'nanocyte-component-contains-all-keys'
+    @Demultiplex        ?= require 'nanocyte-component-demultiplex'
+    @IntervalRegister   ?= require 'nanocyte-component-interval-register'
+    @IntervalUnregister ?= require 'nanocyte-component-interval-unregister'
+    @SelectiveCollect   ?= require 'nanocyte-component-selective-collect'
+    @Trigger            ?= require 'nanocyte-component-trigger'
+    @PassThrough        ?= require 'nanocyte-component-pass-through'
 
   assembleNodes: =>
     'engine-data':           @buildEngineData()
     'engine-debug':          @buildEngineDebug()
     'engine-output':         @buildEngineOutput()
     'engine-pulse':          @buildEnginePulse()
-    'nanocyte-component-clear-data':        @wrapNanocyte @ClearData
-    'nanocyte-component-contains-all-keys': @wrapNanocyte @ContainsAllKeys
-    'nanocyte-component-demultiplex':       @wrapNanocyte @Demultiplex
-    'nanocyte-component-pass-through':      @wrapNanocyte @PassThrough
-    'nanocyte-component-selective-collect': @wrapNanocyte @SelectiveCollect
-    'nanocyte-component-trigger':           @wrapNanocyte @Trigger
+    'nanocyte-component-clear-data':          @wrapNanocyte @ClearData
+    'nanocyte-component-contains-all-keys':   @wrapNanocyte @ContainsAllKeys
+    'nanocyte-component-demultiplex':         @wrapNanocyte @Demultiplex
+    'nanocyte-component-interval-register':   @wrapNanocyte @IntervalRegister
+    'nanocyte-component-interval-unregister': @wrapNanocyte @IntervalUnregister
+    'nanocyte-component-pass-through':        @wrapNanocyte @PassThrough
+    'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
+    'nanocyte-component-trigger':             @wrapNanocyte @Trigger
 
   buildEngineData: =>
     onEnvelope: (envelope) =>

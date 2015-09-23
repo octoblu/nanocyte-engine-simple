@@ -37,6 +37,8 @@
     "nanocyte-component-clear-data": "^1.0.1",
     "nanocyte-component-contains-all-keys": "^1.1.0",
     "nanocyte-component-demultiplex": "^1.0.0",
+    "nanocyte-component-interval-register": "^1.0.2",
+    "nanocyte-component-interval-unregister": "^1.0.0",
     "nanocyte-component-pass-through": "^1.0.0",
     "nanocyte-component-selective-collect": "^1.1.0",
     "nanocyte-component-trigger": "^1.0.0",
