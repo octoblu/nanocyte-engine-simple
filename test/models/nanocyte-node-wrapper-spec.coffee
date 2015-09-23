@@ -63,6 +63,21 @@ describe 'NanocyteNodeWrapper', ->
           data: {}
           message: {foo: [1,2,3]}
 
+    describe 'when nesting the key under msg', ->
+      beforeEach (done) ->
+        envelope =
+          config: {duckCounts: "{{msg.foo}}"}
+          data: {}
+          message: {foo: [1,2,3]}
+
+        @sut.write envelope, done
+
+      it 'should call onMessage on MahNode with the array', ->
+        expect(@mahNodeOnWrite).to.have.been.calledWith
+          config: {duckCounts: [1,2,3]}
+          data: {}
+          message: {foo: [1,2,3]}
+
   describe 'on read', ->
     describe 'when mah node only emits one message', ->
       beforeEach ->
