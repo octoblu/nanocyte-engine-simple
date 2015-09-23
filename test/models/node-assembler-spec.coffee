@@ -85,6 +85,8 @@ describe 'NodeAssembler', ->
         'nanocyte-component-clear-data'
         'nanocyte-component-contains-all-keys'
         'nanocyte-component-demultiplex'
+        'nanocyte-component-interval-register'
+        'nanocyte-component-interval-unregister'
         'nanocyte-component-pass-through'
         'nanocyte-component-selective-collect'
         'nanocyte-component-trigger'
