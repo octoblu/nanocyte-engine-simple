@@ -1,6 +1,8 @@
 language: node_js
 node_js:
 - '0.11'
+services:
+  - redis-server
 addons:
   code_climate:
     repo_token: a26a6abc2006b73cd82323feb30e102b2bfd0d73c6e43f5f52a472b7faeb5a66
