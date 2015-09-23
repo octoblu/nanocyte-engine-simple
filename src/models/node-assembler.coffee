@@ -17,6 +17,7 @@ class NodeAssembler
     {@DebugNode,@SelectiveCollect,@TriggerNode} = dependencies
     @ClearData        ?= require 'nanocyte-component-clear-data'
     @ContainsAllKeys  ?= require 'nanocyte-component-contains-all-keys'
+    @Demultiplex  ?= require 'nanocyte-component-demultiplex'
     @SelectiveCollect ?= require 'nanocyte-component-selective-collect'
     @DebugNode        ?= require 'nanocyte-node-debug'
     @TriggerNode      ?= require 'nanocyte-node-trigger'
@@ -30,6 +31,7 @@ class NodeAssembler
     'nanocyte-component-clear-data': @wrapNanocyte @ClearData
     'nanocyte-component-contains-all-keys': @wrapNanocyte @ContainsAllKeys
     'nanocyte-node-debug':   @wrapNanocyte @DebugNode
+    'nanocyte-node-demultiplex': @wrapNanocyte @Demultiplex
     'nanocyte-node-trigger': @wrapNanocyte @TriggerNode
 
   buildEngineData: =>

@@ -76,19 +76,6 @@ describe 'NodeAssembler', ->
     it 'should return something', ->
       expect(@nodes).not.to.be.empty
 
-    it 'should return an object with keys for each node', ->
-      expect(@nodes).to.have.all.keys [
-        'nanocyte-node-debug'
-        'nanocyte-node-trigger'
-        'nanocyte-component-selective-collect'
-        'nanocyte-component-clear-data'
-        'nanocyte-component-contains-all-keys'
-        'engine-data'
-        'engine-debug'
-        'engine-output'
-        'engine-pulse'
-      ]
-
     describe 'engine-data', ->
       beforeEach ->
         @engineDataNode = @nodes['engine-data']
