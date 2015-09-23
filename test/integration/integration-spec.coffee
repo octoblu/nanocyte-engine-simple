@@ -4,7 +4,7 @@ async = require 'async'
 redis = require 'redis'
 _ = require 'lodash'
 
-fakeOutNode = (packageName, onWrite) ->
+fakeOutComponent = (packageName, onWrite) ->
   class FakeNode extends stream.Transform
     constructor: ->
       super objectMode: true
@@ -22,7 +22,7 @@ fakeOutNode = (packageName, onWrite) ->
   theModule.exports = FakeNode
   theModule.original = theModule.exports.prototype
 
-restoreNode = (packageName) ->
+restoreComponent = (packageName) ->
   theModule = require.cache[path.join(__dirname, '../../node_modules', packageName, 'index.js')]
   theModule.exports = theModule.original
 
@@ -40,10 +40,10 @@ describe 'a flow with one trigger connected to a debug', ->
         type: 'engine-input'
         linkedTo: ['some-trigger-uuid']
       'some-trigger-uuid':
-        type: 'nanocyte-node-trigger'
+        type: 'nanocyte-component-trigger'
         linkedTo: ['some-debug-uuid']
       'some-debug-uuid':
-        type: 'nanocyte-node-debug'
+        type: 'nanocyte-component-pass-through'
         linkedTo: ['engine-debug']
       'engine-debug':
         type: 'engine-debug'
@@ -83,13 +83,13 @@ describe 'a flow with one trigger connected to a debug', ->
   describe 'sending a message to a trigger node', ->
     beforeEach ->
       @triggerNodeOnMessage = sinon.spy => @triggerNodeOnMessage.done()
-      fakeOutNode 'nanocyte-node-trigger', @triggerNodeOnMessage
+      fakeOutComponent 'nanocyte-component-trigger', @triggerNodeOnMessage
 
       MessagesController = require '../../src/controllers/messages-controller'
       @sut = new MessagesController
 
     afterEach ->
-      restoreNode 'nanocyte-node-trigger'
+      restoreComponent 'nanocyte-component-trigger'
 
     describe 'when /flows/:flowId/instances/:instanceId/messages receives a message', ->
       beforeEach (done) ->
@@ -154,8 +154,8 @@ describe 'a flow with one trigger connected to a debug', ->
       @debugNodeWrite = sinon.spy =>
         done()
 
-      fakeOutNode 'nanocyte-node-debug', @debugNodeWrite
-      fakeOutNode 'nanocyte-node-trigger', @triggerNodeWrite
+      fakeOutComponent 'nanocyte-component-pass-through', @debugNodeWrite
+      fakeOutComponent 'nanocyte-component-trigger', @triggerNodeWrite
 
       MessagesController = require '../../src/controllers/messages-controller'
       @sut = new MessagesController
@@ -175,8 +175,8 @@ describe 'a flow with one trigger connected to a debug', ->
       @sut.create request, @response
 
     afterEach ->
-      restoreNode 'nanocyte-node-debug'
-      restoreNode 'nanocyte-node-trigger'
+      restoreComponent 'nanocyte-component-pass-through'
+      restoreComponent 'nanocyte-component-trigger'
 
     it 'should write the message to the debug node', ->
       expect(@debugNodeWrite).to.have.been.calledWith
@@ -195,8 +195,8 @@ describe 'a flow with one trigger connected to a debug', ->
       @debugOnWrite = sinon.stub().yields null, something: 'completely-different'
       @triggerOnWrite = sinon.stub().yields null, something: 'completely-different'
 
-      fakeOutNode 'nanocyte-node-debug', @debugOnWrite
-      fakeOutNode 'nanocyte-node-trigger', @triggerOnWrite
+      fakeOutComponent 'nanocyte-component-pass-through', @debugOnWrite
+      fakeOutComponent 'nanocyte-component-trigger', @triggerOnWrite
 
       MessagesController = require '../../src/controllers/messages-controller'
       @sut = new MessagesController
@@ -216,8 +216,8 @@ describe 'a flow with one trigger connected to a debug', ->
       @sut.create request, @response
 
     afterEach ->
-      restoreNode 'nanocyte-node-debug'
-      restoreNode 'nanocyte-node-trigger'
+      restoreComponent 'nanocyte-component-pass-through'
+      restoreComponent 'nanocyte-component-trigger'
 
     it 'should call message on a MeshbluHttp instance', ->
       expect(@meshbluHttpMessage).to.have.been.calledOnce

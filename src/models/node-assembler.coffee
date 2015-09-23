@@ -14,25 +14,25 @@ class NodeAssembler
     @EngineOutput ?= require './engine-output'
     @EnginePulse  ?= require './engine-pulse'
 
-    {@DebugNode,@SelectiveCollect,@TriggerNode} = dependencies
+    {@PassThrough} = dependencies
     @ClearData        ?= require 'nanocyte-component-clear-data'
     @ContainsAllKeys  ?= require 'nanocyte-component-contains-all-keys'
-    @Demultiplex  ?= require 'nanocyte-component-demultiplex'
+    @Demultiplex      ?= require 'nanocyte-component-demultiplex'
     @SelectiveCollect ?= require 'nanocyte-component-selective-collect'
-    @DebugNode        ?= require 'nanocyte-node-debug'
-    @TriggerNode      ?= require 'nanocyte-node-trigger'
+    @Trigger          ?= require 'nanocyte-component-trigger'
+    @PassThrough      ?= require 'nanocyte-component-pass-through'
 
   assembleNodes: =>
     'engine-data':           @buildEngineData()
     'engine-debug':          @buildEngineDebug()
     'engine-output':         @buildEngineOutput()
     'engine-pulse':          @buildEnginePulse()
-    'nanocyte-component-selective-collect': @wrapNanocyte @SelectiveCollect
-    'nanocyte-component-clear-data': @wrapNanocyte @ClearData
+    'nanocyte-component-clear-data':        @wrapNanocyte @ClearData
     'nanocyte-component-contains-all-keys': @wrapNanocyte @ContainsAllKeys
-    'nanocyte-node-debug':   @wrapNanocyte @DebugNode
-    'nanocyte-node-demultiplex': @wrapNanocyte @Demultiplex
-    'nanocyte-node-trigger': @wrapNanocyte @TriggerNode
+    'nanocyte-component-demultiplex':       @wrapNanocyte @Demultiplex
+    'nanocyte-component-pass-through':      @wrapNanocyte @PassThrough
+    'nanocyte-component-selective-collect': @wrapNanocyte @SelectiveCollect
+    'nanocyte-component-trigger':           @wrapNanocyte @Trigger
 
   buildEngineData: =>
     onEnvelope: (envelope) =>
