@@ -18,8 +18,12 @@ class NodeAssembler
     @ClearData          ?= require 'nanocyte-component-clear-data'
     @ContainsAllKeys    ?= require 'nanocyte-component-contains-all-keys'
     @Demultiplex        ?= require 'nanocyte-component-demultiplex'
+    @Equal              ?= require 'nanocyte-component-equal'
+    @GreaterThan        ?= require 'nanocyte-component-greater-than'
     @IntervalRegister   ?= require 'nanocyte-component-interval-register'
     @IntervalUnregister ?= require 'nanocyte-component-interval-unregister'
+    @LessThan           ?= require 'nanocyte-component-less-than'
+    @NotEqual           ?= require 'nanocyte-component-not-equal'
     @SelectiveCollect   ?= require 'nanocyte-component-selective-collect'
     @Trigger            ?= require 'nanocyte-component-trigger'
     @PassThrough        ?= require 'nanocyte-component-pass-through'
@@ -32,8 +36,12 @@ class NodeAssembler
     'nanocyte-component-clear-data':          @wrapNanocyte @ClearData
     'nanocyte-component-contains-all-keys':   @wrapNanocyte @ContainsAllKeys
     'nanocyte-component-demultiplex':         @wrapNanocyte @Demultiplex
+    'nanocyte-component-equal':               @wrapNanocyte @Equal
+    'nanocyte-component-greater-than':        @wrapNanocyte @GreaterThan
     'nanocyte-component-interval-register':   @wrapNanocyte @IntervalRegister
     'nanocyte-component-interval-unregister': @wrapNanocyte @IntervalUnregister
+    'nanocyte-component-less-than':           @wrapNanocyte @LessThan
+    'nanocyte-component-not-equal':           @wrapNanocyte @NotEqual
     'nanocyte-component-pass-through':        @wrapNanocyte @PassThrough
     'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
     'nanocyte-component-trigger':             @wrapNanocyte @Trigger
