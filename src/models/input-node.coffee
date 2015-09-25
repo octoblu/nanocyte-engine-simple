@@ -6,14 +6,14 @@ class InputNode
     @router = dependencies.router ? new Router
 
   onMessage: (message) =>
-    return console.error 'inputNode message was missing "payload"' unless message.payload?
-    return console.error 'inputNode message.payload was missing "from"' unless message.payload.from?
+    fromNodeId = message.payload?.from ? message.fromUuid
+    return console.error 'inputNode could not infer fromNodeId' unless fromNodeId?
     payload = _.omit message.payload, 'from'
 
     @router.onEnvelope
       flowId:     message.flowId
       instanceId: message.instanceId
-      fromNodeId: message.payload.from
+      fromNodeId: fromNodeId
       message:    payload
 
 module.exports = InputNode
