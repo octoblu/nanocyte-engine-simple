@@ -90,6 +90,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-interval-register'
         'nanocyte-component-interval-unregister'
         'nanocyte-component-less-than'
+        'nanocyte-component-meshblu-output'
         'nanocyte-component-not-equal'
         'nanocyte-component-pass-through'
         'nanocyte-component-selective-collect'

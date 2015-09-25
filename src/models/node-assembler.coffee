@@ -23,6 +23,7 @@ class NodeAssembler
     @IntervalRegister   ?= require 'nanocyte-component-interval-register'
     @IntervalUnregister ?= require 'nanocyte-component-interval-unregister'
     @LessThan           ?= require 'nanocyte-component-less-than'
+    @MeshbluOutput      ?= require 'nanocyte-component-meshblu-output'
     @NotEqual           ?= require 'nanocyte-component-not-equal'
     @SelectiveCollect   ?= require 'nanocyte-component-selective-collect'
     @Trigger            ?= require 'nanocyte-component-trigger'
@@ -41,6 +42,7 @@ class NodeAssembler
     'nanocyte-component-interval-register':   @wrapNanocyte @IntervalRegister
     'nanocyte-component-interval-unregister': @wrapNanocyte @IntervalUnregister
     'nanocyte-component-less-than':           @wrapNanocyte @LessThan
+    'nanocyte-component-meshblu-output':      @wrapNanocyte @MeshbluOutput
     'nanocyte-component-not-equal':           @wrapNanocyte @NotEqual
     'nanocyte-component-pass-through':        @wrapNanocyte @PassThrough
     'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
