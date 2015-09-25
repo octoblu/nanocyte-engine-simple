@@ -1,19 +1,24 @@
-morgan = require 'morgan'
-express = require 'express'
-bodyParser = require 'body-parser'
-errorHandler = require 'errorhandler'
+morgan             = require 'morgan'
+express            = require 'express'
+bodyParser         = require 'body-parser'
+errorHandler       = require 'errorhandler'
 meshbluHealthcheck = require 'express-meshblu-healthcheck'
-debug = require('debug')('nanocyte-engine-simple')
+meshbluAuth        = require 'express-meshblu-auth'
+MeshbluConfig      = require 'meshblu-config'
+debug              = require('debug')('nanocyte-engine-simple:server')
 
 MessagesController = require './src/controllers/messages-controller'
 messagesController = new MessagesController
 
 PORT  = process.env.PORT ? 80
+meshbluConfig = new MeshbluConfig
+debug 'meshbluConfig', meshbluConfig.toJSON()
 
 app = express()
 app.use morgan 'dev'
 app.use errorHandler()
 app.use meshbluHealthcheck()
+app.use meshbluAuth meshbluConfig.toJSON()
 app.use bodyParser.urlencoded limit: '50mb', extended : true
 app.use bodyParser.json limit : '50mb'
 

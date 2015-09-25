@@ -97,6 +97,8 @@ describe 'a flow with one trigger connected to a debug', ->
           params:
             flowId: 'some-flow-uuid'
             instanceId: 'instance-uuid'
+          meshbluAuth:
+            uuid: 'some-flow-uuid'
           body:
             topic: 'button'
             devices: ['some-flow-uuid']
@@ -125,6 +127,8 @@ describe 'a flow with one trigger connected to a debug', ->
           params:
             flowId: 'some-flow-uuid'
             instanceId: 'instance-uuid'
+          meshbluAuth:
+            uuid: 'some-flow-uuid'
           body:
             topic: 'button'
             devices: ['some-flow-uuid']
@@ -164,6 +168,8 @@ describe 'a flow with one trigger connected to a debug', ->
         params:
           flowId: 'some-flow-uuid'
           instanceId: 'instance-uuid'
+        meshbluAuth:
+          uuid: 'some-flow-uuid'
         body:
           topic: 'button'
           devices: ['some-flow-uuid']
@@ -205,6 +211,8 @@ describe 'a flow with one trigger connected to a debug', ->
         params:
           flowId: 'some-flow-uuid'
           instanceId: 'instance-uuid'
+        meshbluAuth:
+          uuid: 'some-flow-uuid'
         body:
           topic: 'button'
           devices: ['some-flow-uuid']
