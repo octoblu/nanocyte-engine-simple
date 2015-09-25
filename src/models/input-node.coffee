@@ -2,10 +2,10 @@ _ = require 'lodash'
 Router = require './router'
 
 class InputNode
-  constructor: (dependencies={}) ->
+  constructor: (options, dependencies={}) ->
     @router = dependencies.router ? new Router
 
-  onMessage: (message) =>
+  onMessage: (message, callback=->) =>
     fromNodeId = message.payload?.from ? message.fromUuid
     return console.error 'inputNode could not infer fromNodeId' unless fromNodeId?
     payload = _.omit message.payload, 'from'

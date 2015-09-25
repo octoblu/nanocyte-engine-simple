@@ -2,8 +2,9 @@ InputNode = require '../../src/models/input-node'
 
 describe 'InputNode', ->
   beforeEach ->
-    @router = onEnvelope: sinon.spy()
-    @sut = new InputNode router: @router
+    @router    = onEnvelope: sinon.spy()
+    @datastore = get: sinon.stub()
+    @sut = new InputNode {}, router: @router, datastore: @datastore
 
   describe 'onMessage', ->
     describe 'with a meshblu message', ->
