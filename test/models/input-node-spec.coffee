@@ -101,3 +101,24 @@ describe 'InputNode', ->
 
       it 'should not throw an exception', ->
         expect(@router.onEnvelope).not.to.have.been.called
+
+    describe 'with a meshblu message that has a string payload', ->
+      beforeEach ->
+        @datastore.get.yields null,
+          'some-device-uuid':
+            nodeId: 'some-internal-node-uuid'
+
+        @sut.onMessage
+          topic: 'button'
+          devices: ['some-flow-uuid']
+          flowId: 'some-flow-uuid'
+          instanceId: 'some-other-instance-uuid'
+          fromUuid: 'some-device-uuid'
+          payload: 'foo'
+
+      it 'should not break apart the payload', ->
+        expect(@router.onEnvelope).to.have.been.calledWith
+          flowId: 'some-flow-uuid'
+          instanceId: 'some-other-instance-uuid'
+          fromNodeId: 'some-internal-node-uuid'
+          message: 'foo'

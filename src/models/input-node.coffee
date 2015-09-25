@@ -12,7 +12,9 @@ class InputNode
     @_getFromNodeId message, (error, fromNodeId) =>
       return console.error error.stack if error?
       return console.error 'inputNode could not infer fromNodeId' unless fromNodeId?
-      payload = _.omit message.payload, 'from'
+
+      payload = _.cloneDeep(message.payload ? {})
+      delete payload.from
 
       @router.onEnvelope
         flowId:     message.flowId
