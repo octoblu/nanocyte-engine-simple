@@ -60,13 +60,35 @@ describe 'InputNode', ->
         beforeEach ->
           @datastore.get.yield null,
             'some-device-uuid':
-              nodeId: 'some-internal-node-uuid'
+              [{nodeId: 'some-internal-node-uuid'}]
 
         it 'should use the fromUuid as the nodeId', ->
           expect(@router.onEnvelope).to.have.been.calledWith
             flowId: 'some-flow-uuid'
             instanceId: 'some-other-instance-uuid'
             fromNodeId: 'some-internal-node-uuid'
+            message: {}
+
+      describe 'when the engine-input config contains two fromUuids', ->
+        beforeEach ->
+          @datastore.get.yield null,
+            'some-device-uuid':
+              [
+                {nodeId: 'some-internal-node-uuid'}
+                {nodeId: 'some-other-internal-node-uuid'}
+              ]
+
+        it 'should use the fromUuid as the nodeId', ->
+          expect(@router.onEnvelope).to.have.been.calledTwice
+          expect(@router.onEnvelope).to.have.been.calledWith
+            flowId: 'some-flow-uuid'
+            instanceId: 'some-other-instance-uuid'
+            fromNodeId: 'some-internal-node-uuid'
+            message: {}
+          expect(@router.onEnvelope).to.have.been.calledWith
+            flowId: 'some-flow-uuid'
+            instanceId: 'some-other-instance-uuid'
+            fromNodeId: 'some-other-internal-node-uuid'
             message: {}
 
       describe 'when the engine-input config doesn\'t contain the fromUuid', ->
@@ -106,7 +128,7 @@ describe 'InputNode', ->
       beforeEach ->
         @datastore.get.yields null,
           'some-device-uuid':
-            nodeId: 'some-internal-node-uuid'
+            [{nodeId: 'some-internal-node-uuid'}]
 
         @sut.onMessage
           topic: 'button'

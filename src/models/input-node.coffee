@@ -9,26 +9,27 @@ class InputNode
     @router    ?= new Router
 
   onMessage: (message, callback=->) =>
-    @_getFromNodeId message, (error, fromNodeId) =>
+    @_getFromNodeIds message, (error, fromNodeIds) =>
       return console.error error.stack if error?
-      return console.error 'inputNode could not infer fromNodeId' unless fromNodeId?
+      return console.error 'inputNode could not infer fromNodeId' if _.isEmpty fromNodeIds
 
       payload = _.cloneDeep(message.payload ? {})
       delete payload.from
 
-      @router.onEnvelope
-        flowId:     message.flowId
-        instanceId: message.instanceId
-        fromNodeId: fromNodeId
-        message:    payload
+      _.each fromNodeIds, (fromNodeId) =>
+        @router.onEnvelope
+          flowId:     message.flowId
+          instanceId: message.instanceId
+          fromNodeId: fromNodeId
+          message:    payload
 
-  _getFromNodeId: (message, callback) =>
+  _getFromNodeIds: (message, callback) =>
     fromNodeId = message.payload?.from
-    return callback null, fromNodeId if fromNodeId?
+    return callback null, [fromNodeId] if fromNodeId?
 
     {flowId,instanceId,fromUuid} = message
     @datastore.get "#{flowId}/#{instanceId}/engine-input/config", (error, config) =>
       return callback error if error?
-      callback null, config[fromUuid]?.nodeId
+      callback null, _.pluck config[fromUuid], 'nodeId'
 
 module.exports = InputNode
