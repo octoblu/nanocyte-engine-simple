@@ -105,6 +105,13 @@ describe 'InputNode', ->
         it 'should not call router.onEnvelope', ->
           expect(@router.onEnvelope).not.to.have.been.called
 
+      describe 'when the engine-input config yields nulls', ->
+        beforeEach ->
+          @datastore.hget.yield null, null
+
+        it 'should not call router.onEnvelope', ->
+          expect(@router.onEnvelope).not.to.have.been.called
+
     describe 'with a meshblu message thats missing a from', ->
       beforeEach ->
         try
