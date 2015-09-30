@@ -88,6 +88,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-demultiplex'
         'nanocyte-component-equal'
         'nanocyte-component-http-request'
+        'nanocyte-component-flow-metric-start'
         'nanocyte-component-greater-than'
         'nanocyte-component-interval-register'
         'nanocyte-component-interval-unregister'
