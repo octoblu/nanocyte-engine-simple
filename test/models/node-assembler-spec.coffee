@@ -83,6 +83,7 @@ describe 'NodeAssembler', ->
         'engine-output'
         'engine-pulse'
         'nanocyte-component-body-parser'
+        'nanocyte-component-broadcast'
         'nanocyte-component-clear-data'
         'nanocyte-component-contains-all-keys'
         'nanocyte-component-demultiplex'

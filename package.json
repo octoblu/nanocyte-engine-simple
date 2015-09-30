@@ -1,6 +1,6 @@
 {
   "name": "nanocyte-engine-simple",
-  "version": "1.13.3",
+  "version": "1.13.4",
   "description": "Simple engine for nanocytes",
   "main": "server.js",
   "private": true,
@@ -39,6 +39,7 @@
     "meshblu-http": "^3.4.1",
     "morgan": "^1.6.1",
     "nanocyte-component-body-parser": "^1.1.0",
+    "nanocyte-component-broadcast": "^1.0.0",
     "nanocyte-component-clear-data": "^1.0.1",
     "nanocyte-component-contains-all-keys": "^1.1.0",
     "nanocyte-component-demultiplex": "^2.0.0",
