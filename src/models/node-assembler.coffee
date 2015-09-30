@@ -15,6 +15,7 @@ class NodeAssembler
     @EnginePulse  ?= require './engine-pulse'
 
     {@PassThrough} = dependencies
+    @BodyParser         ?= require 'nanocyte-component-body-parser'
     @ClearData          ?= require 'nanocyte-component-clear-data'
     @ContainsAllKeys    ?= require 'nanocyte-component-contains-all-keys'
     @Demultiplex        ?= require 'nanocyte-component-demultiplex'
@@ -36,6 +37,7 @@ class NodeAssembler
     'engine-debug':          @buildEngineDebug()
     'engine-output':         @buildEngineOutput()
     'engine-pulse':          @buildEnginePulse()
+    'nanocyte-component-body-parser':         @wrapNanocyte @BodyParser
     'nanocyte-component-clear-data':          @wrapNanocyte @ClearData
     'nanocyte-component-contains-all-keys':   @wrapNanocyte @ContainsAllKeys
     'nanocyte-component-demultiplex':         @wrapNanocyte @Demultiplex
