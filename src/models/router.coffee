@@ -15,7 +15,7 @@ class Router
     debug 'onEnvelope', envelope
     {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
 
-    @datastore.get "#{flowId}/#{instanceId}/router/config", (error, routerConfig) =>
+    @datastore.hget flowId, "#{instanceId}/router/config", (error, routerConfig) =>
       return console.error 'router.coffee: routerConfig was not defined' unless routerConfig?
       senderNodeConfig = routerConfig[fromNodeId]
       return console.error 'router.coffee: senderNodeConfig was not defined' unless senderNodeConfig?

@@ -3,8 +3,8 @@ class Datastore
     {@client} = dependencies
     @client ?= require '../handlers/redis-handler'
 
-  get: (key, callback) =>
-    @client.get key, (error, data) =>
+  hget: (key, field, callback) =>
+    @client.hget key, field, (error, data) =>
       callback error, JSON.parse data
 
   set: (key, value, callback) =>

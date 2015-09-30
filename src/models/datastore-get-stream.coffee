@@ -8,11 +8,11 @@ class DatastoreGetStream extends Transform
     @datastore ?= new (require './datastore')
 
   _transform: (envelope, enc, next) =>
-    @datastore.get "#{envelope.flowId}/#{envelope.instanceId}/engine-data/config", (error, dataConfig) =>
+    @datastore.hget envelope.flowId, "#{envelope.instanceId}/engine-data/config", (error, dataConfig) =>
       nodeId = dataConfig[envelope.toNodeId]?.nodeId
       nodeId ?= envelope.toNodeId
-      @datastore.get "#{envelope.flowId}/#{envelope.instanceId}/#{envelope.toNodeId}/config", (error, config) =>
-        @datastore.get "#{envelope.flowId}/#{envelope.instanceId}/#{nodeId}/data", (error, data) =>
+      @datastore.hget envelope.flowId, "#{envelope.instanceId}/#{envelope.toNodeId}/config", (error, config) =>
+        @datastore.hget envelope.flowId, "#{envelope.instanceId}/#{nodeId}/data", (error, data) =>
           @push _.extend {}, envelope, config: config, data: data
           @push null
           next()

@@ -2,7 +2,7 @@ Router = require '../../src/models/router'
 
 describe 'Router', ->
   beforeEach ->
-    @datastore = get: sinon.stub()
+    @datastore = hget: sinon.stub()
 
   describe 'onEnvelope', ->
     describe 'when the nodeAssembler returns some nodes', ->
@@ -19,7 +19,7 @@ describe 'Router', ->
 
       describe 'when the datastore yields nothing for the flowId', ->
         beforeEach ->
-          @datastore.get.yields null, null
+          @datastore.hget.yields null, null
 
         describe 'when given an envelope', ->
           it 'should not be a little sissy about it', ->
@@ -33,7 +33,7 @@ describe 'Router', ->
 
       describe 'when the trigger node is wired to a nonexistent node', ->
         beforeEach ->
-          @datastore.get.yields null,
+          @datastore.hget.yields null,
             'some-trigger-uuid':
               type: 'nanocyte-node-trigger'
               linkedTo: ['some-debug-uuid']
@@ -48,7 +48,7 @@ describe 'Router', ->
 
       describe 'when the trigger node doesnt exist', ->
         beforeEach ->
-          @datastore.get.yields null, {}
+          @datastore.hget.yields null, {}
 
         it 'should not be a little sissy about it', ->
           theCall = => @sut.onEnvelope
@@ -60,7 +60,7 @@ describe 'Router', ->
 
       describe 'when the datastore yields a nodetype that doesnt exist', ->
         beforeEach ->
-          @datastore.get.yields null,
+          @datastore.hget.yields null,
             'some-trigger-uuid':
               type: 'nanocyte-node-trigger'
               linkedTo: ['some-mystery-uuid']
@@ -78,7 +78,7 @@ describe 'Router', ->
 
       describe 'when the trigger node is wired to a debug node', ->
         beforeEach ->
-          @datastore.get.yields null,
+          @datastore.hget.yields null,
             'some-trigger-uuid':
               type: 'nanocyte-node-trigger'
               linkedTo: ['some-debug-uuid']
@@ -94,8 +94,8 @@ describe 'Router', ->
               instanceId: 'instance-uuid'
               message: 12455663
 
-          it 'should call datastore.get', ->
-            expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid/instance-uuid/router/config'
+          it 'should call datastore.hget', ->
+            expect(@datastore.hget).to.have.been.calledWith 'some-flow-uuid', 'instance-uuid/router/config'
 
           it 'should call onEnvelope in the debugNode from assembleNodes one time', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledOnce
@@ -110,7 +110,7 @@ describe 'Router', ->
 
       describe 'when the trigger node is wired to two debug nodes', ->
         beforeEach ->
-          @datastore.get.yields null,
+          @datastore.hget.yields null,
             'some-trigger-uuid':
               type: 'nanocyte-node-trigger'
               linkedTo: ['some-debug-uuid', 'some-other-debug-uuid']
@@ -130,8 +130,8 @@ describe 'Router', ->
               fromNodeId: 'some-trigger-uuid'
               message: 12455663
 
-          it 'should call datastore.get', ->
-            expect(@datastore.get).to.have.been.called
+          it 'should call datastore.hget', ->
+            expect(@datastore.hget).to.have.been.called
 
           it 'should call onEnvelope in the debugNode twice', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledTwice
@@ -153,7 +153,7 @@ describe 'Router', ->
 
       describe 'when the trigger node is wired to two debug nodes and another mystery node', ->
         beforeEach ->
-          @datastore.get.yields null,
+          @datastore.hget.yields null,
             'some-interval-uuid':
               type: 'nanocyte-node-interval'
               linkedTo: ['some-debug-uuid']
@@ -171,8 +171,8 @@ describe 'Router', ->
           beforeEach ->
             @sut.onEnvelope fromNodeId: 'some-trigger-uuid', message: 12455663
 
-          it 'should call datastore.get', ->
-            expect(@datastore.get).to.have.been.called
+          it 'should call datastore.hget', ->
+            expect(@datastore.hget).to.have.been.called
 
           it 'should call onEnvelope in the debugNode twice', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledTwice

@@ -1,21 +1,27 @@
 Datastore = require '../../src/models/datastore'
 
 describe 'Datastore', ->
-  describe '->get', ->
+  describe '->hget', ->
     describe 'when given some foobar', ->
       beforeEach ->
-        @client = get: sinon.stub().yields null, '{"foo":"bar"}'
+        @client = hget: sinon.stub().yields null, '{"foo":"bar"}'
         @sut = new Datastore client: @client
-        @sut.get 'test', (error, @result) =>
+        @sut.hget 'test', 'green-means-grow', (error, @result) =>
+
+      it 'should call @client.hget with key and field', ->
+        expect(@client.hget).to.have.been.calledWith 'test', 'green-means-grow'
 
       it 'should parse the json', ->
         expect(@result).to.deep.equal foo: 'bar'
 
     describe 'when given some barfu', ->
       beforeEach ->
-        @client = get: sinon.stub().yields null, '{"bar":"fu"}'
+        @client = hget: sinon.stub().yields null, '{"bar":"fu"}'
         @sut = new Datastore client: @client
-        @sut.get 'test', (error, @result) =>
+        @sut.hget 'test', 'amoralism', (error, @result) =>
+
+      it 'should call @client.hget with key and field', ->
+        expect(@client.hget).to.have.been.calledWith 'test', 'amoralism'
 
       it 'should parse the json', ->
         expect(@result).to.deep.equal bar: 'fu'

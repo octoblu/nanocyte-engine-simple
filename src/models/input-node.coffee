@@ -28,7 +28,7 @@ class InputNode
     return callback null, [fromNodeId] if fromNodeId?
 
     {flowId,instanceId,fromUuid} = message
-    @datastore.get "#{flowId}/#{instanceId}/engine-input/config", (error, config) =>
+    @datastore.hget flowId, "#{instanceId}/engine-input/config", (error, config) =>
       return callback error if error?
       callback null, _.pluck config[fromUuid], 'nodeId'
 

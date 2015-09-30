@@ -49,27 +49,27 @@ describe 'a flow with one trigger connected to a debug', ->
         type: 'engine-debug'
         linkedTo: []
 
-    @client.set 'some-flow-uuid/instance-uuid/router/config', data, done
+    @client.hset 'some-flow-uuid', 'instance-uuid/router/config', data, done
 
   beforeEach (done) ->
     data = JSON.stringify {'some-debug-uuid': {nodeId: 'original-debug-uuid'}}
-    @client.set 'some-flow-uuid/instance-uuid/engine-debug/config', data, done
+    @client.hset 'some-flow-uuid', 'instance-uuid/engine-debug/config', data, done
 
   beforeEach (done) ->
     data = JSON.stringify {uuid: 'some-flow-uuid', token: 'some-token'}
-    @client.set 'some-flow-uuid/instance-uuid/engine-output/config', data, done
+    @client.hset 'some-flow-uuid', 'instance-uuid/engine-output/config', data, done
 
   beforeEach (done) ->
     data = JSON.stringify {}
-    @client.set 'some-flow-uuid/instance-uuid/engine-data/config', data, done
+    @client.hset 'some-flow-uuid', 'instance-uuid/engine-data/config', data, done
 
   beforeEach (done) ->
     data = JSON.stringify {}
-    @client.set 'some-flow-uuid/instance-uuid/some-trigger-uuid/config', data, done
+    @client.hset 'some-flow-uuid', 'instance-uuid/some-trigger-uuid/config', data, done
 
   beforeEach (done) ->
     data = JSON.stringify {}
-    @client.set 'some-flow-uuid/instance-uuid/some-debug-uuid/config', data, done
+    @client.hset 'some-flow-uuid', 'instance-uuid/some-debug-uuid/config', data, done
 
   afterEach (done) ->
     async.parallel [

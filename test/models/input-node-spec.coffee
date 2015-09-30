@@ -3,7 +3,7 @@ InputNode = require '../../src/models/input-node'
 describe 'InputNode', ->
   beforeEach ->
     @router    = onEnvelope: sinon.spy()
-    @datastore = get: sinon.stub()
+    @datastore = hget: sinon.stub()
     @sut = new InputNode {}, router: @router, datastore: @datastore
 
   describe 'onMessage', ->
@@ -53,12 +53,12 @@ describe 'InputNode', ->
           instanceId: 'some-other-instance-uuid'
           fromUuid: 'some-device-uuid'
 
-      it 'should call datastore.get on the engine-input', ->
-        expect(@datastore.get).to.have.been.calledWith 'some-flow-uuid/some-other-instance-uuid/engine-input/config'
+      it 'should call datastore.hget on the engine-input', ->
+        expect(@datastore.hget).to.have.been.calledWith 'some-flow-uuid', 'some-other-instance-uuid/engine-input/config'
 
       describe 'when the engine-input config contains the fromUuid', ->
         beforeEach ->
-          @datastore.get.yield null,
+          @datastore.hget.yield null,
             'some-device-uuid':
               [{nodeId: 'some-internal-node-uuid'}]
 
@@ -71,7 +71,7 @@ describe 'InputNode', ->
 
       describe 'when the engine-input config contains two fromUuids', ->
         beforeEach ->
-          @datastore.get.yield null,
+          @datastore.hget.yield null,
             'some-device-uuid':
               [
                 {nodeId: 'some-internal-node-uuid'}
@@ -93,14 +93,14 @@ describe 'InputNode', ->
 
       describe 'when the engine-input config doesn\'t contain the fromUuid', ->
         beforeEach ->
-          @datastore.get.yield null, {}
+          @datastore.hget.yield null, {}
 
         it 'should not call router.onEnvelope', ->
           expect(@router.onEnvelope).not.to.have.been.called
 
       describe 'when the engine-input config yields an error', ->
         beforeEach ->
-          @datastore.get.yield new Error 'DB went on vacation'
+          @datastore.hget.yield new Error 'DB went on vacation'
 
         it 'should not call router.onEnvelope', ->
           expect(@router.onEnvelope).not.to.have.been.called
@@ -126,7 +126,7 @@ describe 'InputNode', ->
 
     describe 'with a meshblu message that has a string payload', ->
       beforeEach ->
-        @datastore.get.yields null,
+        @datastore.hget.yields null,
           'some-device-uuid':
             [{nodeId: 'some-internal-node-uuid'}]
 
