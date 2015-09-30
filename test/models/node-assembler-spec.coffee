@@ -97,6 +97,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-not-equal'
         'nanocyte-component-octoblu-channel-request-formatter'
         'nanocyte-component-pass-through'
+        'nanocyte-component-range'
         'nanocyte-component-selective-collect'
         'nanocyte-component-trigger'
       ]

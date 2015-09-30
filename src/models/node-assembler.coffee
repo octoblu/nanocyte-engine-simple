@@ -29,6 +29,7 @@ class NodeAssembler
     @MeshbluOutput      ?= require 'nanocyte-component-meshblu-output'
     @NotEqual           ?= require 'nanocyte-component-not-equal'
     @OctobluChannelRequestFormatter ?= require 'nanocyte-component-octoblu-channel-request-formatter'
+    @Range              ?= require 'nanocyte-component-range'
     @SelectiveCollect   ?= require 'nanocyte-component-selective-collect'
     @Trigger            ?= require 'nanocyte-component-trigger'
     @PassThrough        ?= require 'nanocyte-component-pass-through'
@@ -53,6 +54,7 @@ class NodeAssembler
     'nanocyte-component-not-equal':           @wrapNanocyte @NotEqual
     'nanocyte-component-octoblu-channel-request-formatter': @wrapNanocyte @OctobluChannelRequestFormatter
     'nanocyte-component-pass-through':        @wrapNanocyte @PassThrough
+    'nanocyte-component-range':               @wrapNanocyte @Range
     'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
     'nanocyte-component-trigger':             @wrapNanocyte @Trigger
 

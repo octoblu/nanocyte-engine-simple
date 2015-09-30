@@ -1,6 +1,6 @@
 {
   "name": "nanocyte-engine-simple",
-  "version": "1.13.2",
+  "version": "1.13.3",
   "description": "Simple engine for nanocytes",
   "main": "server.js",
   "private": true,
@@ -53,6 +53,7 @@
     "nanocyte-component-not-equal": "^1.0.0",
     "nanocyte-component-octoblu-channel-request-formatter": "^1.0.0",
     "nanocyte-component-pass-through": "^1.0.0",
+    "nanocyte-component-range": "^1.0.0",
     "nanocyte-component-selective-collect": "^2.0.0",
     "nanocyte-component-trigger": "^1.0.0",
     "redis": "^1.0.0"
