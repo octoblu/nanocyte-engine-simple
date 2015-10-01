@@ -114,6 +114,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-selective-collect'
         'nanocyte-component-sentiment'
         'nanocyte-component-trigger'
+        'nanocyte-component-unique'
       ]
 
     describe 'engine-data', ->
