@@ -89,6 +89,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-contains-all-keys'
         'nanocyte-component-demultiplex'
         'nanocyte-component-equal'
+        'nanocyte-component-http-formatter'
         'nanocyte-component-http-request'
         'nanocyte-component-flow-metric-start'
         'nanocyte-component-greater-than'
