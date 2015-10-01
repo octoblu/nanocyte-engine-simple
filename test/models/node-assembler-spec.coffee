@@ -102,6 +102,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-math'
         'nanocyte-component-meshblu-output'
         'nanocyte-component-not-equal'
+        'nanocyte-component-null'
         'nanocyte-component-octoblu-channel-request-formatter'
         'nanocyte-component-pass-through'
         'nanocyte-component-pass-through-if-length-greater-than-min'

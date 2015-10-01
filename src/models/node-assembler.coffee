@@ -36,6 +36,7 @@ class NodeAssembler
     @Math                              ?= require 'nanocyte-component-math'
     @MeshbluOutput                     ?= require 'nanocyte-component-meshblu-output'
     @NotEqual                          ?= require 'nanocyte-component-not-equal'
+    @Null                              ?= require 'nanocyte-component-null'
     @OctobluChannelRequestFormatter    ?= require 'nanocyte-component-octoblu-channel-request-formatter'
     @PassThrough                       ?= require 'nanocyte-component-pass-through'
     @PassThroughIfLengthGreaterThanMin ?= require 'nanocyte-component-pass-through-if-length-greater-than-min'
@@ -70,6 +71,7 @@ class NodeAssembler
     'nanocyte-component-math':                @wrapNanocyte @Math
     'nanocyte-component-meshblu-output':      @wrapNanocyte @MeshbluOutput
     'nanocyte-component-not-equal':           @wrapNanocyte @NotEqual
+    'nanocyte-component-null':                @wrapNanocyte @Null
     'nanocyte-component-octoblu-channel-request-formatter': @wrapNanocyte @OctobluChannelRequestFormatter
     'nanocyte-component-pass-through':        @wrapNanocyte @PassThrough
     'nanocyte-component-pass-through-if-length-greater-than-min': @wrapNanocyte @PassThroughIfLengthGreaterThanMin
