@@ -7,7 +7,7 @@ class Datastore
     @client.hget key, field, (error, data) =>
       callback error, JSON.parse data
 
-  set: (key, value, callback) =>
-    @client.set key, JSON.stringify(value), callback
+  hset: (key, field, value, callback) =>
+    @client.hset key, field, JSON.stringify(value), callback
 
 module.exports = Datastore

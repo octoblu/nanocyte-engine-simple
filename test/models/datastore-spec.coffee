@@ -26,21 +26,21 @@ describe 'Datastore', ->
       it 'should parse the json', ->
         expect(@result).to.deep.equal bar: 'fu'
 
-  describe '->set', ->
+  describe '->hset', ->
     describe 'when given some foobar', ->
       beforeEach ->
-        @client = set: sinon.stub().yields null
+        @client = hset: sinon.stub().yields null
         @sut = new Datastore client: @client
-        @sut.set 'test', 'best', (error, @result) =>
+        @sut.hset 'test', 'path', 'best', (error, @result) =>
 
       it 'should stringify the json and pass to the client', ->
-        expect(@client.set).to.have.been.calledWith 'test', '"best"'
+        expect(@client.hset).to.have.been.calledWith 'test', 'path','"best"'
 
     describe 'when given an object', ->
       beforeEach ->
-        @client = set: sinon.stub().yields null
+        @client = hset: sinon.stub().yields null
         @sut = new Datastore client: @client
-        @sut.set 'test', {'best':'foods'}, (error, @result) =>
+        @sut.hset 'test', 'other-path', {'best':'foods'}, (error, @result) =>
 
       it 'should stringify the json and pass to the client', ->
-        expect(@client.set).to.have.been.calledWith 'test', '{"best":"foods"}'
+        expect(@client.hset).to.have.been.calledWith 'test', 'other-path', '{"best":"foods"}'

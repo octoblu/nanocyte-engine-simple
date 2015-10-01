@@ -2,7 +2,7 @@ EngineData = require '../../src/models/engine-data'
 
 describe 'EngineData', ->
   beforeEach ->
-    @datastore = set: sinon.stub()
+    @datastore = hset: sinon.stub()
     @sut = new EngineData {}, datastore: @datastore
 
   describe 'when an envelope is written to it', ->
@@ -20,14 +20,15 @@ describe 'EngineData', ->
       @sut.write envelope, @callback
 
     it 'should save the message', ->
-      expect(@datastore.set).to.have.been.calledWith(
-        'flow-id/instance-id/node-id/data'
+      expect(@datastore.hset).to.have.been.calledWith(
+        'flow-id'
+        'instance-id/node-id/data'
         'foo'
       )
 
-    describe 'when @datastore.set yields', ->
+    describe 'when @datastore.hset yields', ->
       beforeEach ->
-        @datastore.set.yield null
+        @datastore.hset.yield null
 
       it 'should call our callback', ->
         expect(@callback).to.have.been.called
@@ -44,8 +45,9 @@ describe 'EngineData', ->
           'the-node-instance-id': {nodeId: 'the-node-id'}
 
     it 'should save the message', ->
-      expect(@datastore.set).to.have.been.calledWith(
-        'the-flow-id/the-instance-id/the-node-id/data'
+      expect(@datastore.hset).to.have.been.calledWith(
+        'the-flow-id'
+        'the-instance-id/the-node-id/data'
         baz: 'bar'
       )
 
@@ -59,5 +61,5 @@ describe 'EngineData', ->
         message: 'irrelevent'
         config: {}
 
-    it 'should not call set', ->
-      expect(@datastore.set).not.to.have.been.called
+    it 'should not call hset', ->
+      expect(@datastore.hset).not.to.have.been.called
