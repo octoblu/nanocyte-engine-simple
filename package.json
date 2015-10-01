@@ -1,6 +1,6 @@
 {
   "name": "nanocyte-engine-simple",
-  "version": "1.13.9",
+  "version": "1.13.10",
   "description": "Simple engine for nanocytes",
   "main": "server.js",
   "private": true,
@@ -43,7 +43,7 @@
     "nanocyte-component-change": "^1.1.0",
     "nanocyte-component-clear-data": "^1.0.1",
     "nanocyte-component-clear-if-length-greater-than-max-else-pass-through": "^1.0.2",
-    "nanocyte-component-collect": "^1.0.1",
+    "nanocyte-component-collect": "^1.0.2",
     "nanocyte-component-contains-all-keys": "^1.1.0",
     "nanocyte-component-demultiplex": "^2.0.0",
     "nanocyte-component-equal": "^1.0.1",
