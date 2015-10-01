@@ -94,6 +94,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-http-formatter'
         'nanocyte-component-http-request'
         'nanocyte-component-flow-metric-start'
+        'nanocyte-component-get-key-from-data'
         'nanocyte-component-greater-than'
         'nanocyte-component-interval-register'
         'nanocyte-component-interval-unregister'

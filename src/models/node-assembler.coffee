@@ -26,6 +26,7 @@ class NodeAssembler
     @Demultiplex                       ?= require 'nanocyte-component-demultiplex'
     @Equal                             ?= require 'nanocyte-component-equal'
     @FlowMetricStart                   ?= require 'nanocyte-component-flow-metric-start'
+    @GetKeyFromData                    ?= require 'nanocyte-component-get-key-from-data'
     @GreaterThan                       ?= require 'nanocyte-component-greater-than'
     @HttpFormatter                     ?= require 'nanocyte-component-http-formatter'
     @HttpRequest                       ?= require 'nanocyte-component-http-request'
@@ -60,6 +61,7 @@ class NodeAssembler
     'nanocyte-component-contains-all-keys':   @wrapNanocyte @ContainsAllKeys
     'nanocyte-component-demultiplex':         @wrapNanocyte @Demultiplex
     'nanocyte-component-equal':               @wrapNanocyte @Equal
+    'nanocyte-component-get-key-from-data':   @wrapNanocyte @GetKeyFromData
     'nanocyte-component-greater-than':        @wrapNanocyte @GreaterThan
     'nanocyte-component-flow-metric-start':   @wrapNanocyte @FlowMetricStart
     'nanocyte-component-http-formatter':      @wrapNanocyte @HttpFormatter
