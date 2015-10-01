@@ -22,11 +22,13 @@ class NodeAssembler
     @ClearIfLengthGreaterThanMaxElsePassThrough ?=
       require 'nanocyte-component-clear-if-length-greater-than-max-else-pass-through'
     @Collect                           ?= require 'nanocyte-component-collect'
+    @ConfigAsMessage                   ?= require 'nanocyte-component-config-as-message'
     @ContainsAllKeys                   ?= require 'nanocyte-component-contains-all-keys'
     @Demultiplex                       ?= require 'nanocyte-component-demultiplex'
     @Equal                             ?= require 'nanocyte-component-equal'
     @FlowMetricStart                   ?= require 'nanocyte-component-flow-metric-start'
     @FlowMetricStop                    ?= require 'nanocyte-component-flow-metric-stop'
+    @Function                          ?= require 'nanocyte-component-function'
     @GetKeyFromData                    ?= require 'nanocyte-component-get-key-from-data'
     @GreaterThan                       ?= require 'nanocyte-component-greater-than'
     @HttpFormatter                     ?= require 'nanocyte-component-http-formatter'
@@ -62,6 +64,7 @@ class NodeAssembler
     'nanocyte-component-clear-if-length-greater-than-max-else-pass-through':
       @wrapNanocyte @ClearIfLengthGreaterThanMaxElsePassThrough
     'nanocyte-component-collect':             @wrapNanocyte @Collect
+    'nanocyte-component-config-as-message':   @wrapNanocyte @ConfigAsMessage
     'nanocyte-component-contains-all-keys':   @wrapNanocyte @ContainsAllKeys
     'nanocyte-component-demultiplex':         @wrapNanocyte @Demultiplex
     'nanocyte-component-equal':               @wrapNanocyte @Equal
@@ -69,6 +72,7 @@ class NodeAssembler
     'nanocyte-component-greater-than':        @wrapNanocyte @GreaterThan
     'nanocyte-component-flow-metric-start':   @wrapNanocyte @FlowMetricStart
     'nanocyte-component-flow-metric-stop':    @wrapNanocyte @FlowMetricStop
+    'nanocyte-component-function':            @wrapNanocyte @Function
     'nanocyte-component-http-formatter':      @wrapNanocyte @HttpFormatter
     'nanocyte-component-http-request':        @wrapNanocyte @HttpRequest
     'nanocyte-component-interval-register':   @wrapNanocyte @IntervalRegister
