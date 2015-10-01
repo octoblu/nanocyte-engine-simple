@@ -1,6 +1,6 @@
 {
   "name": "nanocyte-engine-simple",
-  "version": "1.13.25",
+  "version": "1.13.26",
   "description": "Simple engine for nanocytes",
   "main": "server.js",
   "private": true,
@@ -49,6 +49,7 @@
     "nanocyte-component-equal": "^1.0.1",
     "nanocyte-component-flow-metric-start": "^1.0.0",
     "nanocyte-component-flow-metric-stop": "^1.0.0",
+    "nanocyte-component-function": "^1.0.3",
     "nanocyte-component-get-key-from-data": "^1.0.1",
     "nanocyte-component-greater-than": "^1.0.1",
     "nanocyte-component-http-formatter": "^1.0.0",

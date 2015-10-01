@@ -27,6 +27,7 @@ class NodeAssembler
     @Equal                             ?= require 'nanocyte-component-equal'
     @FlowMetricStart                   ?= require 'nanocyte-component-flow-metric-start'
     @FlowMetricStop                    ?= require 'nanocyte-component-flow-metric-stop'
+    @Function                          ?= require 'nanocyte-component-function'
     @GetKeyFromData                    ?= require 'nanocyte-component-get-key-from-data'
     @GreaterThan                       ?= require 'nanocyte-component-greater-than'
     @HttpFormatter                     ?= require 'nanocyte-component-http-formatter'
@@ -69,6 +70,7 @@ class NodeAssembler
     'nanocyte-component-greater-than':        @wrapNanocyte @GreaterThan
     'nanocyte-component-flow-metric-start':   @wrapNanocyte @FlowMetricStart
     'nanocyte-component-flow-metric-stop':    @wrapNanocyte @FlowMetricStop
+    'nanocyte-component-function':            @wrapNanocyte @Function
     'nanocyte-component-http-formatter':      @wrapNanocyte @HttpFormatter
     'nanocyte-component-http-request':        @wrapNanocyte @HttpRequest
     'nanocyte-component-interval-register':   @wrapNanocyte @IntervalRegister
