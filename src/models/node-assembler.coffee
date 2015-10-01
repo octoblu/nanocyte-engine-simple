@@ -26,6 +26,8 @@ class NodeAssembler
     @Demultiplex                       ?= require 'nanocyte-component-demultiplex'
     @Equal                             ?= require 'nanocyte-component-equal'
     @FlowMetricStart                   ?= require 'nanocyte-component-flow-metric-start'
+    @FlowMetricStop                    ?= require 'nanocyte-component-flow-metric-stop'
+    @GetKeyFromData                    ?= require 'nanocyte-component-get-key-from-data'
     @GreaterThan                       ?= require 'nanocyte-component-greater-than'
     @HttpFormatter                     ?= require 'nanocyte-component-http-formatter'
     @HttpRequest                       ?= require 'nanocyte-component-http-request'
@@ -42,6 +44,7 @@ class NodeAssembler
     @PassThroughIfLengthGreaterThanMin ?= require 'nanocyte-component-pass-through-if-length-greater-than-min'
     @Pluck                             ?= require 'nanocyte-component-pluck'
     @Range                             ?= require 'nanocyte-component-range'
+    @Sample                            ?= require 'nanocyte-component-sample'
     @SelectiveCollect                  ?= require 'nanocyte-component-selective-collect'
     @Sentiment                         ?= require 'nanocyte-component-sentiment'
     @Trigger                           ?= require 'nanocyte-component-trigger'
@@ -61,8 +64,10 @@ class NodeAssembler
     'nanocyte-component-contains-all-keys':   @wrapNanocyte @ContainsAllKeys
     'nanocyte-component-demultiplex':         @wrapNanocyte @Demultiplex
     'nanocyte-component-equal':               @wrapNanocyte @Equal
+    'nanocyte-component-get-key-from-data':   @wrapNanocyte @GetKeyFromData
     'nanocyte-component-greater-than':        @wrapNanocyte @GreaterThan
     'nanocyte-component-flow-metric-start':   @wrapNanocyte @FlowMetricStart
+    'nanocyte-component-flow-metric-stop':    @wrapNanocyte @FlowMetricStop
     'nanocyte-component-http-formatter':      @wrapNanocyte @HttpFormatter
     'nanocyte-component-http-request':        @wrapNanocyte @HttpRequest
     'nanocyte-component-interval-register':   @wrapNanocyte @IntervalRegister
@@ -78,6 +83,7 @@ class NodeAssembler
     'nanocyte-component-pass-through-if-length-greater-than-min': @wrapNanocyte @PassThroughIfLengthGreaterThanMin
     'nanocyte-component-pluck':               @wrapNanocyte @Pluck
     'nanocyte-component-range':               @wrapNanocyte @Range
+    'nanocyte-component-sample':              @wrapNanocyte @Sample
     'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
     'nanocyte-component-sentiment':           @wrapNanocyte @Sentiment
     'nanocyte-component-trigger':             @wrapNanocyte @Trigger
