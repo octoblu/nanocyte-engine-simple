@@ -43,6 +43,7 @@ class NodeAssembler
     @Pluck                             ?= require 'nanocyte-component-pluck'
     @Range                             ?= require 'nanocyte-component-range'
     @SelectiveCollect                  ?= require 'nanocyte-component-selective-collect'
+    @Sentiment                         ?= require 'nanocyte-component-sentiment'
     @Trigger                           ?= require 'nanocyte-component-trigger'
 
   assembleNodes: =>
@@ -78,6 +79,7 @@ class NodeAssembler
     'nanocyte-component-pluck':               @wrapNanocyte @Pluck
     'nanocyte-component-range':               @wrapNanocyte @Range
     'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
+    'nanocyte-component-sentiment':           @wrapNanocyte @Sentiment
     'nanocyte-component-trigger':             @wrapNanocyte @Trigger
 
   buildEngineData: =>

@@ -109,6 +109,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-pluck'
         'nanocyte-component-range'
         'nanocyte-component-selective-collect'
+        'nanocyte-component-sentiment'
         'nanocyte-component-trigger'
       ]
 
