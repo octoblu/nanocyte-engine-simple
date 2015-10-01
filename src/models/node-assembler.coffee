@@ -21,26 +21,27 @@ class NodeAssembler
     @ClearData          ?= require 'nanocyte-component-clear-data'
     @ClearIfLengthGreaterThanMaxElsePassThrough ?=
       require 'nanocyte-component-clear-if-length-greater-than-max-else-pass-through'
-    @Collect            ?= require 'nanocyte-component-collect'
-    @ContainsAllKeys    ?= require 'nanocyte-component-contains-all-keys'
-    @Demultiplex        ?= require 'nanocyte-component-demultiplex'
-    @Equal              ?= require 'nanocyte-component-equal'
-    @GreaterThan        ?= require 'nanocyte-component-greater-than'
-    @HttpFormatter      ?= require 'nanocyte-component-http-formatter'
-    @HttpRequest        ?= require 'nanocyte-component-http-request'
-    @FlowMetricStart    ?= require 'nanocyte-component-flow-metric-start'
-    @IntervalRegister   ?= require 'nanocyte-component-interval-register'
-    @IntervalUnregister ?= require 'nanocyte-component-interval-unregister'
-    @LessThan           ?= require 'nanocyte-component-less-than'
-    @MapMessageToKey    ?= require 'nanocyte-component-map-message-to-key'
-    @MeshbluOutput      ?= require 'nanocyte-component-meshblu-output'
-    @NotEqual           ?= require 'nanocyte-component-not-equal'
+    @Collect                           ?= require 'nanocyte-component-collect'
+    @ContainsAllKeys                   ?= require 'nanocyte-component-contains-all-keys'
+    @Demultiplex                       ?= require 'nanocyte-component-demultiplex'
+    @Equal                             ?= require 'nanocyte-component-equal'
+    @FlowMetricStart                   ?= require 'nanocyte-component-flow-metric-start'
+    @GreaterThan                       ?= require 'nanocyte-component-greater-than'
+    @HttpFormatter                     ?= require 'nanocyte-component-http-formatter'
+    @HttpRequest                       ?= require 'nanocyte-component-http-request'
+    @IntervalRegister                  ?= require 'nanocyte-component-interval-register'
+    @IntervalUnregister                ?= require 'nanocyte-component-interval-unregister'
+    @LessThan                          ?= require 'nanocyte-component-less-than'
+    @MapMessageToKey                   ?= require 'nanocyte-component-map-message-to-key'
+    @Math                              ?= require 'nanocyte-component-math'
+    @MeshbluOutput                     ?= require 'nanocyte-component-meshblu-output'
+    @NotEqual                          ?= require 'nanocyte-component-not-equal'
     @OctobluChannelRequestFormatter    ?= require 'nanocyte-component-octoblu-channel-request-formatter'
+    @PassThrough                       ?= require 'nanocyte-component-pass-through'
     @PassThroughIfLengthGreaterThanMin ?= require 'nanocyte-component-pass-through-if-length-greater-than-min'
-    @Range              ?= require 'nanocyte-component-range'
-    @SelectiveCollect   ?= require 'nanocyte-component-selective-collect'
-    @Trigger            ?= require 'nanocyte-component-trigger'
-    @PassThrough        ?= require 'nanocyte-component-pass-through'
+    @Range                             ?= require 'nanocyte-component-range'
+    @SelectiveCollect                  ?= require 'nanocyte-component-selective-collect'
+    @Trigger                           ?= require 'nanocyte-component-trigger'
 
   assembleNodes: =>
     'engine-data':           @buildEngineData()
@@ -65,6 +66,7 @@ class NodeAssembler
     'nanocyte-component-interval-unregister': @wrapNanocyte @IntervalUnregister
     'nanocyte-component-less-than':           @wrapNanocyte @LessThan
     'nanocyte-component-map-message-to-key':  @wrapNanocyte @MapMessageToKey
+    'nanocyte-component-math':                @wrapNanocyte @Math
     'nanocyte-component-meshblu-output':      @wrapNanocyte @MeshbluOutput
     'nanocyte-component-not-equal':           @wrapNanocyte @NotEqual
     'nanocyte-component-octoblu-channel-request-formatter': @wrapNanocyte @OctobluChannelRequestFormatter

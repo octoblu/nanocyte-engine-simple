@@ -99,6 +99,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-interval-unregister'
         'nanocyte-component-less-than'
         'nanocyte-component-map-message-to-key'
+        'nanocyte-component-math'
         'nanocyte-component-meshblu-output'
         'nanocyte-component-not-equal'
         'nanocyte-component-octoblu-channel-request-formatter'
