@@ -43,6 +43,7 @@ class NodeAssembler
     @PassThroughIfLengthGreaterThanMin ?= require 'nanocyte-component-pass-through-if-length-greater-than-min'
     @Pluck                             ?= require 'nanocyte-component-pluck'
     @Range                             ?= require 'nanocyte-component-range'
+    @Sample                            ?= require 'nanocyte-component-sample'
     @SelectiveCollect                  ?= require 'nanocyte-component-selective-collect'
     @Trigger                           ?= require 'nanocyte-component-trigger'
 
@@ -79,6 +80,7 @@ class NodeAssembler
     'nanocyte-component-pass-through-if-length-greater-than-min': @wrapNanocyte @PassThroughIfLengthGreaterThanMin
     'nanocyte-component-pluck':               @wrapNanocyte @Pluck
     'nanocyte-component-range':               @wrapNanocyte @Range
+    'nanocyte-component-sample':              @wrapNanocyte @Sample
     'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
     'nanocyte-component-trigger':             @wrapNanocyte @Trigger
 
