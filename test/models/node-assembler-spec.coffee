@@ -88,6 +88,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-clear-data'
         'nanocyte-component-clear-if-length-greater-than-max-else-pass-through'
         'nanocyte-component-collect'
+        'nanocyte-component-config-as-message'
         'nanocyte-component-contains-all-keys'
         'nanocyte-component-demultiplex'
         'nanocyte-component-equal'

@@ -22,6 +22,7 @@ class NodeAssembler
     @ClearIfLengthGreaterThanMaxElsePassThrough ?=
       require 'nanocyte-component-clear-if-length-greater-than-max-else-pass-through'
     @Collect                           ?= require 'nanocyte-component-collect'
+    @ConfigAsMessage                   ?= require 'nanocyte-component-config-as-message'
     @ContainsAllKeys                   ?= require 'nanocyte-component-contains-all-keys'
     @Demultiplex                       ?= require 'nanocyte-component-demultiplex'
     @Equal                             ?= require 'nanocyte-component-equal'
@@ -62,6 +63,7 @@ class NodeAssembler
     'nanocyte-component-clear-if-length-greater-than-max-else-pass-through':
       @wrapNanocyte @ClearIfLengthGreaterThanMaxElsePassThrough
     'nanocyte-component-collect':             @wrapNanocyte @Collect
+    'nanocyte-component-config-as-message':   @wrapNanocyte @ConfigAsMessage
     'nanocyte-component-contains-all-keys':   @wrapNanocyte @ContainsAllKeys
     'nanocyte-component-demultiplex':         @wrapNanocyte @Demultiplex
     'nanocyte-component-equal':               @wrapNanocyte @Equal
