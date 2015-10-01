@@ -48,6 +48,7 @@ class NodeAssembler
     @SelectiveCollect                  ?= require 'nanocyte-component-selective-collect'
     @Sentiment                         ?= require 'nanocyte-component-sentiment'
     @Trigger                           ?= require 'nanocyte-component-trigger'
+    @Unique                            ?= require 'nanocyte-component-unique'
 
   assembleNodes: =>
     'engine-data':           @buildEngineData()
@@ -87,6 +88,7 @@ class NodeAssembler
     'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
     'nanocyte-component-sentiment':           @wrapNanocyte @Sentiment
     'nanocyte-component-trigger':             @wrapNanocyte @Trigger
+    'nanocyte-component-unique':              @wrapNanocyte @Unique
 
   buildEngineData: =>
     onEnvelope: (envelope) =>
