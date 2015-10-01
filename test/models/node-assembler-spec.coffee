@@ -108,6 +108,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-pass-through-if-length-greater-than-min'
         'nanocyte-component-pluck'
         'nanocyte-component-range'
+        'nanocyte-component-sample'
         'nanocyte-component-selective-collect'
         'nanocyte-component-trigger'
       ]
