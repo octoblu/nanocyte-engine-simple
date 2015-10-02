@@ -44,6 +44,7 @@ class NodeAssembler
     @NotEqual                          ?= require 'nanocyte-component-not-equal'
     @Null                              ?= require 'nanocyte-component-null'
     @OctobluChannelRequestFormatter    ?= require 'nanocyte-component-octoblu-channel-request-formatter'
+    @OnStart                           ?= require 'nanocyte-component-onstart'
     @PassThrough                       ?= require 'nanocyte-component-pass-through'
     @PassThroughIfLengthGreaterThanMin ?= require 'nanocyte-component-pass-through-if-length-greater-than-min'
     @Pluck                             ?= require 'nanocyte-component-pluck'
@@ -87,6 +88,7 @@ class NodeAssembler
     'nanocyte-component-not-equal':           @wrapNanocyte @NotEqual
     'nanocyte-component-null':                @wrapNanocyte @Null
     'nanocyte-component-octoblu-channel-request-formatter': @wrapNanocyte @OctobluChannelRequestFormatter
+    'nanocyte-component-onstart':             @wrapNanocyte @OnStart
     'nanocyte-component-pass-through':        @wrapNanocyte @PassThrough
     'nanocyte-component-pass-through-if-length-greater-than-min': @wrapNanocyte @PassThroughIfLengthGreaterThanMin
     'nanocyte-component-pluck':               @wrapNanocyte @Pluck
