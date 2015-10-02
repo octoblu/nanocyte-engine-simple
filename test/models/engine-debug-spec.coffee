@@ -38,6 +38,7 @@ describe 'EngineDebug', ->
           topic: 'debug'
           payload:
             node: 'dat-uuid'
+            msgType: undefined
             msg:
               payload:
                 some: 'data'

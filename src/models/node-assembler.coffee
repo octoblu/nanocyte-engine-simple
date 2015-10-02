@@ -1,6 +1,7 @@
 {PassThrough} = require 'stream'
 debug = require('debug')('nanocyte-engine-simple:node-assembler')
 debugStream = require('debug-stream')('nanocyte-engine-simple:node-assembler')
+ErrorStream = require './error-stream'
 
 class NodeAssembler
   constructor: (options, dependencies={}) ->
@@ -144,5 +145,16 @@ class NodeAssembler
         callback null, read
 
       datastoreGetStream.pipe node
+
+      node.on 'error', (error) =>
+        console.log error.message
+        errorStream = new ErrorStream error: error
+        errorStream.write envelope
+
+        errorStream
+          .pipe new @DatastoreGetStream
+          .pipe new @EngineDebug
+          .pipe new @DatastoreGetStream
+          .pipe new @EngineOutput
 
 module.exports = NodeAssembler

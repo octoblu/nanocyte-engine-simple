@@ -16,6 +16,8 @@ class NanocyteNodeWrapper extends Transform
 
     @node.on 'end', => @push null
 
+    @node.on 'error', (error) =>
+
   _transform: (@envelope, enc, next) =>
     newEnvelope = _.cloneDeep _.pick(@envelope, 'config', 'data', 'message')
     {config,message} = newEnvelope
