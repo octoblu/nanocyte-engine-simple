@@ -1,6 +1,8 @@
 _ = require 'lodash'
+async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:router')
 NodeAssembler = require './node-assembler'
+Benchmark = require './benchmark'
 
 class Router
   constructor: (dependencies={}) ->
@@ -20,7 +22,7 @@ class Router
       senderNodeConfig = routerConfig[fromNodeId]
       return console.error 'router.coffee: senderNodeConfig was not defined' unless senderNodeConfig?
 
-      _.each senderNodeConfig.linkedTo, (uuid) =>
+      async.each senderNodeConfig.linkedTo, (uuid, done) =>
         debug uuid
         receiverNodeConfig = routerConfig[uuid]
         return console.error 'router.coffee: receiverNodeConfig was not defined' unless receiverNodeConfig?
@@ -28,6 +30,7 @@ class Router
         receiverNode = @nodes[receiverNodeConfig.type]
         return console.error "router.coffee: No registered type for '#{receiverNodeConfig.type}'" unless receiverNode?
 
+        benchmark = new Benchmark label: receiverNodeConfig.type
         receiverNode.onEnvelope
           flowId:      flowId
           instanceId:  instanceId
@@ -35,6 +38,8 @@ class Router
           toNodeId:    uuid
           fromNodeId:  fromNodeId
         , (error, envelope) =>
-          @onEnvelope envelope
+          debug benchmark.toString()
+          _.defer @onEnvelope, envelope
+          done()
 
 module.exports = Router

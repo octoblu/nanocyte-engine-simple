@@ -18,7 +18,7 @@ app = express()
 app.use morgan 'dev'
 app.use errorHandler()
 app.use meshbluHealthcheck()
-app.use meshbluAuth meshbluConfig.toJSON()
+app.use meshbluAuth meshbluConfig.toJSON() unless process.env.DISABLE_MESHBLU_AUTH == 'true'
 app.use bodyParser.urlencoded limit: '50mb', extended : true
 app.use bodyParser.json limit : '50mb'
 
