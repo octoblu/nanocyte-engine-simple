@@ -25,6 +25,7 @@ class NodeAssembler
     @Collect                           ?= require 'nanocyte-component-collect'
     @ConfigAsMessage                   ?= require 'nanocyte-component-config-as-message'
     @ContainsAllKeys                   ?= require 'nanocyte-component-contains-all-keys'
+    @DataAsMessage                     ?= require 'nanocyte-component-data-as-message'
     @Demultiplex                       ?= require 'nanocyte-component-demultiplex'
     @Equal                             ?= require 'nanocyte-component-equal'
     @FlowMetricStart                   ?= require 'nanocyte-component-flow-metric-start'
@@ -67,6 +68,7 @@ class NodeAssembler
     'nanocyte-component-collect':             @wrapNanocyte @Collect
     'nanocyte-component-config-as-message':   @wrapNanocyte @ConfigAsMessage
     'nanocyte-component-contains-all-keys':   @wrapNanocyte @ContainsAllKeys
+    'nanocyte-component-data-as-message':     @wrapNanocyte @DataAsMessage
     'nanocyte-component-demultiplex':         @wrapNanocyte @Demultiplex
     'nanocyte-component-equal':               @wrapNanocyte @Equal
     'nanocyte-component-get-key-from-data':   @wrapNanocyte @GetKeyFromData
