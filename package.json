@@ -1,6 +1,6 @@
 {
   "name": "nanocyte-engine-simple",
-  "version": "1.13.48",
+  "version": "1.13.49",
   "description": "Simple engine for nanocytes",
   "main": "server.js",
   "private": true,
@@ -56,7 +56,7 @@
     "nanocyte-component-greater-than": "^1.0.2",
     "nanocyte-component-http-formatter": "^1.0.6",
     "nanocyte-component-http-request": "^1.0.3",
-    "nanocyte-component-interval-register": "^1.3.5",
+    "nanocyte-component-interval-register": "^1.3.6",
     "nanocyte-component-interval-unregister": "^1.1.1",
     "nanocyte-component-less-than": "^1.0.1",
     "nanocyte-component-map-message-to-key": "^1.0.2",
