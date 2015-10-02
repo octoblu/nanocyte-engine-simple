@@ -117,6 +117,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-sample'
         'nanocyte-component-selective-collect'
         'nanocyte-component-sentiment'
+        'nanocyte-component-template'
         'nanocyte-component-trigger'
         'nanocyte-component-unique'
       ]
