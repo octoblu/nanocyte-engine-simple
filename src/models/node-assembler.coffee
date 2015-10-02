@@ -52,6 +52,7 @@ class NodeAssembler
     @Sample                            ?= require 'nanocyte-component-sample'
     @SelectiveCollect                  ?= require 'nanocyte-component-selective-collect'
     @Sentiment                         ?= require 'nanocyte-component-sentiment'
+    @Template                          ?= require 'nanocyte-component-template'
     @Trigger                           ?= require 'nanocyte-component-trigger'
     @Unique                            ?= require 'nanocyte-component-unique'
 
@@ -96,6 +97,7 @@ class NodeAssembler
     'nanocyte-component-sample':              @wrapNanocyte @Sample
     'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
     'nanocyte-component-sentiment':           @wrapNanocyte @Sentiment
+    'nanocyte-component-template':             @wrapNanocyte @Template
     'nanocyte-component-trigger':             @wrapNanocyte @Trigger
     'nanocyte-component-unique':              @wrapNanocyte @Unique
 
