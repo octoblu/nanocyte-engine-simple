@@ -4,11 +4,12 @@
 
 # HOST="https://nanocyte-engine.octoblu.com"
 PROTOCOL="http://"
-HOST="localhost:5050"
+# HOST="localhost:5050"
+HOST="172.17.8.101:5050"
 
 FLOW_UUID=bf3fbc43-c90b-4e0d-a609-6f58caed29d9
 FLOW_TOKEN=5a1f5d795cde22c982d61655d2d59a44b0495c2c
-INSTANCE_UUID=2319f236-c546-4769-bb24-baadde0265e9
+INSTANCE_UUID=34188a65-b46e-4c6e-9519-253a8f8cb593
 TRIGGER_UUID=31503d60-678d-11e5-a99e-3566d24dacf2
 
 URL="${PROTOCOL}${FLOW_UUID}:${FLOW_TOKEN}@${HOST}/flows/${FLOW_UUID}/instances/${INSTANCE_UUID}/messages"
