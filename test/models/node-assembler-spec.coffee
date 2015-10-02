@@ -90,6 +90,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-collect'
         'nanocyte-component-config-as-message'
         'nanocyte-component-contains-all-keys'
+        'nanocyte-component-data-as-message'
         'nanocyte-component-demultiplex'
         'nanocyte-component-equal'
         'nanocyte-component-http-formatter'
