@@ -6,8 +6,6 @@ services:
 addons:
   code_climate:
     repo_token: a26a6abc2006b73cd82323feb30e102b2bfd0d73c6e43f5f52a472b7faeb5a66
-env:
-  CXX=g++-4.8
 before_install:
 - npm update -g npm
 - npm --version
