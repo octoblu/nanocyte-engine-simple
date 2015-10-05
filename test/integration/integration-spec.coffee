@@ -235,6 +235,4 @@ describe 'a flow with one trigger connected to a debug', ->
         payload:
           node: "original-debug-uuid",
           msgType: undefined
-          msg:
-            payload:
-              something: 'completely-different'
+          msg: something: 'completely-different'

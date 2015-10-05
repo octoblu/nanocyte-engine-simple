@@ -20,9 +20,7 @@ class EngineDebug extends Transform
         payload:
           node: nodeId
           msgType: envelope.msgType
-          msg:
-            payload:
-              envelope.message
+          msg: envelope.message
 
 
 module.exports = EngineDebug
