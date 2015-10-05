@@ -3,6 +3,7 @@ path = require 'path'
 async = require 'async'
 redis = require 'redis'
 _ = require 'lodash'
+debug = require('debug')('nanoparticle')
 
 fakeOutComponent = (packageName, onWrite) ->
   class FakeNode extends stream.Transform
@@ -82,6 +83,7 @@ describe 'a flow with one trigger connected to a debug', ->
 
   describe 'sending a message to a trigger node', ->
     beforeEach ->
+      @timeout 4000
       @triggerNodeOnMessage = sinon.spy => @triggerNodeOnMessage.done()
       fakeOutComponent 'nanocyte-component-trigger', @triggerNodeOnMessage
 
@@ -108,6 +110,7 @@ describe 'a flow with one trigger connected to a debug', ->
                 foo: 'bar'
 
         @triggerNodeOnMessage.done = done
+        debug '@sut.create'
         @sut.create request, @response
 
       it 'should call onMessage on the triggerNode', ->
