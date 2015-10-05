@@ -2,12 +2,25 @@
 christacheio = require 'christacheio'
 debug        = require('debug')('nanocyte-engine-simple:nanocyte-node-wrapper')
 _            = require 'lodash'
+Domain       = require 'domain'
 
 class NanocyteNodeWrapper extends Transform
-  constructor: ({nodeClass}) ->
+  constructor: ({@nodeClass}) ->
     super objectMode: true
 
-    @node = new nodeClass
+    @domain = Domain.create()
+    @domain.on 'error', (error) =>
+      @emit 'error', error
+
+  initialize: =>
+    @domain.enter()
+
+    try
+      @node = new @nodeClass
+    catch error
+      @emit 'error', error
+      return
+
     @node.on 'readable', =>
       message = @node.read()
       return if _.isNull message
@@ -19,6 +32,9 @@ class NanocyteNodeWrapper extends Transform
     @node.on 'end', => @push null
 
     @node.on 'error', (error) =>
+      @emit 'error', error
+
+    @domain.exit()
 
   _transform: (@envelope, enc, next) =>
     newEnvelope = _.cloneDeep _.pick(@envelope, 'config', 'data', 'message')
@@ -28,7 +44,10 @@ class NanocyteNodeWrapper extends Transform
     secondPass = @secondPass firstPass, message
     newEnvelope.config = JSON.parse secondPass
 
-    @node.write newEnvelope, enc, next
+    @domain.enter()
+    @node.write newEnvelope, enc, =>
+      next()
+    @domain.exit()
 
   firstPass: (json, context) =>
     context = _.defaults {msg: context}, context

@@ -1,5 +1,6 @@
 NanocyteNodeWrapper = require '../../src/models/nanocyte-node-wrapper'
 stream = require 'stream'
+_ = require 'lodash'
 
 describe 'NanocyteNodeWrapper', ->
   describe 'on write', ->
@@ -12,6 +13,7 @@ describe 'NanocyteNodeWrapper', ->
         write: mahNodeOnWrite
 
       @sut = new NanocyteNodeWrapper nodeClass: MahNode
+      @sut.initialize()
 
     describe 'when an envelope is written to it', ->
       beforeEach (done) ->
@@ -93,6 +95,7 @@ describe 'NanocyteNodeWrapper', ->
             5
 
         @sut = new NanocyteNodeWrapper nodeClass: MahNode
+        @sut.initialize()
 
       describe 'when an envelope is written to it', ->
         beforeEach (done) ->
@@ -121,6 +124,7 @@ describe 'NanocyteNodeWrapper', ->
             next()
 
         @sut = new NanocyteNodeWrapper nodeClass: TwoMessageNode
+        @sut.initialize()
 
       describe 'when an envelope is written to it', ->
         beforeEach (done) ->
@@ -144,3 +148,68 @@ describe 'NanocyteNodeWrapper', ->
             flowId: 555
             fromNodeId: 3
             message: 2
+
+  describe 'on explode', ->
+    beforeEach ->
+      class WaffleIron extends stream.Writable
+        constructor: ->
+          super objectMode: true
+
+        write: =>
+          _.defer =>
+            throw new Error 'Batter up!'
+
+      @sut = new NanocyteNodeWrapper nodeClass: WaffleIron
+      @sut.initialize()
+
+    describe 'when written to', ->
+      beforeEach (done) ->
+        @callback = (@error) => done()
+        @sut.on 'error', @callback
+        @sut.write
+          message: 'hi'
+          config: {}
+
+      it 'should have emitted the error', ->
+        expect(=> throw @error).to.throw 'Batter up!'
+
+  describe 'on a smaller explosion', ->
+    beforeEach ->
+      class Timber extends stream.PassThrough
+        constructor: ->
+          super objectMode: true
+
+        read: =>
+          _.defer =>
+            throw new Error 'You WOOD die this way.'
+
+      @sut = new NanocyteNodeWrapper nodeClass: Timber
+      @sut.initialize()
+
+    describe 'when written to', ->
+      beforeEach (done) ->
+        @callback = (@error) => done()
+        @sut.on 'error', @callback
+        @sut.on 'readable', =>
+          while read = @sut.read()
+            read
+
+        @sut.write
+          message: 'hi'
+          config: {}
+
+      it 'should have emitted the error', ->
+        expect(=> throw @error).to.throw 'You WOOD die this way.'
+
+  describe 'on a node constructor explosion', ->
+    beforeEach (done) ->
+      class ChoppedToBits
+        constructor: ->
+          throw new Error 'Look at the bright side -- you avoided being ground into dust!'
+
+      @sut = new NanocyteNodeWrapper nodeClass: ChoppedToBits
+      @sut.on 'error', (@error) => done()
+      @sut.initialize()
+
+    it 'should have emitted the error', ->
+      expect(=> throw @error).to.throw 'Look at the bright side -- you avoided being ground into dust!'

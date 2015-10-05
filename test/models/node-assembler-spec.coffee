@@ -24,6 +24,8 @@ describe 'NodeAssembler', ->
         constructor: ->
           super objectMode: true
 
+        initialize: =>
+
         _transform: (envelope, enc, next) =>
           nanocyteOnWriteMessage envelope, (error, nextEnvelope) =>
             @push nextEnvelope

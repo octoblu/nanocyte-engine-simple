@@ -156,13 +156,9 @@ class NodeAssembler
       node.on 'readable', =>
         read = node.read()
         return if _.isNull read
-        # console.log 'read something that wasnt null: ', read
         callback null, read
 
-      datastoreGetStream.pipe node
-
       node.on 'error', (error) =>
-        console.log error.message
         errorStream = new ErrorStream error: error
         errorStream.write envelope
 
@@ -171,5 +167,8 @@ class NodeAssembler
           .pipe new @EngineDebug
           .pipe new @DatastoreGetStream
           .pipe new @EngineOutput
+
+      node.initialize()
+      datastoreGetStream.pipe node
 
 module.exports = NodeAssembler
