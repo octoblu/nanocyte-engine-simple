@@ -38,6 +38,7 @@ class Router
           toNodeId:    uuid
           fromNodeId:  fromNodeId
         , (error, envelope) =>
+          return unless envelope?
           debug benchmark.toString()
           _.defer @onEnvelope, envelope
 

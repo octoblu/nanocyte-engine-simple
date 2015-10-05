@@ -2,6 +2,7 @@
 debug = require('debug')('nanocyte-engine-simple:node-assembler')
 debugStream = require('debug-stream')('nanocyte-engine-simple:node-assembler')
 ErrorStream = require './error-stream'
+_ = require 'lodash'
 
 class NodeAssembler
   constructor: (options, dependencies={}) ->
@@ -148,6 +149,8 @@ class NodeAssembler
 
       node.on 'readable', =>
         read = node.read()
+        return if _.isNull read
+        # console.log 'read something that wasnt null: ', read
         callback null, read
 
       datastoreGetStream.pipe node
