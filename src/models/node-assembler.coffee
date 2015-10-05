@@ -24,7 +24,6 @@ class NodeAssembler
     @ClearIfLengthGreaterThanMaxElsePassThrough ?=
       require 'nanocyte-component-clear-if-length-greater-than-max-else-pass-through'
     @Collect                           ?= require 'nanocyte-component-collect'
-    @CollectMessages                   ?= require 'nanocyte-component-collect-messages'
     @ConfigAsMessage                   ?= require 'nanocyte-component-config-as-message'
     @ContainsAllKeys                   ?= require 'nanocyte-component-contains-all-keys'
     @DataAsMessage                     ?= require 'nanocyte-component-data-as-message'
@@ -50,6 +49,7 @@ class NodeAssembler
     @PassThrough                       ?= require 'nanocyte-component-pass-through'
     @PassThroughIfLengthGreaterThanMin ?= require 'nanocyte-component-pass-through-if-length-greater-than-min'
     @Pluck                             ?= require 'nanocyte-component-pluck'
+    @PushMessageOnData                 ?= require 'nanocyte-component-push-message-on-data'
     @Range                             ?= require 'nanocyte-component-range'
     @Sample                            ?= require 'nanocyte-component-sample'
     @SelectiveCollect                  ?= require 'nanocyte-component-selective-collect'
@@ -72,7 +72,6 @@ class NodeAssembler
     'nanocyte-component-clear-if-length-greater-than-max-else-pass-through':
       @wrapNanocyte @ClearIfLengthGreaterThanMaxElsePassThrough
     'nanocyte-component-collect':             @wrapNanocyte @Collect
-    'nanocyte-component-collect-messages':    @wrapNanocyte @CollectMessages
     'nanocyte-component-config-as-message':   @wrapNanocyte @ConfigAsMessage
     'nanocyte-component-contains-all-keys':   @wrapNanocyte @ContainsAllKeys
     'nanocyte-component-data-as-message':     @wrapNanocyte @DataAsMessage
@@ -98,6 +97,7 @@ class NodeAssembler
     'nanocyte-component-pass-through':        @wrapNanocyte @PassThrough
     'nanocyte-component-pass-through-if-length-greater-than-min': @wrapNanocyte @PassThroughIfLengthGreaterThanMin
     'nanocyte-component-pluck':               @wrapNanocyte @Pluck
+    'nanocyte-component-push-message-on-data': @wrapNanocyte @PushMessageOnData
     'nanocyte-component-range':               @wrapNanocyte @Range
     'nanocyte-component-sample':              @wrapNanocyte @Sample
     'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
