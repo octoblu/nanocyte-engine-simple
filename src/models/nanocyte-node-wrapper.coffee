@@ -10,6 +10,8 @@ class NanocyteNodeWrapper extends Transform
     @node = new nodeClass
     @node.on 'readable', =>
       message = @node.read()
+      return if _.isNull message
+
       {toNodeId} = @envelope
       envelope  = _.omit @envelope, 'config', 'data', 'toNodeId'
       @push _.defaults {fromNodeId: toNodeId, message: message}, envelope
