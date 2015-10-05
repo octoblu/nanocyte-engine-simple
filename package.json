@@ -1,6 +1,6 @@
 {
   "name": "nanocyte-engine-simple",
-  "version": "1.13.53",
+  "version": "1.13.54",
   "description": "Simple engine for nanocytes",
   "main": "server.js",
   "private": true,
@@ -77,7 +77,7 @@
     "nanocyte-component-shift-messages": "^1.0.2",
     "nanocyte-component-shift-send": "^1.0.2",
     "nanocyte-component-template": "^1.0.3",
-    "nanocyte-component-trigger": "^1.0.2",
+    "nanocyte-component-trigger": "^1.0.3",
     "nanocyte-component-unique": "^1.0.4",
     "redis": "^1.0.0"
   },
