@@ -1,4 +1,5 @@
 Router = require '../../src/models/router'
+_ = require 'lodash'
 
 describe 'Router', ->
   beforeEach ->
@@ -7,7 +8,7 @@ describe 'Router', ->
   describe 'onEnvelope', ->
     describe 'when the nodeAssembler returns some nodes', ->
       beforeEach ->
-        @debugNodeOnEnvelope = debugNodeOnEnvelope = sinon.spy()
+        @debugNodeOnEnvelope = debugNodeOnEnvelope = sinon.spy => debugNodeOnEnvelope.done()
 
         class NodeAssembler
           assembleNodes: =>
@@ -87,7 +88,9 @@ describe 'Router', ->
               linkedTo: []
 
         describe 'when given an envelope', ->
-          beforeEach ->
+          beforeEach (done) ->
+            @debugNodeOnEnvelope.done = done
+
             @sut.onEnvelope
               fromNodeId: 'some-trigger-uuid'
               flowId: 'some-flow-uuid'
@@ -122,7 +125,9 @@ describe 'Router', ->
               linkedTo: []
 
         describe 'when given an envelope', ->
-          beforeEach ->
+          beforeEach (done) ->
+            @debugNodeOnEnvelope.done = _.after 2, done
+
             @sut.onEnvelope
               flowId: 'some-flow-uuid'
               instanceId: 'some-instance-uuid'
@@ -168,7 +173,8 @@ describe 'Router', ->
               linkedTo: []
 
         describe 'when given an envelope', ->
-          beforeEach ->
+          beforeEach (done) ->
+            @debugNodeOnEnvelope.done = _.after 2, done
             @sut.onEnvelope fromNodeId: 'some-trigger-uuid', message: 12455663
 
           it 'should call datastore.hget', ->

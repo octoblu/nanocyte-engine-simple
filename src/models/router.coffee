@@ -22,7 +22,7 @@ class Router
       senderNodeConfig = routerConfig[fromNodeId]
       return console.error 'router.coffee: senderNodeConfig was not defined' unless senderNodeConfig?
 
-      async.each senderNodeConfig.linkedTo, (uuid, done) =>
+      _.each senderNodeConfig.linkedTo, (uuid) =>
         debug uuid
         receiverNodeConfig = routerConfig[uuid]
         return console.error 'router.coffee: receiverNodeConfig was not defined' unless receiverNodeConfig?
@@ -31,7 +31,7 @@ class Router
         return console.error "router.coffee: No registered type for '#{receiverNodeConfig.type}'" unless receiverNode?
 
         benchmark = new Benchmark label: receiverNodeConfig.type
-        receiverNode.onEnvelope
+        _.defer receiverNode.onEnvelope,
           flowId:      flowId
           instanceId:  instanceId
           message:     message
@@ -40,6 +40,5 @@ class Router
         , (error, envelope) =>
           debug benchmark.toString()
           _.defer @onEnvelope, envelope
-          done()
 
 module.exports = Router
