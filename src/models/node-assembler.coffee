@@ -23,6 +23,7 @@ class NodeAssembler
     @ClearIfLengthGreaterThanMaxElsePassThrough ?=
       require 'nanocyte-component-clear-if-length-greater-than-max-else-pass-through'
     @Collect                           ?= require 'nanocyte-component-collect'
+    @CollectMessages                   ?= require 'nanocyte-component-collect-messages'
     @ConfigAsMessage                   ?= require 'nanocyte-component-config-as-message'
     @ContainsAllKeys                   ?= require 'nanocyte-component-contains-all-keys'
     @DataAsMessage                     ?= require 'nanocyte-component-data-as-message'
@@ -52,6 +53,8 @@ class NodeAssembler
     @Sample                            ?= require 'nanocyte-component-sample'
     @SelectiveCollect                  ?= require 'nanocyte-component-selective-collect'
     @Sentiment                         ?= require 'nanocyte-component-sentiment'
+    @ShiftSend                         ?= require 'nanocyte-component-shift-send'
+    @ShiftMessages                     ?= require 'nanocyte-component-shift-messages'
     @Template                          ?= require 'nanocyte-component-template'
     @Trigger                           ?= require 'nanocyte-component-trigger'
     @Unique                            ?= require 'nanocyte-component-unique'
@@ -68,6 +71,7 @@ class NodeAssembler
     'nanocyte-component-clear-if-length-greater-than-max-else-pass-through':
       @wrapNanocyte @ClearIfLengthGreaterThanMaxElsePassThrough
     'nanocyte-component-collect':             @wrapNanocyte @Collect
+    'nanocyte-component-collect-messages':    @wrapNanocyte @CollectMessages
     'nanocyte-component-config-as-message':   @wrapNanocyte @ConfigAsMessage
     'nanocyte-component-contains-all-keys':   @wrapNanocyte @ContainsAllKeys
     'nanocyte-component-data-as-message':     @wrapNanocyte @DataAsMessage
@@ -97,7 +101,9 @@ class NodeAssembler
     'nanocyte-component-sample':              @wrapNanocyte @Sample
     'nanocyte-component-selective-collect':   @wrapNanocyte @SelectiveCollect
     'nanocyte-component-sentiment':           @wrapNanocyte @Sentiment
-    'nanocyte-component-template':             @wrapNanocyte @Template
+    'nanocyte-component-shift-send':          @wrapNanocyte @ShiftSend
+    'nanocyte-component-shift-messages':      @wrapNanocyte @ShiftMessages
+    'nanocyte-component-template':            @wrapNanocyte @Template
     'nanocyte-component-trigger':             @wrapNanocyte @Trigger
     'nanocyte-component-unique':              @wrapNanocyte @Unique
 
