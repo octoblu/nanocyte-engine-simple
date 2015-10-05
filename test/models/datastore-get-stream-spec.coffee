@@ -1,5 +1,6 @@
 {PassThrough} = require 'stream'
 DatastoreGetStream = require '../../src/models/datastore-get-stream'
+_ = require 'lodash'
 
 describe 'DatastoreGetStream', ->
   describe 'when instantiated with an envelope', ->
@@ -14,7 +15,9 @@ describe 'DatastoreGetStream', ->
 
       @sut = new DatastoreGetStream {}, datastore: @datastore
       @sut.on 'readable', =>
-        @result = @sut.read()
+        result = @sut.read()
+        return if _.isNull result
+        @result = result
         done()
 
       @envelopeInStream = new PassThrough objectMode: true
@@ -46,7 +49,9 @@ describe 'DatastoreGetStream', ->
 
       @sut = new DatastoreGetStream {}, datastore: @datastore
       @sut.on 'readable', =>
-        @result = @sut.read()
+        result = @sut.read()
+        return if _.isNull result
+        @result = result
         done()
 
       @envelopeInStream = new PassThrough objectMode: true

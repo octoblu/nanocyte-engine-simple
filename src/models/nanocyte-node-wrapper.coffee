@@ -10,7 +10,9 @@ class NanocyteNodeWrapper extends Transform
 
     @domain = Domain.create()
     @domain.on 'error', (error) =>
+      @domain.exit()
       @emit 'error', error
+      @domain.enter()
 
   initialize: =>
     @domain.enter()

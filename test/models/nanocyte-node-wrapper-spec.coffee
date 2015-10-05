@@ -175,24 +175,29 @@ describe 'NanocyteNodeWrapper', ->
 
   describe 'on a smaller explosion', ->
     beforeEach ->
-      class Timber extends stream.PassThrough
+      class Timber extends stream.Transform
         constructor: ->
           super objectMode: true
 
         read: =>
           _.defer =>
             throw new Error 'You WOOD die this way.'
+          return null
+
+        _transform: (nvm, nomatter, next)=>
+          next()
 
       @sut = new NanocyteNodeWrapper nodeClass: Timber
       @sut.initialize()
 
     describe 'when written to', ->
       beforeEach (done) ->
-        @callback = (@error) => done()
+        @callback = (@error) =>
+          done()
         @sut.on 'error', @callback
         @sut.on 'readable', =>
-          while read = @sut.read()
-            read
+          while @sut.read()
+            null
 
         @sut.write
           message: 'hi'
