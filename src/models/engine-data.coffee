@@ -1,10 +1,11 @@
 {Writable} = require 'stream'
+Datastore = require './datastore'
 
 class EngineData extends Writable
   constructor: (options, dependencies={}) ->
     super objectMode: true
     {@datastore} = dependencies
-    @datastore ?= new (require './datastore')
+    @datastore ?= new Datastore
 
   _write: (envelope, enc, next) =>
     {flowId,instanceId,fromNodeId,message,config} = envelope

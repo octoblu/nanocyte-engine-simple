@@ -2,7 +2,7 @@ Benchmark = require './benchmark'
 debug = require('debug')('nanocyte-engine-simple:datastore')
 
 class Datastore
-  constructor: (dependencies={})->
+  constructor: (options, dependencies={})->
     {@client} = dependencies
     @client ?= require '../handlers/redis-handler'
 
@@ -17,5 +17,15 @@ class Datastore
     @client.hset key, field, JSON.stringify(value), (error) =>
       debug benchmark.toString()
       callback error
+
+  getAndIncrementCount: (key, callback) =>
+    @client.get key, (error, count) =>
+      return callback error if error?
+      @client
+        .multi()
+        .incr   key, 1
+        .expire key, 10
+        .exec (error) =>
+          callback error, count
 
 module.exports = Datastore

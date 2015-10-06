@@ -120,12 +120,12 @@ class NodeAssembler
 
   buildEngineDebug: =>
     onEnvelope: (envelope) =>
-      datastoreGetStream = new @DatastoreGetStream
-      datastoreGetStream.write envelope
-
+      datastoreGetStream  = new @DatastoreGetStream
       engineDebug         = new @EngineDebug
       datastoreGetStream2 = new @DatastoreGetStream
       engineOutput        = new @EngineOutput
+
+      datastoreGetStream.write envelope
       datastoreGetStream
         .pipe(engineDebug)
         .pipe(datastoreGetStream2)
