@@ -10,11 +10,12 @@ class NodeAssembler
     @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
     @DatastoreGetStream   ?= require './datastore-get-stream'
 
-    {@EngineData,@EngineDebug,@EngineOutput,@EnginePulse} = dependencies
-    @EngineData   ?= require './engine-data'
-    @EngineDebug  ?= require './engine-debug'
-    @EngineOutput ?= require './engine-output'
-    @EnginePulse  ?= require './engine-pulse'
+    {@EngineData,@EngineDebug,@EngineOutput,@EnginePulse,@EngineThrottle} = dependencies
+    @EngineData     ?= require './engine-data'
+    @EngineDebug    ?= require './engine-debug'
+    @EngineOutput   ?= require './engine-output'
+    @EnginePulse    ?= require './engine-pulse'
+    @EngineThrottle ?= require './engine-throttle'
 
     {@PassThrough} = dependencies
     @BodyParser         ?= require 'nanocyte-component-body-parser'
@@ -62,53 +63,55 @@ class NodeAssembler
     @UseStaticMessage                  ?= require 'nanocyte-component-use-static-message'
 
   assembleNodes: =>
-    'engine-data'                                                          : @buildEngineData()
-    'engine-debug'                                                         : @buildEngineDebug()
-    'engine-output'                                                        : @buildEngineOutput()
-    'engine-pulse'                                                         : @buildEnginePulse()
-    'nanocyte-component-body-parser'                                       : @wrapNanocyte @BodyParser
-    'nanocyte-component-broadcast'                                         : @wrapNanocyte @Broadcast
-    'nanocyte-component-change'                                            : @wrapNanocyte @Change
-    'nanocyte-component-clear-data'                                        : @wrapNanocyte @ClearData
+    'engine-data':   @buildEngineData()
+    'engine-debug':  @buildEngineDebug()
+    'engine-output': @buildEngineOutput()
+    'engine-pulse':  @buildEnginePulse()
+    'nanocyte-component-body-parser':           @wrapNanocyte @BodyParser
+    'nanocyte-component-broadcast':             @wrapNanocyte @Broadcast
+    'nanocyte-component-change':                @wrapNanocyte @Change
+    'nanocyte-component-clear-data':            @wrapNanocyte @ClearData
     'nanocyte-component-clear-if-length-greater-than-max-else-pass-through':
       @wrapNanocyte @ClearIfLengthGreaterThanMaxElsePassThrough
-    'nanocyte-component-collect'                                           : @wrapNanocyte @Collect
-    'nanocyte-component-config-as-message'                                 : @wrapNanocyte @ConfigAsMessage
-    'nanocyte-component-contains-all-keys'                                 : @wrapNanocyte @ContainsAllKeys
-    'nanocyte-component-data-as-message'                                   : @wrapNanocyte @DataAsMessage
-    'nanocyte-component-demultiplex'                                       : @wrapNanocyte @Demultiplex
-    'nanocyte-component-equal'                                             : @wrapNanocyte @Equal
-    'nanocyte-component-get-key-from-data'                                 : @wrapNanocyte @GetKeyFromData
-    'nanocyte-component-greater-than'                                      : @wrapNanocyte @GreaterThan
-    'nanocyte-component-flow-metric-start'                                 : @wrapNanocyte @FlowMetricStart
-    'nanocyte-component-flow-metric-stop'                                  : @wrapNanocyte @FlowMetricStop
-    'nanocyte-component-function'                                          : @wrapNanocyte @Function
-    'nanocyte-component-http-formatter'                                    : @wrapNanocyte @HttpFormatter
-    'nanocyte-component-http-request'                                      : @wrapNanocyte @HttpRequest
-    'nanocyte-component-interval-register'                                 : @wrapNanocyte @IntervalRegister
-    'nanocyte-component-interval-unregister'                               : @wrapNanocyte @IntervalUnregister
-    'nanocyte-component-less-than'                                         : @wrapNanocyte @LessThan
-    'nanocyte-component-map-message-to-key'                                : @wrapNanocyte @MapMessageToKey
-    'nanocyte-component-math'                                              : @wrapNanocyte @Math
-    'nanocyte-component-meshblu-output'                                    : @wrapNanocyte @MeshbluOutput
-    'nanocyte-component-not-equal'                                         : @wrapNanocyte @NotEqual
-    'nanocyte-component-null'                                              : @wrapNanocyte @Null
-    'nanocyte-component-octoblu-channel-request-formatter'                 : @wrapNanocyte @OctobluChannelRequestFormatter
-    'nanocyte-component-onstart'                                           : @wrapNanocyte @OnStart
-    'nanocyte-component-pass-through'                                      : @wrapNanocyte @PassThrough
-    'nanocyte-component-pass-through-if-length-greater-than-min'           : @wrapNanocyte @PassThroughIfLengthGreaterThanMin
-    'nanocyte-component-pluck'                                             : @wrapNanocyte @Pluck
-    'nanocyte-component-push-message-on-data'                              : @wrapNanocyte @PushMessageOnData
-    'nanocyte-component-range'                                             : @wrapNanocyte @Range
-    'nanocyte-component-sample'                                            : @wrapNanocyte @Sample
-    'nanocyte-component-selective-collect'                                 : @wrapNanocyte @SelectiveCollect
-    'nanocyte-component-sentiment'                                         : @wrapNanocyte @Sentiment
-    'nanocyte-component-shift-send'                                        : @wrapNanocyte @ShiftSend
-    'nanocyte-component-shift-messages'                                    : @wrapNanocyte @ShiftMessages
-    'nanocyte-component-template'                                          : @wrapNanocyte @Template
-    'nanocyte-component-trigger'                                           : @wrapNanocyte @Trigger
-    'nanocyte-component-unique'                                            : @wrapNanocyte @Unique
-    'nanocyte-component-use-static-message'                                : @wrapNanocyte @UseStaticMessage
+    'nanocyte-component-collect':               @wrapNanocyte @Collect
+    'nanocyte-component-config-as-message':     @wrapNanocyte @ConfigAsMessage
+    'nanocyte-component-contains-all-keys':     @wrapNanocyte @ContainsAllKeys
+    'nanocyte-component-data-as-message':       @wrapNanocyte @DataAsMessage
+    'nanocyte-component-demultiplex':           @wrapNanocyte @Demultiplex
+    'nanocyte-component-equal':                 @wrapNanocyte @Equal
+    'nanocyte-component-get-key-from-data':     @wrapNanocyte @GetKeyFromData
+    'nanocyte-component-greater-than':          @wrapNanocyte @GreaterThan
+    'nanocyte-component-flow-metric-start':     @wrapNanocyte @FlowMetricStart
+    'nanocyte-component-flow-metric-stop':      @wrapNanocyte @FlowMetricStop
+    'nanocyte-component-function':              @wrapNanocyte @Function
+    'nanocyte-component-http-formatter':        @wrapNanocyte @HttpFormatter
+    'nanocyte-component-http-request':          @wrapNanocyte @HttpRequest
+    'nanocyte-component-interval-register':     @wrapNanocyte @IntervalRegister
+    'nanocyte-component-interval-unregister':   @wrapNanocyte @IntervalUnregister
+    'nanocyte-component-less-than':             @wrapNanocyte @LessThan
+    'nanocyte-component-map-message-to-key':    @wrapNanocyte @MapMessageToKey
+    'nanocyte-component-math':                  @wrapNanocyte @Math
+    'nanocyte-component-meshblu-output':        @wrapNanocyte @MeshbluOutput
+    'nanocyte-component-not-equal':             @wrapNanocyte @NotEqual
+    'nanocyte-component-null':                  @wrapNanocyte @Null
+    'nanocyte-component-octoblu-channel-request-formatter':
+      @wrapNanocyte @OctobluChannelRequestFormatter
+    'nanocyte-component-onstart':               @wrapNanocyte @OnStart
+    'nanocyte-component-pass-through':          @wrapNanocyte @PassThrough
+    'nanocyte-component-pass-through-if-length-greater-than-min':
+      @wrapNanocyte @PassThroughIfLengthGreaterThanMin
+    'nanocyte-component-pluck':                 @wrapNanocyte @Pluck
+    'nanocyte-component-push-message-on-data':  @wrapNanocyte @PushMessageOnData
+    'nanocyte-component-range':                 @wrapNanocyte @Range
+    'nanocyte-component-sample':                @wrapNanocyte @Sample
+    'nanocyte-component-selective-collect':     @wrapNanocyte @SelectiveCollect
+    'nanocyte-component-sentiment':             @wrapNanocyte @Sentiment
+    'nanocyte-component-shift-send':            @wrapNanocyte @ShiftSend
+    'nanocyte-component-shift-messages':        @wrapNanocyte @ShiftMessages
+    'nanocyte-component-template':              @wrapNanocyte @Template
+    'nanocyte-component-trigger':               @wrapNanocyte @Trigger
+    'nanocyte-component-unique':                @wrapNanocyte @Unique
+    'nanocyte-component-use-static-message':    @wrapNanocyte @UseStaticMessage
 
   buildEngineData: =>
     onEnvelope: (envelope) =>
@@ -121,23 +124,22 @@ class NodeAssembler
   buildEngineDebug: =>
     onEnvelope: (envelope) =>
       datastoreGetStream  = new @DatastoreGetStream
-      engineDebug         = new @EngineDebug
-      datastoreGetStream2 = new @DatastoreGetStream
-      engineOutput        = new @EngineOutput
-
       datastoreGetStream.write envelope
       datastoreGetStream
-        .pipe(engineDebug)
-        .pipe(datastoreGetStream2)
-        .pipe(engineOutput)
+        .pipe new @EngineDebug
+        .pipe new @DatastoreGetStream
+        .pipe debugStream()
+        .pipe new @EngineThrottle
+        .pipe debugStream()
+        .pipe new @EngineOutput
 
   buildEngineOutput: =>
     onEnvelope: (envelope) =>
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope
-
-      engineOutput = new @EngineOutput
-      datastoreGetStream.pipe engineOutput
+      datastoreGetStream
+        .pipe new @EngineThrottle
+        .pipe new @EngineOutput
 
   buildEnginePulse: =>
     onEnvelope: (envelope) =>
@@ -146,6 +148,7 @@ class NodeAssembler
       data
         .pipe new @EnginePulse
         .pipe new @DatastoreGetStream
+        .pipe new @EngineThrottle
         .pipe new @EngineOutput
 
   wrapNanocyte: (nodeClass) =>
@@ -168,6 +171,7 @@ class NodeAssembler
           .pipe new @DatastoreGetStream
           .pipe new @EngineDebug
           .pipe new @DatastoreGetStream
+          .pipe new @EngineThrottle
           .pipe new @EngineOutput
 
       node.initialize()

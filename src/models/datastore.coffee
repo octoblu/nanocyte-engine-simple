@@ -23,7 +23,7 @@ class Datastore
       return callback error if error?
       @client
         .multi()
-        .incr   key, 1
+        .incr   key
         .expire key, 10
         .exec (error) =>
           callback error, count

@@ -57,6 +57,9 @@ describe 'NodeAssembler', ->
       @engineData = new stream.PassThrough objectMode: true
       EngineData = => @engineData
 
+      @engineThrottle = new stream.PassThrough objectMode: true
+      EngineThrottle = => @engineThrottle
+
       @PassThrough = sinon.spy()
       @SelectiveCollect = sinon.spy()
       @TriggerNode = sinon.spy()
@@ -68,6 +71,7 @@ describe 'NodeAssembler', ->
         EngineDebug: EngineDebug
         EngineOutput: EngineOutput
         EnginePulse: EnginePulse
+        EngineThrottle: EngineThrottle
         PassThrough: @PassThrough
         SelectiveCollect: @SelectiveCollect
         TriggerNode: @TriggerNode

@@ -75,7 +75,7 @@ describe 'Datastore', ->
           expect(@client.multi).to.have.been.called
 
         it 'should call datastore.multi.incr', ->
-          expect(@multi.incr).to.have.been.calledWith 'some-key', 1
+          expect(@multi.incr).to.have.been.calledWith 'some-key'
 
         it 'should call datastore.multi.expire', ->
           expect(@multi.expire).to.have.been.calledWith 'some-key', 10
@@ -101,7 +101,7 @@ describe 'Datastore', ->
           expect(@client.multi).to.have.been.called
 
         it 'should call datastore.multi.incr', ->
-          expect(@multi.incr).to.have.been.calledWith 'some-key', 1
+          expect(@multi.incr).to.have.been.calledWith 'some-key'
 
         it 'should call datastore.multi.expire', ->
           expect(@multi.expire).to.have.been.calledWith 'some-key', 10

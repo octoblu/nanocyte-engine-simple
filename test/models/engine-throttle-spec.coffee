@@ -5,7 +5,7 @@ describe 'EngineThrottle', ->
     new EngineThrottle
 
   describe 'when a message is written to it', ->
-    beforeEach (done) ->
+    beforeEach ->
       @datastore = getAndIncrementCount: sinon.stub()
 
       @moment = => unix: => 12345
@@ -20,20 +20,19 @@ describe 'EngineThrottle', ->
           payload:
             msg: 'hello world'
 
-      @sut.write envelope, done
+      @sut.write envelope
 
     it 'should call datastore.getAndIncrementCount', ->
       expect(@datastore.getAndIncrementCount).to.have.been.calledWith "user-uuid:12345"
 
     describe 'when datastore.getAndIncrementCount yields nothing', ->
       beforeEach (done) ->
-        @sut.on 'end', done
-
         @things = []
 
         @sut.on 'readable', =>
           while thing = @sut.read()
             @things.push thing
+          done()
 
         @datastore.getAndIncrementCount.yield()
 
@@ -48,13 +47,12 @@ describe 'EngineThrottle', ->
 
     describe 'when datastore.getAndIncrementCount yields 10', ->
       beforeEach (done) ->
-        @sut.on 'end', done
-
         @things = []
 
         @sut.on 'readable', =>
           while thing = @sut.read()
             @things.push thing
+          done()
 
         @datastore.getAndIncrementCount.yield null, 10
 
@@ -70,13 +68,12 @@ describe 'EngineThrottle', ->
 
     describe 'when datastore.getAndIncrementCount yields 11', ->
       beforeEach (done) ->
-        @sut.on 'end', done
-
         @things = []
 
         @sut.on 'readable', =>
           while thing = @sut.read()
             @things.push thing
+          done()
 
         @datastore.getAndIncrementCount.yield null, 11
 
