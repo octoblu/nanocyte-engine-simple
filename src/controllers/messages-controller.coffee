@@ -4,9 +4,7 @@ InputNode = require '../models/input-node'
 class MessagesController
   constructor: (options={}) ->
     {@InputNode} = options
-    console.log "@InputNode is", @InputNode
     @InputNode ?= InputNode
-
   create: (req, res) =>
     inputNode = new @InputNode
     console.log "create called"
