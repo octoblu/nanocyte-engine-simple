@@ -2,14 +2,18 @@ MessagesController = require '../../src/controllers/messages-controller'
 
 describe '/messages', ->
   beforeEach ->
-    @inputNode =
+    inputNode = @inputNode =
       onMessage: sinon.spy()
+
+    class InputNode
+      constructor: ->
+      onMessage: inputNode.onMessage
 
     @response =
       status: sinon.spy => @response
       end: sinon.spy => @response
 
-    @sut = new MessagesController inputNode: @inputNode
+    @sut = new MessagesController InputNode: InputNode
 
   describe 'when /messages receives an authorized message', ->
     beforeEach ->
