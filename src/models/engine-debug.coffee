@@ -8,7 +8,6 @@ class EngineDebug extends Transform
   _transform: (envelope, enc, next) =>
     debug '_transform', envelope
     {nodeId} = envelope.config[envelope.fromNodeId]
-    next()
 
     @push
       flowId: envelope.flowId
@@ -18,9 +17,10 @@ class EngineDebug extends Transform
         devices: ['*']
         topic: 'debug'
         payload:
-          node: nodeId
           msgType: envelope.msgType
           msg: envelope.message
+          node: nodeId
 
+    next()
 
 module.exports = EngineDebug
