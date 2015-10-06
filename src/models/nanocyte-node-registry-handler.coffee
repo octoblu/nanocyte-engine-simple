@@ -2,9 +2,12 @@ _ = require 'lodash'
 class NanocyteNodeRegistryHandler
   constructor: (options={}, dependencies={}) ->
     {@registryUrl} = options
-    {@request} = dependencies    
+    {@request, @componentClasses} = dependencies
 
-  getComponents: (callback) =>
+    @request ?= require 'request'
+    @componentClasses ?= []
+
+  getComponentMap: (callback) =>
     @getComponentListFromUrl @registryUrl, (error, componentNames) =>
       return callback error if error?
       callback null, null
@@ -18,14 +21,14 @@ class NanocyteNodeRegistryHandler
     nodeDefinitions = _.values registry
     componentNames =
       _.chain(nodeDefinitions)
-        .map(@getComponentsForNode)
+        .map(@getComponentMapForNode)
         .flatten()
         .uniq()
         .value()
 
     return componentNames
 
-  getComponentsForNode: (node) =>
+  getComponentMapForNode: (node) =>
     componentNames =
       _.chain(node.composedOf)
         .values()
@@ -35,6 +38,8 @@ class NanocyteNodeRegistryHandler
 
     return componentNames
 
-
+  loadComponentClass: (componentName) =>
+    return @componentClasses[componentName] if @componentClasses[componentName]?
+    return require componentName
 
 module.exports = NanocyteNodeRegistryHandler

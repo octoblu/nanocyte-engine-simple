@@ -8,32 +8,36 @@ describe 'NanocyteNodeRegistryHandler', ->
       expect(@sut).to.exist
 
 
-  describe '->getComponents', ->
+  describe '->getComponentMap', ->
     beforeEach ->
+      @request = sinon.stub()
+
       @registry =
         horns: 2
         teeth: 'too many'
 
-      @request = sinon.stub()
+      @sut = new NanocyteNodeRegistryHandler(
+        {registryUrl: "http://upset.men/registry.json"}
+        {request: @request}
+      )
 
-      @sut = new NanocyteNodeRegistryHandler {registryUrl: "http://upset.men/registry.json"}, { request: @request }
       @sut.getComponentList = sinon.spy()
 
     describe 'when called', ->
       beforeEach (done) ->
         @request.yields null, null, @registry
-        @sut.getComponents (@error, @result) => done()
+        @sut.getComponentMap (@error, @result) => done()
 
       it 'should get the node registry with request', ->
         expect(@request).to.have.been.calledWith url: "http://upset.men/registry.json", json: true
 
-      it 'should call getComponentsForNode for each node in the registry', ->
+      it 'should call getComponentMapForNode for each node in the registry', ->
         expect(@sut.getComponentList).to.have.been.calledWith @registry
 
     describe 'when request returns an error', ->
       beforeEach (done) ->
         @request.yields new Error 'This beast is too majestic'
-        @sut.getComponents (@error, @result) => done()
+        @sut.getComponentMap (@error, @result) => done()
 
       it 'should call the callback with an error', ->
         expect(@error).to.exist
@@ -83,3 +87,22 @@ describe 'NanocyteNodeRegistryHandler', ->
         "nanocyte-component-http-request"
         "nanocyte-component-octoblu-channel-request-formatter"
       ]
+
+  describe '->loadComponentClass', ->
+    beforeEach ->
+      class ComponentBroadcast
+      @ComponentBroadcast = ComponentBroadcast
+
+      class ComponentChange
+      @ComponentChange = ComponentChange
+
+      componentClasses = 'nanocyte-component-broadcast': ComponentBroadcast, 'nanocyte-component-change': ComponentChange
+      @sut = new NanocyteNodeRegistryHandler {}, {componentClasses: componentClasses}
+      @componentBroadcastClass = @sut.loadComponentClass 'nanocyte-component-broadcast'
+      @componentChangeClass = @sut.loadComponentClass 'nanocyte-component-change'
+
+    it 'should return the correct component class for broadcast', ->
+      expect(@componentBroadcastClass).to.equal @ComponentBroadcast
+
+    it 'should return the correct component class for change', ->
+      expect(@componentChangeClass).to.equal @ComponentChange
