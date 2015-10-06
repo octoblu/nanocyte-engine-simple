@@ -125,6 +125,7 @@ describe 'NodeAssembler', ->
         'nanocyte-component-template'
         'nanocyte-component-trigger'
         'nanocyte-component-unique'
+        'nanocyte-component-use-static-message'
       ]
 
     describe 'engine-data', ->
