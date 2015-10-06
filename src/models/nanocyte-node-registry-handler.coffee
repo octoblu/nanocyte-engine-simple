@@ -2,11 +2,11 @@ _ = require 'lodash'
 class NanocyteNodeRegistryHandler
   constructor: (options={}, dependencies={}) ->
     {@registryUrl} = options
-    {@request} = dependencies
+    {@request} = dependencies    
 
   getComponents: (callback) =>
     @getComponentListFromUrl @registryUrl, (error, componentNames) =>
-      return callback error if error?      
+      return callback error if error?
       callback null, null
 
   getComponentListFromUrl: (registryUrl, callback) =>
@@ -26,14 +26,14 @@ class NanocyteNodeRegistryHandler
     return componentNames
 
   getComponentsForNode: (node) =>
-    components =
+    componentNames =
       _.chain(node.composedOf)
         .values()
         .pluck('type')
         .uniq()
         .value()
 
-    return components
+    return componentNames
 
 
 
