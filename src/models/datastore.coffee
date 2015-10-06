@@ -1,5 +1,6 @@
 Benchmark = require './benchmark'
 debug = require('debug')('nanocyte-engine-simple:datastore')
+_ = require 'lodash'
 
 class Datastore
   constructor: (options, dependencies={})->
@@ -19,13 +20,12 @@ class Datastore
       callback error
 
   getAndIncrementCount: (key, callback) =>
-    @client.get key, (error, count) =>
-      return callback error if error?
-      @client
-        .multi()
-        .incr   key
-        .expire key, 10
-        .exec (error) =>
-          callback error, count
+    @client
+      .multi()
+      .incr   key
+      .expire key, 10
+      .exec (error, results) =>
+        count = _.first results
+        callback error, count
 
 module.exports = Datastore

@@ -53,73 +53,39 @@ describe 'Datastore', ->
           expire: sinon.stub()
           exec:   sinon.stub()
 
+        @multi.incr.returns @multi
+        @multi.expire.returns @multi
+
         @client =
-          get:   sinon.stub()
-          multi: sinon.stub()
+          multi: sinon.stub().returns @multi
 
         @callback = sinon.spy()
         @sut = new Datastore {}, client: @client
         @sut.getAndIncrementCount "some-key", @callback
 
-      it 'should call datastore.get', ->
-        expect(@client.get).to.have.been.calledWith "some-key"
+      it 'should call datastore.multi', ->
+        expect(@client.multi).to.have.been.called
 
-      describe 'when client.get yields nothing', ->
+      it 'should call datastore.multi.incr', ->
+        expect(@multi.incr).to.have.been.calledWith 'some-key'
+
+      it 'should call datastore.multi.expire', ->
+        expect(@multi.expire).to.have.been.calledWith 'some-key', 10
+
+      it 'should call datastore.multi.exec', ->
+        expect(@multi.exec).to.have.been.called
+
+      describe 'when exec yields the results', ->
         beforeEach ->
-          @multi.incr.returns @multi
-          @multi.expire.returns @multi
-          @client.multi.returns @multi
-          @client.get.yield()
+          @multi.exec.yield null, [1, true]
 
-        it 'should call datastore.multi', ->
-          expect(@client.multi).to.have.been.called
+        it 'should call the callback with nothing', ->
+          expect(@callback).to.have.been.calledWith null
 
-        it 'should call datastore.multi.incr', ->
-          expect(@multi.incr).to.have.been.calledWith 'some-key'
-
-        it 'should call datastore.multi.expire', ->
-          expect(@multi.expire).to.have.been.calledWith 'some-key', 10
-
-        it 'should call datastore.multi.exec', ->
-          expect(@multi.exec).to.have.been.called
-
-        describe 'when exec yields', ->
-          beforeEach ->
-            @multi.exec.yield null
-
-          it 'should call the callback with nothing', ->
-            expect(@callback).to.have.been.calledWith null
-
-      describe 'when client.get yields a count', ->
-        beforeEach ->
-          @multi.incr.returns @multi
-          @multi.expire.returns @multi
-          @client.multi.returns @multi
-          @client.get.yield null, 4
-
-        it 'should call datastore.multi', ->
-          expect(@client.multi).to.have.been.called
-
-        it 'should call datastore.multi.incr', ->
-          expect(@multi.incr).to.have.been.calledWith 'some-key'
-
-        it 'should call datastore.multi.expire', ->
-          expect(@multi.expire).to.have.been.calledWith 'some-key', 10
-
-        it 'should call datastore.multi.exec', ->
-          expect(@multi.exec).to.have.been.called
-
-        describe 'when exec yields', ->
-          beforeEach ->
-            @multi.exec.yield null
-
-          it 'should call the callback with the count', ->
-            expect(@callback).to.have.been.calledWith null, 4
-
-      describe 'when client.get yields an error', ->
+      describe 'when exec yields an error', ->
         beforeEach ->
           @error = new Error 'Slow-turning Windmill'
-          @client.get.yield @error
+          @multi.exec.yield @error, [1, true]
 
         it 'should yield the error', ->
           expect(@callback).to.have.been.calledWith @error

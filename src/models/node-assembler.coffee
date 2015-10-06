@@ -128,9 +128,7 @@ class NodeAssembler
       datastoreGetStream
         .pipe new @EngineDebug
         .pipe new @DatastoreGetStream
-        .pipe debugStream()
         .pipe new @EngineThrottle
-        .pipe debugStream()
         .pipe new @EngineOutput
 
   buildEngineOutput: =>

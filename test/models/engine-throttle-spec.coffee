@@ -1,4 +1,5 @@
 EngineThrottle = require '../../src/models/engine-throttle'
+_ = require 'lodash'
 
 describe 'EngineThrottle', ->
   it 'should exist', ->
@@ -19,6 +20,7 @@ describe 'EngineThrottle', ->
           devices: ['some-other-uuid']
           payload:
             msg: 'hello world'
+            node: 'some-node-uuid'
 
       @sut.write envelope
 
@@ -37,13 +39,15 @@ describe 'EngineThrottle', ->
         @datastore.getAndIncrementCount.yield()
 
       it 'should pass-through the message', ->
-        expect(@things).to.deep.include
+        expect(@things).to.have.a.lengthOf 1
+        expect(_.first @things).to.deep.equal
           config:
             uuid: 'user-uuid'
           message:
             devices: ['some-other-uuid']
             payload:
               msg: 'hello world'
+              node: 'some-node-uuid'
 
     describe 'when datastore.getAndIncrementCount yields 10', ->
       beforeEach (done) ->
@@ -57,14 +61,17 @@ describe 'EngineThrottle', ->
         @datastore.getAndIncrementCount.yield null, 10
 
       it 'should emit an error message', ->
-        expect(@things).to.contain
+        expect(@things).to.have.a.lengthOf 1
+        expect(_.first @things).to.deep.equal
           config:
             uuid: 'user-uuid'
           message:
             devices: ['*']
+            topic:   'debug'
             payload:
-              message: 'Engine rate limit exceeded'
               msgType: 'error'
+              msg: 'Engine rate limit exceeded'
+              node: 'some-node-uuid'
 
     describe 'when datastore.getAndIncrementCount yields 11', ->
       beforeEach (done) ->

@@ -14,7 +14,6 @@ class EngineThrottle extends Transform
   _transform: (envelope, enc, next) =>
     envelope = _.cloneDeep envelope
     {config} = envelope
-    debug '_transform'
 
     key = "#{config.uuid}:#{@moment().unix()}"
     @datastore.getAndIncrementCount key, (error, count) =>
@@ -22,8 +21,15 @@ class EngineThrottle extends Transform
       return @push null if count > 10
 
       if count == 10
+        nodeId = envelope.message.payload?.node
+
+        envelope.message.topic   = 'debug'
         envelope.message.devices = ['*']
-        envelope.message.payload = {msgType: 'error', message: 'Engine rate limit exceeded'}
+        envelope.message.payload =
+          msgType: 'error'
+          msg: 'Engine rate limit exceeded'
+          node:    nodeId
+        debug 'emitting error', envelope
 
       debug 'push'
       @push envelope

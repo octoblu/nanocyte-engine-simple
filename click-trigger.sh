@@ -9,8 +9,8 @@ HOST="localhost:5050"
 
 FLOW_UUID=bf3fbc43-c90b-4e0d-a609-6f58caed29d9
 FLOW_TOKEN=5a1f5d795cde22c982d61655d2d59a44b0495c2c
-INSTANCE_UUID=bc0527c1-7c35-420f-a71f-818e6b6f3a4a
-TRIGGER_UUID=31503d60-678d-11e5-a99e-3566d24dacf2
+INSTANCE_UUID=0cdda898-c35a-4424-ac66-b521f357ea08
+TRIGGER_UUID=7ff69550-6c78-11e5-916c-43f7bf0bd17c
 
 URL="${PROTOCOL}${FLOW_UUID}:${FLOW_TOKEN}@${HOST}/flows/${FLOW_UUID}/instances/${INSTANCE_UUID}/messages"
 DATA='{"devices": ["'$FLOW_UUID'"], "topic": "button", "payload": {"from": "'$TRIGGER_UUID'", "foo": [1,2,3]}}'
