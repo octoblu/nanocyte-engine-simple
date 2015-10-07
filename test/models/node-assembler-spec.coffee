@@ -5,7 +5,7 @@ debug = require('debug')('nanocyte-engine-simple:node-assembler-spec')
 
 describe 'NodeAssembler', ->
   describe '->assembleNodes', ->
-    beforeEach ->
+    beforeEach (done)->
       @datastoreGetStreamOnWrite1 = sinon.stub()
       @datastoreGetStreamOnWrite2 = sinon.stub()
       datastoreGetStreamOnWrites = [@datastoreGetStreamOnWrite1, @datastoreGetStreamOnWrite2]
@@ -60,24 +60,29 @@ describe 'NodeAssembler', ->
       @engineThrottle = new stream.PassThrough objectMode: true
       EngineThrottle = => @engineThrottle
 
-      @PassThrough = sinon.spy()
-      @SelectiveCollect = sinon.spy()
-      @TriggerNode = sinon.spy()
+      @PassThrough = PassThrough = sinon.spy()
+      @SelectiveCollect = SelectiveCollect = sinon.spy()
+      @TriggerNode = TriggerNode = sinon.spy()
+
+      class ComponentLoader
+        getComponentMap: (callback)=>
+          callback null, {
+            'nanocyte-component-pass-through': PassThrough
+            'nanocyte-component-selective-collect': SelectiveCollect
+            'nanocyte-component-trigger': TriggerNode
+          }
 
       @sut = new NodeAssembler {},
         DatastoreGetStream: DatastoreGetStream
         NanocyteNodeWrapper: @NanocyteNodeWrapper
+        ComponentLoader: ComponentLoader
         EngineData: EngineData
         EngineDebug: EngineDebug
         EngineOutput: EngineOutput
         EnginePulse: EnginePulse
         EngineThrottle: EngineThrottle
-        PassThrough: @PassThrough
-        SelectiveCollect: @SelectiveCollect
-        TriggerNode: @TriggerNode
-        OutputNode: @OutputNode
 
-      @nodes = @sut.assembleNodes()
+      @sut.assembleNodes (@error, @nodes) => done()
 
     it 'should return something', ->
       expect(@nodes).not.to.be.empty
@@ -88,48 +93,9 @@ describe 'NodeAssembler', ->
         'engine-debug'
         'engine-output'
         'engine-pulse'
-        'nanocyte-component-body-parser'
-        'nanocyte-component-broadcast'
-        'nanocyte-component-change'
-        'nanocyte-component-clear-data'
-        'nanocyte-component-clear-if-length-greater-than-max-else-pass-through'
-        'nanocyte-component-collect'
-        'nanocyte-component-config-as-message'
-        'nanocyte-component-contains-all-keys'
-        'nanocyte-component-data-as-message'
-        'nanocyte-component-demultiplex'
-        'nanocyte-component-equal'
-        'nanocyte-component-http-formatter'
-        'nanocyte-component-http-request'
-        'nanocyte-component-flow-metric-start'
-        'nanocyte-component-flow-metric-stop'
-        'nanocyte-component-function'
-        'nanocyte-component-get-key-from-data'
-        'nanocyte-component-greater-than'
-        'nanocyte-component-interval-register'
-        'nanocyte-component-interval-unregister'
-        'nanocyte-component-less-than'
-        'nanocyte-component-map-message-to-key'
-        'nanocyte-component-math'
-        'nanocyte-component-meshblu-output'
-        'nanocyte-component-not-equal'
-        'nanocyte-component-null'
-        'nanocyte-component-octoblu-channel-request-formatter'
-        'nanocyte-component-onstart'
         'nanocyte-component-pass-through'
-        'nanocyte-component-pass-through-if-length-greater-than-min'
-        'nanocyte-component-pluck'
-        'nanocyte-component-push-message-on-data'
-        'nanocyte-component-range'
-        'nanocyte-component-sample'
         'nanocyte-component-selective-collect'
-        'nanocyte-component-sentiment'
-        'nanocyte-component-shift-send'
-        'nanocyte-component-shift-messages'
-        'nanocyte-component-template'
         'nanocyte-component-trigger'
-        'nanocyte-component-unique'
-        'nanocyte-component-use-static-message'
       ]
 
     describe 'engine-data', ->

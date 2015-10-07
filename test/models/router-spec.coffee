@@ -4,23 +4,34 @@ _ = require 'lodash'
 describe 'Router', ->
   beforeEach ->
     @datastore = hget: sinon.stub()
+    @debugNodeOnEnvelope = debugNodeOnEnvelope = sinon.spy => debugNodeOnEnvelope.done()
+
+    @assembleNodes = assembleNodes = sinon.stub().yields null, 'nanocyte-node-debug': onEnvelope: debugNodeOnEnvelope
+
+    class NodeAssembler
+      assembleNodes: assembleNodes
+
+
+    @sut = new Router datastore: @datastore, NodeAssembler: NodeAssembler
+
+  describe 'initialize', ->
+    describe 'when called', ->
+
+      beforeEach (done) ->
+        @sut.initialize (@error, @done) => done()
+
+      it 'should call assembleNodes on the nodeAssembler', ->
+        expect(@assembleNodes).to.have.been.called
 
   describe 'onEnvelope', ->
     describe 'when the nodeAssembler returns some nodes', ->
-      beforeEach ->
-        @debugNodeOnEnvelope = debugNodeOnEnvelope = sinon.spy => debugNodeOnEnvelope.done()
-
-        class NodeAssembler
-          assembleNodes: =>
-            'nanocyte-node-debug': onEnvelope: debugNodeOnEnvelope
-
-        @nodeAssembler = new NodeAssembler
-        sinon.spy @nodeAssembler, 'assembleNodes'
-        @sut = new Router datastore: @datastore, nodeAssembler: @nodeAssembler
+      beforeEach (done) ->
+        @sut.initialize => done()
 
       describe 'when the datastore yields nothing for the flowId', ->
         beforeEach ->
           @datastore.hget.yields null, null
+
 
         describe 'when given an envelope', ->
           it 'should not be a little sissy about it', ->
@@ -182,3 +193,7 @@ describe 'Router', ->
 
           it 'should call onEnvelope in the debugNode twice', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledTwice
+
+    describe 'when called before the router has initialized', ->
+      it 'should throw an error stating that the router must be initialized before use', ->
+        expect(@sut.onEnvelope).to.throw 'Router must be initialized before use'

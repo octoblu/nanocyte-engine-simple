@@ -9,19 +9,22 @@ class InputNode
     @router    ?= new Router
 
   onMessage: (message, callback=->) =>
-    @_getFromNodeIds message, (error, fromNodeIds) =>
-      return console.error error.stack if error?
-      return console.error 'inputNode could not infer fromNodeId' if _.isEmpty fromNodeIds
+    @router.initialize (error) =>
+      return callback error if error?
+      
+      @_getFromNodeIds message, (error, fromNodeIds) =>
+        return console.error error.stack if error?
+        return console.error 'inputNode could not infer fromNodeId' if _.isEmpty fromNodeIds
 
-      payload = _.cloneDeep(message.payload ? {})
-      delete payload.from
+        payload = _.cloneDeep(message.payload ? {})
+        delete payload.from
 
-      _.each fromNodeIds, (fromNodeId) =>
-        @router.onEnvelope
-          flowId:     message.flowId
-          instanceId: message.instanceId
-          fromNodeId: fromNodeId
-          message:    payload
+        _.each fromNodeIds, (fromNodeId) =>
+          @router.onEnvelope
+            flowId:     message.flowId
+            instanceId: message.instanceId
+            fromNodeId: fromNodeId
+            message:    payload
 
   _getFromNodeIds: (message, callback) =>
     fromNodeId = message.payload?.from

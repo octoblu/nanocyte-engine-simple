@@ -1,19 +1,23 @@
 _ = require 'lodash'
 async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:router')
-NodeAssembler = require './node-assembler'
 Benchmark = require './benchmark'
 
 class Router
   constructor: (dependencies={}) ->
-    {nodeAssembler,@datastore} = dependencies
+    {NodeAssembler, @datastore} = dependencies
 
     @datastore ?= new (require './datastore')
 
-    nodeAssembler ?= new NodeAssembler()
-    @nodes = nodeAssembler.assembleNodes()
+    NodeAssembler ?= require './node-assembler'
+    @nodeAssembler = new NodeAssembler()
+
+  initialize: (callback) =>
+    return callback() if @nodes?
+    @nodeAssembler.assembleNodes (error, @nodes) => callback error
 
   onEnvelope: (envelope) =>
+    throw new Error('Router must be initialized before use') unless @nodes?
     debug 'onEnvelope', envelope
     {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
 
