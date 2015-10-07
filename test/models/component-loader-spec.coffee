@@ -1,7 +1,17 @@
-NanocyteNodeRegistryHandler = require '../../src/models/nanocyte-node-registry-handler'
-describe 'NanocyteNodeRegistryHandler', ->
+ComponentLoader = require '../../src/models/component-loader'
+describe 'ComponentLoader', ->
   beforeEach ->
-    @request = sinon.stub()
+    @registry =
+      horns:
+        composedOf:
+          leftHorn:
+            type: 'nanocyte-component-broadcast'
+      teeth:
+        composedOf:
+          fang:
+            type: 'nanocyte-component-change'
+          molar:
+            type: 'nanocyte-component-change'
 
     class ComponentBroadcast
     @ComponentBroadcast = ComponentBroadcast
@@ -10,46 +20,17 @@ describe 'NanocyteNodeRegistryHandler', ->
     @ComponentChange = ComponentChange
 
     componentClasses = 'nanocyte-component-broadcast': @ComponentBroadcast, 'nanocyte-component-change': @ComponentChange, 'too many': @ComponentChange
-    @sut = new NanocyteNodeRegistryHandler {registryUrl: "http://upset.men/registry.json"}, {request: @request, componentClasses: componentClasses}
+    @sut = new ComponentLoader {registry: @registry}, {componentClasses: componentClasses}
 
   it 'should exist', ->
     expect(@sut).to.exist
 
-
   describe '->getComponentMap', ->
-    beforeEach ->
-      @registry =
-        horns:
-          composedOf:
-            leftHorn:
-              type: 'nanocyte-component-broadcast'
-        teeth:
-          composedOf:
-            fang:
-              type: 'nanocyte-component-change'
-            molar:
-              type: 'nanocyte-component-change'      
-
     describe 'when called', ->
-      beforeEach (done) ->
-        @request.yields null, null, @registry
-        @sut.getComponentMap (@error, @result) => done()
-
-      it 'should get the node registry with request', ->
-        expect(@request).to.have.been.calledWith url: "http://upset.men/registry.json", json: true
-
       it 'should return the correct registry', ->
-        expect(@result).to.deep.equal
+        expect(@sut.getComponentMap()).to.deep.equal
           'nanocyte-component-broadcast': @ComponentBroadcast
           'nanocyte-component-change': @ComponentChange
-
-    describe 'when request returns an error', ->
-      beforeEach (done) ->
-        @request.yields new Error 'This beast is too majestic'
-        @sut.getComponentMap (@error, @result) => done()
-
-      it 'should call the callback with an error', ->
-        expect(@error).to.exist
 
   describe '->getComponentList', ->
     beforeEach ->

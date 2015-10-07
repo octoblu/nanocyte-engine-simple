@@ -1,23 +1,21 @@
 _ = require 'lodash'
-class NanocyteNodeRegistryHandler
+
+class ComponentLoader
   constructor: (options={}, dependencies={}) ->
-    {@registryUrl} = options
-    {@request, @componentClasses} = dependencies
+    {@registry} = options
+    {@componentClasses} = dependencies
 
     @request ?= require 'request'
     @componentClasses ?= []
 
-  getComponentMap: (callback) =>
-    @getComponentListFromUrl @registryUrl, (error, componentNames) =>
-      return callback error if error?
+  getComponentMap: =>
+    componentNames = @getComponentList @registry
 
-      getKeyForComponent = (map, componentName) =>
-        map[componentName] = @loadComponentClass componentName
-        return map
+    getKeyForComponent = (map, componentName) =>
+      map[componentName] = @loadComponentClass componentName
+      return map
 
-      componentMap = _.reduce componentNames, getKeyForComponent, {}
-
-      callback null, componentMap
+    componentMap = _.reduce componentNames, getKeyForComponent, {}
 
   getComponentListFromUrl: (registryUrl, callback) =>
     @request url: @registryUrl, json: true, (error, response, registry) =>
@@ -25,6 +23,7 @@ class NanocyteNodeRegistryHandler
       callback null, @getComponentList registry
 
   getComponentList: (registry) =>
+    registry ?= require '../../nanocyte-node-registry.json'
     nodeDefinitions = _.values registry
     componentNames =
       _.chain(nodeDefinitions)
@@ -47,11 +46,10 @@ class NanocyteNodeRegistryHandler
 
   loadComponentClass: (componentName) =>
     return @componentClasses[componentName] if @componentClasses[componentName]?
-    console.log 'componentName was', componentName
     try
       return require componentName
     catch
       console.error "Couldn't find a component named #{componentName}"
       return
 
-module.exports = NanocyteNodeRegistryHandler
+module.exports = ComponentLoader

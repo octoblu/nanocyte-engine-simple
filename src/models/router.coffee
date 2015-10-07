@@ -1,22 +1,24 @@
 _ = require 'lodash'
 async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:router')
-NodeAssembler = require './node-assembler'
 Benchmark = require './benchmark'
 
 class Router
   constructor: (dependencies={}) ->
-    {nodeAssembler,@datastore} = dependencies
+    {NodeAssembler, @datastore} = dependencies
 
     @datastore ?= new (require './datastore')
 
-    nodeAssembler ?= new NodeAssembler()
+    NodeAssembler ?= require './node-assembler'
+    nodeAssembler = new NodeAssembler()
     @nodes = nodeAssembler.assembleNodes()
 
     @i = 0
     @sendEnvelope = _.before 1000, @_unlimited_sendEnvelope
 
   onEnvelope: (envelope) =>
+
+    debug 'onEnvelope', envelope
     {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
 
     @datastore.hget flowId, "#{instanceId}/router/config", (error, routerConfig) =>

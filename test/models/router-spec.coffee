@@ -4,33 +4,39 @@ _ = require 'lodash'
 describe 'Router', ->
   beforeEach ->
     @datastore = hget: sinon.stub()
+    @debugNodeOnEnvelope = debugNodeOnEnvelope = sinon.spy => debugNodeOnEnvelope.done()
+
+    @assembleNodes = assembleNodes = sinon.stub().returns 'nanocyte-node-debug': onEnvelope: debugNodeOnEnvelope
+
+    class NodeAssembler
+      assembleNodes: assembleNodes
+
+
+    @sut = new Router {datastore: @datastore, NodeAssembler: NodeAssembler}
 
   describe 'onEnvelope', ->
     describe 'when the nodeAssembler returns some nodes', ->
-      beforeEach ->
-        @debugNodeOnEnvelope = debugNodeOnEnvelope = sinon.spy => debugNodeOnEnvelope.done()
-
-        class NodeAssembler
-          assembleNodes: =>
-            'nanocyte-node-debug': onEnvelope: debugNodeOnEnvelope
-
-        @nodeAssembler = new NodeAssembler
-        sinon.spy @nodeAssembler, 'assembleNodes'
-        @sut = new Router datastore: @datastore, nodeAssembler: @nodeAssembler
-
       describe 'when the datastore yields nothing for the flowId', ->
         beforeEach ->
           @datastore.hget.yields null, null
 
         describe 'when given an envelope', ->
-          it 'should not be a little sissy about it', ->
-            theCall = => @sut.onEnvelope
-              fromNodeId: 'some-trigger-uuid'
-              flowId: 'some-flow-uuid'
-              instanceId: 'instance-uuid'
-              message: 12455663
-            expect(theCall).not.to.throw()
+          beforeEach ->
+            try
+              @sut.onEnvelope
+                fromNodeId: 'some-trigger-uuid'
+                flowId: 'some-flow-uuid'
+                instanceId: 'instance-uuid'
+                message: 12455663
 
+            catch error
+              @error = error
+
+          it 'should not be a little sissy about it', ->
+            expect(@error).to.not.exist
+
+          it 'should call assembleNodes on the nodeAssembler', ->
+            expect(@assembleNodes).to.have.been.called
 
       describe 'when the trigger node is wired to a nonexistent node', ->
         beforeEach ->
