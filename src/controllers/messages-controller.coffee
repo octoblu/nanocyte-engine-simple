@@ -8,6 +8,7 @@ class MessagesController
   create: (req, res) =>
     inputNode = new @InputNode
     debug 'meshbluAuth', req.meshbluAuth
+    @inputNode ?= new InputNode
 
     unless process.env.DISABLE_MESHBLU_AUTH
       unless req.meshbluAuth.uuid == req.params.flowId
