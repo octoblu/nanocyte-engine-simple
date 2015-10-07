@@ -5,7 +5,6 @@ class MessagesController
   constructor: (options={}) ->
     {@InputNode} = options
     @InputNode ?= InputNode
-
   create: (req, res) =>
     inputNode = new @InputNode
     debug 'meshbluAuth', req.meshbluAuth
