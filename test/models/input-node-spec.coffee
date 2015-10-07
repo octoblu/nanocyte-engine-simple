@@ -10,13 +10,13 @@ describe 'InputNode', ->
     @sut = new InputNode {}, router: @router, datastore: @datastore
 
   describe 'onMessage', ->
-    describe 'when router.initialize yields an error', ->
-      beforeEach (done)->
-        @router.initialize.yields new Error "I don't know. something."
-        @sut.onMessage {}, (@error, @result) => done()
-
-      it 'should call it\'s callback with an error', ->
-        expect(@error).to.exist
+    # describe 'when router.initialize yields an error', ->
+    #   beforeEach (done)->
+    #     @router.initialize.yields new Error "I don't know. something."
+    #     @sut.onMessage {}, (@error, @result) => done()
+    #
+    #   it 'should call it\'s callback with an error', ->
+    #     expect(@error).to.exist
 
     describe 'with a meshblu message', ->
       beforeEach ->

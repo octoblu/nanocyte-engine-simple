@@ -1,25 +1,21 @@
 _ = require 'lodash'
-NANOCYTE_COMPONENT_LOADER_URL = 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
+
 class ComponentLoader
   constructor: (options={}, dependencies={}) ->
-    {@registryUrl} = options
-    {@request, @componentClasses} = dependencies
+    {@registry} = options
+    {@componentClasses} = dependencies
 
     @request ?= require 'request'
-    @registryUrl ?= process.env.NANOCYTE_COMPONENT_LOADER_URL || NANOCYTE_COMPONENT_LOADER_URL
     @componentClasses ?= []
 
-  getComponentMap: (callback) =>
-    @getComponentListFromUrl @registryUrl, (error, componentNames) =>
-      return callback error if error?
+  getComponentMap: =>
+    componentNames = @getComponentList @registry
 
-      getKeyForComponent = (map, componentName) =>
-        map[componentName] = @loadComponentClass componentName
-        return map
+    getKeyForComponent = (map, componentName) =>
+      map[componentName] = @loadComponentClass componentName
+      return map
 
-      componentMap = _.reduce componentNames, getKeyForComponent, {}
-
-      callback null, componentMap
+    componentMap = _.reduce componentNames, getKeyForComponent, {}
 
   getComponentListFromUrl: (registryUrl, callback) =>
     @request url: @registryUrl, json: true, (error, response, registry) =>
@@ -27,6 +23,7 @@ class ComponentLoader
       callback null, @getComponentList registry
 
   getComponentList: (registry) =>
+    registry ?= require '../../nanocyte-node-registry.json'
     nodeDefinitions = _.values registry
     componentNames =
       _.chain(nodeDefinitions)

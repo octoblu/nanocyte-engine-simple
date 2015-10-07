@@ -12,12 +12,8 @@ class Router
     NodeAssembler ?= require './node-assembler'
     @nodeAssembler = new NodeAssembler()
 
-  initialize: (callback) =>
-    return callback() if @nodes?
-    @nodeAssembler.assembleNodes (error, @nodes) => callback error
-
   onEnvelope: (envelope) =>
-    throw new Error('Router must be initialized before use') unless @nodes?
+    nodes = @nodeAssembler.assembleNodes()
     debug 'onEnvelope', envelope
     {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
 
@@ -31,7 +27,7 @@ class Router
         receiverNodeConfig = routerConfig[uuid]
         return console.error 'router.coffee: receiverNodeConfig was not defined' unless receiverNodeConfig?
 
-        receiverNode = @nodes[receiverNodeConfig.type]
+        receiverNode = nodes[receiverNodeConfig.type]
         return console.error "router.coffee: No registered type for '#{receiverNodeConfig.type}'" unless receiverNode?
 
         benchmark = new Benchmark label: receiverNodeConfig.type
@@ -45,5 +41,8 @@ class Router
           return unless envelope?
           debug benchmark.toString()
           _.defer @onEnvelope, envelope
+
+  initialize: =>
+    console.log 'fuck youuuuuuu!'
 
 module.exports = Router

@@ -6,7 +6,7 @@ describe 'Router', ->
     @datastore = hget: sinon.stub()
     @debugNodeOnEnvelope = debugNodeOnEnvelope = sinon.spy => debugNodeOnEnvelope.done()
 
-    @assembleNodes = assembleNodes = sinon.stub().yields null, 'nanocyte-node-debug': onEnvelope: debugNodeOnEnvelope
+    @assembleNodes = assembleNodes = sinon.stub().returns 'nanocyte-node-debug': onEnvelope: debugNodeOnEnvelope
 
     class NodeAssembler
       assembleNodes: assembleNodes
@@ -14,34 +14,29 @@ describe 'Router', ->
 
     @sut = new Router datastore: @datastore, NodeAssembler: NodeAssembler
 
-  describe 'initialize', ->
-    describe 'when called', ->
-
-      beforeEach (done) ->
-        @sut.initialize (@error, @done) => done()
-
-      it 'should call assembleNodes on the nodeAssembler', ->
-        expect(@assembleNodes).to.have.been.called
-
   describe 'onEnvelope', ->
     describe 'when the nodeAssembler returns some nodes', ->
-      beforeEach (done) ->
-        @sut.initialize => done()
-
       describe 'when the datastore yields nothing for the flowId', ->
         beforeEach ->
           @datastore.hget.yields null, null
 
-
         describe 'when given an envelope', ->
-          it 'should not be a little sissy about it', ->
-            theCall = => @sut.onEnvelope
-              fromNodeId: 'some-trigger-uuid'
-              flowId: 'some-flow-uuid'
-              instanceId: 'instance-uuid'
-              message: 12455663
-            expect(theCall).not.to.throw()
+          beforeEach ->
+            try
+              @sut.onEnvelope
+                fromNodeId: 'some-trigger-uuid'
+                flowId: 'some-flow-uuid'
+                instanceId: 'instance-uuid'
+                message: 12455663
 
+            catch error
+              @error = error
+
+          it 'should not be a little sissy about it', ->
+            expect(@error).to.not.exist
+
+          it 'should call assembleNodes on the nodeAssembler', ->
+            expect(@assembleNodes).to.have.been.called
 
       describe 'when the trigger node is wired to a nonexistent node', ->
         beforeEach ->
@@ -193,7 +188,3 @@ describe 'Router', ->
 
           it 'should call onEnvelope in the debugNode twice', ->
             expect(@debugNodeOnEnvelope).to.have.been.calledTwice
-
-    describe 'when called before the router has initialized', ->
-      it 'should throw an error stating that the router must be initialized before use', ->
-        expect(@sut.onEnvelope).to.throw 'Router must be initialized before use'

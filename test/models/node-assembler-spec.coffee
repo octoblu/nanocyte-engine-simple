@@ -5,10 +5,11 @@ debug = require('debug')('nanocyte-engine-simple:node-assembler-spec')
 
 describe 'NodeAssembler', ->
   describe '->assembleNodes', ->
-    beforeEach (done)->
+    beforeEach ->
       @datastoreGetStreamOnWrite1 = sinon.stub()
       @datastoreGetStreamOnWrite2 = sinon.stub()
       datastoreGetStreamOnWrites = [@datastoreGetStreamOnWrite1, @datastoreGetStreamOnWrite2]
+
       class DatastoreGetStream extends stream.Transform
         constructor: ->
           super objectMode: true
@@ -20,6 +21,7 @@ describe 'NodeAssembler', ->
             @push newEnvelope
 
       @nanocyteOnWriteMessage = nanocyteOnWriteMessage = sinon.stub()
+
       class NanocyteNodeWrapper extends stream.Transform
         constructor: ->
           super objectMode: true
@@ -65,8 +67,8 @@ describe 'NodeAssembler', ->
       @TriggerNode = TriggerNode = sinon.spy()
 
       class ComponentLoader
-        getComponentMap: (callback)=>
-          callback null, {
+        getComponentMap: =>
+          {
             'nanocyte-component-pass-through': PassThrough
             'nanocyte-component-selective-collect': SelectiveCollect
             'nanocyte-component-trigger': TriggerNode
@@ -82,7 +84,7 @@ describe 'NodeAssembler', ->
         EnginePulse: EnginePulse
         EngineThrottle: EngineThrottle
 
-      @sut.assembleNodes (@error, @nodes) => done()
+      @nodes = @sut.assembleNodes()
 
     it 'should return something', ->
       expect(@nodes).not.to.be.empty

@@ -20,22 +20,20 @@ class NodeAssembler
 
     @componentLoader = new ComponentLoader
 
-  assembleNodes: (callback) =>
+  assembleNodes: =>
     engineComponents =
-    'engine-data':   @buildEngineData()
-    'engine-debug':  @buildEngineDebug()
-    'engine-output': @buildEngineOutput()
-    'engine-pulse':  @buildEnginePulse()
-    
-    @componentLoader.getComponentMap (error, componentMap) =>
-      wrappedComponents = _.transform componentMap, (result, value, key) =>
-        # console.log "transform arguments are", result, value, key
-        result[key] = @wrapNanocyte value
+      'engine-data':   @buildEngineData()
+      'engine-debug':  @buildEngineDebug()
+      'engine-output': @buildEngineOutput()
+      'engine-pulse':  @buildEnginePulse()
+      
+    componentMap = @componentLoader.getComponentMap()
 
+    wrappedComponents = _.transform componentMap, (result, value, key) =>
+      result[key] = @wrapNanocyte value
 
-      assembledNodes = _.extend {}, wrappedComponents, engineComponents
-      callback null, assembledNodes
-
+    assembledNodes = _.extend {}, wrappedComponents, engineComponents
+    return assembledNodes
 
   buildEngineData: =>
     onEnvelope: (envelope) =>
