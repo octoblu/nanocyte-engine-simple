@@ -1,27 +1,34 @@
 NanocyteNodeRegistryHandler = require '../../src/models/nanocyte-node-registry-handler'
 describe 'NanocyteNodeRegistryHandler', ->
-  describe '->constructor', ->
-    beforeEach ->
-      @sut = new NanocyteNodeRegistryHandler
+  beforeEach ->
+    @request = sinon.stub()
 
-    it 'should exist', ->
-      expect(@sut).to.exist
+    class ComponentBroadcast
+    @ComponentBroadcast = ComponentBroadcast
+
+    class ComponentChange
+    @ComponentChange = ComponentChange
+
+    componentClasses = 'nanocyte-component-broadcast': @ComponentBroadcast, 'nanocyte-component-change': @ComponentChange, 'too many': @ComponentChange
+    @sut = new NanocyteNodeRegistryHandler {registryUrl: "http://upset.men/registry.json"}, {request: @request, componentClasses: componentClasses}
+
+  it 'should exist', ->
+    expect(@sut).to.exist
 
 
   describe '->getComponentMap', ->
     beforeEach ->
-      @request = sinon.stub()
-
       @registry =
-        horns: 2
-        teeth: 'too many'
-
-      @sut = new NanocyteNodeRegistryHandler(
-        {registryUrl: "http://upset.men/registry.json"}
-        {request: @request}
-      )
-
-      @sut.getComponentList = sinon.spy()
+        horns:
+          composedOf:
+            leftHorn:
+              type: 'nanocyte-component-broadcast'
+        teeth:
+          composedOf:
+            fang:
+              type: 'nanocyte-component-change'
+            molar:
+              type: 'nanocyte-component-change'      
 
     describe 'when called', ->
       beforeEach (done) ->
@@ -31,8 +38,10 @@ describe 'NanocyteNodeRegistryHandler', ->
       it 'should get the node registry with request', ->
         expect(@request).to.have.been.calledWith url: "http://upset.men/registry.json", json: true
 
-      it 'should call getComponentMapForNode for each node in the registry', ->
-        expect(@sut.getComponentList).to.have.been.calledWith @registry
+      it 'should return the correct registry', ->
+        expect(@result).to.deep.equal
+          'nanocyte-component-broadcast': @ComponentBroadcast
+          'nanocyte-component-change': @ComponentChange
 
     describe 'when request returns an error', ->
       beforeEach (done) ->
@@ -44,7 +53,6 @@ describe 'NanocyteNodeRegistryHandler', ->
 
   describe '->getComponentList', ->
     beforeEach ->
-      @sut = new NanocyteNodeRegistryHandler
       @registry =
         broadcast:
           composedOf:
@@ -90,14 +98,6 @@ describe 'NanocyteNodeRegistryHandler', ->
 
   describe '->loadComponentClass', ->
     beforeEach ->
-      class ComponentBroadcast
-      @ComponentBroadcast = ComponentBroadcast
-
-      class ComponentChange
-      @ComponentChange = ComponentChange
-
-      componentClasses = 'nanocyte-component-broadcast': ComponentBroadcast, 'nanocyte-component-change': ComponentChange
-      @sut = new NanocyteNodeRegistryHandler {}, {componentClasses: componentClasses}
       @componentBroadcastClass = @sut.loadComponentClass 'nanocyte-component-broadcast'
       @componentChangeClass = @sut.loadComponentClass 'nanocyte-component-change'
 

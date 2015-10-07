@@ -10,7 +10,14 @@ class NanocyteNodeRegistryHandler
   getComponentMap: (callback) =>
     @getComponentListFromUrl @registryUrl, (error, componentNames) =>
       return callback error if error?
-      callback null, null
+
+      getKeyForComponent = (map, componentName) =>
+        map[componentName] = @loadComponentClass componentName
+        return map
+
+      componentMap = _.reduce componentNames, getKeyForComponent, {}
+
+      callback null, componentMap
 
   getComponentListFromUrl: (registryUrl, callback) =>
     @request url: @registryUrl, json: true, (error, response, registry) =>
@@ -40,6 +47,11 @@ class NanocyteNodeRegistryHandler
 
   loadComponentClass: (componentName) =>
     return @componentClasses[componentName] if @componentClasses[componentName]?
-    return require componentName
+    console.log 'componentName was', componentName
+    try
+      return require componentName
+    catch
+      console.error "Couldn't find a component named #{componentName}"
+      return
 
 module.exports = NanocyteNodeRegistryHandler
