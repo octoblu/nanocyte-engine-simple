@@ -15,7 +15,7 @@ meshbluConfig = new MeshbluConfig
 debug 'meshbluConfig', meshbluConfig.toJSON()
 
 app = express()
-app.use morgan 'dev'
+app.use morgan('dev', immediate: true)
 app.use errorHandler()
 app.use meshbluHealthcheck()
 app.use meshbluAuth meshbluConfig.toJSON() unless process.env.DISABLE_MESHBLU_AUTH == 'true'
