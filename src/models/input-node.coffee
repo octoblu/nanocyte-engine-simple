@@ -8,7 +8,7 @@ class InputNode
     @datastore ?= new Datastore
     @router    ?= new Router
 
-  onMessage: (message, callback=->) =>
+  onMessage: (message) =>
     @_getFromNodeIds message, (error, fromNodeIds) =>
       return console.error error.stack if error?
       return console.error 'inputNode could not infer fromNodeId' if _.isEmpty fromNodeIds

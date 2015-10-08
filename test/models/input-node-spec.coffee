@@ -2,7 +2,9 @@ InputNode = require '../../src/models/input-node'
 
 describe 'InputNode', ->
   beforeEach ->
-    @router    = onEnvelope: sinon.spy()
+    @router    =
+      onEnvelope: sinon.spy()
+
     @datastore = hget: sinon.stub()
     @sut = new InputNode {}, router: @router, datastore: @datastore
 

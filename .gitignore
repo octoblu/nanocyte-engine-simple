@@ -28,3 +28,4 @@ node_modules
 
 *.sublime-workspace
 meshblu.json
+nanocyte-node-registry.json
