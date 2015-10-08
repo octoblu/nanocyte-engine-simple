@@ -73,6 +73,7 @@ describe 'EngineThrottle', ->
               msg: 'Engine rate limit exceeded'
               node: 'some-node-uuid'
 
+    # WARNING: will fail on node < 4.0.0
     describe 'when datastore.getAndIncrementCount yields 11', ->
       beforeEach (done) ->
         @things = []
