@@ -6,51 +6,89 @@ describe 'EngineBatch', ->
     delete EngineBatch.batches
 
   describe 'when we write to it', ->
-    beforeEach ->
+    beforeEach (done) ->
       @sut = new EngineBatch
       @sut.write
         flowId: 'flow-id'
         instanceId: 'instance-id'
         fromNodeId: 'from-node-id'
         toNodeId: 'to-node-id'
-        complications: 'its complicated'
+        message:
+          complications: 'its complicated'
+      , done
 
-    it 'should instaniate the global state and add the message', ->
-      expect(_.size EngineBatch.batches).to.deep.deep.deep.equal 1
-      expect(EngineBatch.batches['flow-id']).to.exist
-      expect(EngineBatch.batches['flow-id'].envelopes).to.contain
-        flowId: 'flow-id'
-        instanceId: 'instance-id'
-        fromNodeId: 'from-node-id'
-        toNodeId: 'to-node-id'
-        complications: 'its complicated'
+    describe 'when the stream ends', ->
+      beforeEach (done) ->
+        @sut.on 'data', (@envelope) =>
+        @sut.on 'end', done
 
-    it 'should contain the flowId in the global state object', ->
-      expect(EngineBatch.batches['flow-id'].flowId).to.equal 'flow-id'
-      expect(EngineBatch.batches['flow-id'].instanceId).to.equal 'instance-id'
-      expect(EngineBatch.batches['flow-id'].toNodeId).to.equal 'to-node-id'
-
-    describe 'when we write something else to the same flow id', ->
-      beforeEach ->
-        @sut = new EngineBatch
-        @sut.write flowId: 'flow-id', angry: 'mob'
-
-      it 'should push the message onto the global state', ->
-        expect(_.size EngineBatch.batches).to.deep.deep.deep.equal 1
-        expect(EngineBatch.batches['flow-id']).to.exist
-        expect(EngineBatch.batches['flow-id'].envelopes).have.a.lengthOf 2
-        expect(EngineBatch.batches['flow-id'].envelopes).to.contain
+      it 'should emit an envelope containing the 1 envelope(s) it recieved', ->
+        expect(@envelope).to.deep.equal
           flowId: 'flow-id'
-          angry: 'mob'
+          instanceId: 'instance-id'
+          toNodeId: 'to-node-id'
+          message:
+            topic: 'message-batch'
+            payload:
+              messages: [{ complications: 'its complicated' }]
 
-    describe 'when we write something else to another flow id', ->
-      beforeEach ->
-        @sut = new EngineBatch
-        @sut.write flowId: 'another-flow-id', tafty: 'bathtub'
+      describe 'when we write to a new EngineBatch', ->
+        beforeEach (done) ->
+          @sut = new EngineBatch
+          @sut.write
+            flowId: 'flow-id'
+            instanceId: 'instance-id'
+            fromNodeId: 'from-node-id'
+            toNodeId: 'to-node-id'
+            message:
+              roller: 'coaster'
+          , done
 
-      it 'should push the message onto the global state', ->
-        expect(_.size EngineBatch.batches).to.deep.deep.deep.equal 2
-        expect(EngineBatch.batches['another-flow-id']).to.exist
-        expect(EngineBatch.batches['another-flow-id'].envelopes).to.contain
-          flowId: 'another-flow-id'
-          tafty: 'bathtub'
+        describe 'when the stream ends', ->
+          beforeEach (done) ->
+            @sut.on 'data', (@envelope) =>
+            @sut.on 'end', done
+
+          it 'should emit an envelope containing the 1 envelope(s) it recieved', ->
+            expect(@envelope).to.deep.equal
+              flowId: 'flow-id'
+              instanceId: 'instance-id'
+              toNodeId: 'to-node-id'
+              message:
+                topic: 'message-batch'
+                payload:
+                  messages: [{ roller: 'coaster' }]
+
+    describe 'when we write a second time', ->
+      beforeEach (done) ->
+        engine2 = new EngineBatch
+        engine2.on 'data', (@engine2Data) =>
+        engine2.on 'end', done
+        engine2.write
+          flowId: 'flow-id'
+          instanceId: 'instance-id'
+          fromNodeId: 'from-node-id'
+          toNodeId: 'to-node-id'
+          message:
+            sabotage: "Why aren't you all listening - it's sabotage!"
+
+      describe 'when the stream ends', ->
+        beforeEach (done) ->
+          @sut.on 'data', (@envelope) =>
+          @sut.on 'end', done
+
+        it 'should not emit anything from engine2', ->
+          expect(@engine2Data).not.to.exist
+
+        it 'should emit an envelope containing the 1 envelope(s) it recieved', ->
+          expect(@envelope).to.deep.equal
+            flowId: 'flow-id'
+            instanceId: 'instance-id'
+            toNodeId: 'to-node-id'
+            message:
+              topic: 'message-batch'
+              payload:
+                messages: [
+                  { complications: 'its complicated' }
+                  {sabotage: "Why aren't you all listening - it's sabotage!"}
+                ]
