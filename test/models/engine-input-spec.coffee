@@ -6,7 +6,9 @@ describe 'EngineInput', ->
       onEnvelope: sinon.spy()
 
     @datastore = hget: sinon.stub()
-    @sut = new EngineInput {}, router: @router, datastore: @datastore
+    @pulseSubscriber = subscribe: sinon.stub()
+
+    @sut = new EngineInput {}, router: @router, datastore: @datastore, pulseSubscriber: @pulseSubscriber
 
   describe 'onMessage', ->
     describe 'with a meshblu message', ->
@@ -31,6 +33,16 @@ describe 'EngineInput', ->
             payload:
               params:
                 foo: 'bar'
+
+    describe 'with a topic of subscribe:pulse', ->
+      beforeEach ->
+        @sut.onMessage
+          topic: 'subscribe:pulse'
+          devices: ['some-flow-uuid']
+          flowId: 'some-flow-uuid'
+
+      it 'should create a pulse subscription', ->
+        expect(@pulseSubscriber.subscribe).to.have.been.calledWith 'some-flow-uuid'
 
     describe 'with a different meshblu message', ->
       beforeEach ->

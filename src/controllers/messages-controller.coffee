@@ -5,6 +5,7 @@ class MessagesController
   constructor: (options={}) ->
     {@EngineInput} = options
     @EngineInput ?= EngineInput
+
   create: (req, res) =>
     debug 'meshbluAuth', req.meshbluAuth
 
@@ -13,9 +14,9 @@ class MessagesController
         return res.status(403).end()
     res.status(201).end()
 
-    inputNode = new @EngineInput
+    engineInput = new @EngineInput
     req.body.flowId     = req.params.flowId
     req.body.instanceId = req.params.instanceId
-    inputNode.onMessage req.body
+    engineInput.onMessage req.body
 
 module.exports = MessagesController

@@ -1,17 +1,22 @@
 _         = require 'lodash'
 Datastore = require './datastore'
 Router    = require './router'
+PulseSubscriber = require './pulse-subscriber'
 
 class EngineInput
   constructor: (options, dependencies={}) ->
-    {@datastore,@router} = dependencies
+    {@datastore,@router,@pulseSubscriber} = dependencies
     @datastore ?= new Datastore
     @router    ?= new Router
+    @pulseSubscriber ?= new PulseSubscriber
 
   onMessage: (message) =>
+    if message.topic == 'subscribe:pulse'
+      @pulseSubscriber.subscribe message.flowId
+
     @_getFromNodeIds message, (error, fromNodeIds) =>
       return console.error error.stack if error?
-      return console.error 'inputNode could not infer fromNodeId' if _.isEmpty fromNodeIds
+      return console.error 'engineInput could not infer fromNodeId' if _.isEmpty fromNodeIds
 
       flowId = message.flowId
       instanceId = message.instanceId

@@ -1,6 +1,25 @@
 Datastore = require '../../src/models/datastore'
 
 describe 'Datastore', ->
+  describe '->setex', ->
+    describe 'when given a key and timeout', ->
+      beforeEach ->
+        @client = setex: sinon.stub()
+        @sut = new Datastore {}, client: @client
+        @sut.setex 'foo', 1
+
+      it 'should call @client.setex with key and timeout', ->
+        expect(@client.setex).to.have.been.calledWith 'foo', 1
+
+    describe 'when given a different key and timeout', ->
+      beforeEach ->
+        @client = setex: sinon.stub()
+        @sut = new Datastore {}, client: @client
+        @sut.setex 'bar', 2
+
+      it 'should call @client.setex with key and timeout', ->
+        expect(@client.setex).to.have.been.calledWith 'bar', 2
+
   describe '->hget', ->
     describe 'when given some foobar', ->
       beforeEach ->
