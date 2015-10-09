@@ -6,6 +6,6 @@ class PulseSubscriber
     @datastore ?= new Datastore
 
   subscribe: (flowId) =>
-    @datastore.setex flowId, 300
+    @datastore.setex "#{flowId}-pulse", 300
 
 module.exports = PulseSubscriber

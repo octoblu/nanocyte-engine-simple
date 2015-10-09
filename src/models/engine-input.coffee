@@ -13,6 +13,7 @@ class EngineInput
   onMessage: (message) =>
     if message.topic == 'subscribe:pulse'
       @pulseSubscriber.subscribe message.flowId
+      return
 
     @_getFromNodeIds message, (error, fromNodeIds) =>
       return console.error error.stack if error?

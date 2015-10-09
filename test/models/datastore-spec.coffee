@@ -9,7 +9,7 @@ describe 'Datastore', ->
         @sut.setex 'foo', 1
 
       it 'should call @client.setex with key and timeout', ->
-        expect(@client.setex).to.have.been.calledWith 'foo', 1
+        expect(@client.setex).to.have.been.calledWith 'foo', 1, ''
 
     describe 'when given a different key and timeout', ->
       beforeEach ->
@@ -18,7 +18,7 @@ describe 'Datastore', ->
         @sut.setex 'bar', 2
 
       it 'should call @client.setex with key and timeout', ->
-        expect(@client.setex).to.have.been.calledWith 'bar', 2
+        expect(@client.setex).to.have.been.calledWith 'bar', 2, ''
 
   describe '->hget', ->
     describe 'when given some foobar', ->

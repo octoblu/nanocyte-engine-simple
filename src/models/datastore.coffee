@@ -20,7 +20,7 @@ class Datastore
       callback error
 
   setex: (key, timeout) =>
-    @client.setex key, timeout
+    @client.setex key, timeout, ''
 
   getAndIncrementCount: (key, callback) =>
     @client

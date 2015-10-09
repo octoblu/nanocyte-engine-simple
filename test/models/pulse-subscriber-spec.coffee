@@ -11,11 +11,11 @@ describe 'PulseSubscriber', ->
         @sut.subscribe 'some-flow-uuid'
 
       it 'should call setex on the datastore with a flow-uuid', ->
-        expect(@datastore.setex).to.have.been.calledWith 'some-flow-uuid', 300
+        expect(@datastore.setex).to.have.been.calledWith 'some-flow-uuid-pulse', 300
 
     describe 'with some other flow', ->
       beforeEach ->
         @sut.subscribe 'some-other-flow-uuid'
 
       it 'should call setex on the datastore with a flow-uuid', ->
-        expect(@datastore.setex).to.have.been.calledWith 'some-other-flow-uuid', 300
+        expect(@datastore.setex).to.have.been.calledWith 'some-other-flow-uuid-pulse', 300
