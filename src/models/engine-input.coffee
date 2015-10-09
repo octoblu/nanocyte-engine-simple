@@ -2,7 +2,7 @@ _         = require 'lodash'
 Datastore = require './datastore'
 Router    = require './router'
 
-class InputNode
+class EngineInput
   constructor: (options, dependencies={}) ->
     {@datastore,@router} = dependencies
     @datastore ?= new Datastore
@@ -35,4 +35,4 @@ class InputNode
       return callback null unless config?
       callback null, _.pluck config[fromUuid], 'nodeId'
 
-module.exports = InputNode
+module.exports = EngineInput

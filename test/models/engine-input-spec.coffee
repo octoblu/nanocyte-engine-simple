@@ -1,12 +1,12 @@
-InputNode = require '../../src/models/input-node'
+EngineInput = require '../../src/models/engine-input'
 
-describe 'InputNode', ->
+describe 'EngineInput', ->
   beforeEach ->
     @router    =
       onEnvelope: sinon.spy()
 
     @datastore = hget: sinon.stub()
-    @sut = new InputNode {}, router: @router, datastore: @datastore
+    @sut = new EngineInput {}, router: @router, datastore: @datastore
 
   describe 'onMessage', ->
     describe 'with a meshblu message', ->

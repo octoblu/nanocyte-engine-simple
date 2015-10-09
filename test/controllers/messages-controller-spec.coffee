@@ -2,18 +2,18 @@ MessagesController = require '../../src/controllers/messages-controller'
 
 describe '/messages', ->
   beforeEach ->
-    inputNode = @inputNode =
+    engineInput = @engineInput =
       onMessage: sinon.spy()
 
-    class InputNode
+    class EngineInput
       constructor: ->
-      onMessage: inputNode.onMessage
+      onMessage: engineInput.onMessage
 
     @response =
       status: sinon.spy => @response
       end: sinon.spy => @response
 
-    @sut = new MessagesController InputNode: InputNode
+    @sut = new MessagesController EngineInput: EngineInput
 
   describe 'when /messages receives an authorized message', ->
     beforeEach ->
@@ -29,7 +29,7 @@ describe '/messages', ->
       @sut.create request, @response
 
     it 'should call onMessage on the appropriate node', ->
-      expect(@inputNode.onMessage).to.have.been.calledWith
+      expect(@engineInput.onMessage).to.have.been.calledWith
         foo: 'bar'
         flowId: 'some-flow-uuid'
         instanceId: 'some-instance-uuid'
@@ -52,7 +52,7 @@ describe '/messages', ->
       @sut.create request, @response
 
     it 'should call onMessage on the appropriate node', ->
-      expect(@inputNode.onMessage).to.have.been.calledWith
+      expect(@engineInput.onMessage).to.have.been.calledWith
         shoe: 'spar'
         flowId: 'some-other-flow-uuid'
         instanceId: 'some-instance-uuid'
@@ -71,7 +71,7 @@ describe '/messages', ->
       @sut.create request, @response
 
     it 'should not call onMessage', ->
-      expect(@inputNode.onMessage).not.to.have.been.called
+      expect(@engineInput.onMessage).not.to.have.been.called
 
     it 'should call response.status with a 403 and send', ->
       expect(@response.status).to.have.been.calledWith 403
