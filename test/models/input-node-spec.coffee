@@ -26,7 +26,11 @@ describe 'InputNode', ->
           flowId: 'some-flow-uuid'
           instanceId: 'some-instance-uuid'
           fromNodeId: 'some-trigger-uuid'
-          message: {params: {foo: 'bar'}}
+          message:
+            topic: 'button'
+            payload:
+              params:
+                foo: 'bar'
 
     describe 'with a different meshblu message', ->
       beforeEach ->
@@ -44,7 +48,10 @@ describe 'InputNode', ->
           flowId: 'some-flow-uuid'
           instanceId: 'some-other-instance-uuid'
           fromNodeId: 'some-other-trigger-uuid'
-          message: {pep: 'step'}
+          message:
+            topic: 'button'
+            payload:
+              pep: 'step'
 
     describe 'with a meshblu message thats missing a payload', ->
       beforeEach ->
@@ -69,7 +76,9 @@ describe 'InputNode', ->
             flowId: 'some-flow-uuid'
             instanceId: 'some-other-instance-uuid'
             fromNodeId: 'some-internal-node-uuid'
-            message: {}
+            message:
+              topic: 'button'
+              fromUuid: 'some-device-uuid'
 
       describe 'when the engine-input config contains two fromUuids', ->
         beforeEach ->
@@ -86,12 +95,16 @@ describe 'InputNode', ->
             flowId: 'some-flow-uuid'
             instanceId: 'some-other-instance-uuid'
             fromNodeId: 'some-internal-node-uuid'
-            message: {}
+            message:
+              topic: 'button'
+              fromUuid: 'some-device-uuid'
           expect(@router.onEnvelope).to.have.been.calledWith
             flowId: 'some-flow-uuid'
             instanceId: 'some-other-instance-uuid'
             fromNodeId: 'some-other-internal-node-uuid'
-            message: {}
+            message:
+              topic: 'button'
+              fromUuid: 'some-device-uuid'
 
       describe 'when the engine-input config doesn\'t contain the fromUuid', ->
         beforeEach ->
@@ -152,4 +165,7 @@ describe 'InputNode', ->
           flowId: 'some-flow-uuid'
           instanceId: 'some-other-instance-uuid'
           fromNodeId: 'some-internal-node-uuid'
-          message: 'foo'
+          message:
+            topic: 'button'
+            fromUuid: 'some-device-uuid'
+            payload: 'foo'

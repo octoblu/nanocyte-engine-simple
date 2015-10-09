@@ -13,15 +13,17 @@ class InputNode
       return console.error error.stack if error?
       return console.error 'inputNode could not infer fromNodeId' if _.isEmpty fromNodeIds
 
-      payload = _.cloneDeep(message.payload ? {})
-      delete payload.from
+      flowId = message.flowId
+      instanceId = message.instanceId
+      message = _.omit message, 'devices', 'flowId', 'instanceId'
+      delete message?.payload?.from
 
       _.each fromNodeIds, (fromNodeId) =>
         @router.onEnvelope
-          flowId:     message.flowId
-          instanceId: message.instanceId
+          flowId:     flowId
+          instanceId: instanceId
           fromNodeId: fromNodeId
-          message:    payload
+          message:    message
 
   _getFromNodeIds: (message, callback) =>
     fromNodeId = message.payload?.from

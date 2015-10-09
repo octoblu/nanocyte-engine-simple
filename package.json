@@ -1,6 +1,6 @@
 {
   "name": "nanocyte-engine-simple",
-  "version": "1.14.10",
+  "version": "1.14.11",
   "description": "Simple engine for nanocytes",
   "main": "server.js",
   "private": true,

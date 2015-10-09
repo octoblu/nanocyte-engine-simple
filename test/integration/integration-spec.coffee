@@ -118,7 +118,10 @@ describe 'a flow with one trigger connected to a debug', ->
           config: {}
           data: null
           message:
-            params: {foo: 'bar'}
+            topic: 'button'
+            payload:
+              params:
+                foo: 'bar'
 
       it 'should call response.status with a 201 and send', ->
         expect(@response.status).to.have.been.calledWith 201
@@ -149,7 +152,10 @@ describe 'a flow with one trigger connected to a debug', ->
           config: {}
           data: null
           message:
-            parmesian: {something: 'completely-different'}
+            topic: 'button'
+            payload:
+              parmesian:
+                something: 'completely-different'
 
       it 'should call response.status with a 201 and send', ->
         expect(@response.status).to.have.been.calledWith 201
