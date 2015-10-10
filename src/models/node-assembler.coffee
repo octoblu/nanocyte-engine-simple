@@ -11,12 +11,13 @@ class NodeAssembler
     @DatastoreGetStream  ?= require './datastore-get-stream'
     ComponentLoader ?= require './component-loader'
 
-    {@EngineData,@EngineDebug,@EngineOutput,@EnginePulse,@EngineThrottle} = dependencies
+    {@EngineData,@EngineDebug,@EngineOutput,@EnginePulse,@EngineThrottle,@EngineBatch} = dependencies
     @EngineData     ?= require './engine-data'
     @EngineDebug    ?= require './engine-debug'
     @EngineOutput   ?= require './engine-output'
     @EnginePulse    ?= require './engine-pulse'
     @EngineThrottle ?= require './engine-throttle'
+    @EngineBatch    ?= require './engine-batch'
 
     @componentLoader = new ComponentLoader
 
@@ -26,7 +27,7 @@ class NodeAssembler
       'engine-debug':  @buildEngineDebug()
       'engine-output': @buildEngineOutput()
       'engine-pulse':  @buildEnginePulse()
-      
+
     componentMap = @componentLoader.getComponentMap()
 
     wrappedComponents = _.transform componentMap, (result, value, key) =>
@@ -49,8 +50,10 @@ class NodeAssembler
       datastoreGetStream.write envelope
       datastoreGetStream
         .pipe new @EngineDebug
+        .pipe debugStream()
+        .pipe new @EngineBatch
+        .pipe debugStream()
         .pipe new @DatastoreGetStream
-        .pipe new @EngineThrottle
         .pipe new @EngineOutput
 
   buildEngineOutput: =>
@@ -67,8 +70,8 @@ class NodeAssembler
       data.write envelope
       data
         .pipe new @EnginePulse
+        .pipe new @EngineBatch
         .pipe new @DatastoreGetStream
-        .pipe new @EngineThrottle
         .pipe new @EngineOutput
 
   wrapNanocyte: (nodeClass) =>
@@ -90,6 +93,7 @@ class NodeAssembler
         errorStream
           .pipe new @DatastoreGetStream
           .pipe new @EngineDebug
+          .pipe new @EngineBatch
           .pipe new @DatastoreGetStream
           .pipe new @EngineThrottle
           .pipe new @EngineOutput

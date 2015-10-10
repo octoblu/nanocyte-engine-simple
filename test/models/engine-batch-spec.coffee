@@ -6,7 +6,7 @@ describe 'EngineBatch', ->
     delete EngineBatch.batches
 
   describe 'when we write to it', ->
-    beforeEach (done) ->
+    beforeEach ->
       @sut = new EngineBatch
       @sut.write
         flowId: 'flow-id'
@@ -15,7 +15,6 @@ describe 'EngineBatch', ->
         toNodeId: 'to-node-id'
         message:
           complications: 'its complicated'
-      , done
 
     describe 'when the stream ends', ->
       beforeEach (done) ->
@@ -26,9 +25,10 @@ describe 'EngineBatch', ->
         expect(@envelope).to.deep.equal
           flowId: 'flow-id'
           instanceId: 'instance-id'
-          toNodeId: 'to-node-id'
+          toNodeId: 'engine-output'
           message:
             topic: 'message-batch'
+            devices: ['*']
             payload:
               messages: [{ complications: 'its complicated' }]
 
@@ -53,9 +53,10 @@ describe 'EngineBatch', ->
             expect(@envelope).to.deep.equal
               flowId: 'flow-id'
               instanceId: 'instance-id'
-              toNodeId: 'to-node-id'
+              toNodeId: 'engine-output'
               message:
                 topic: 'message-batch'
+                devices: ['*']
                 payload:
                   messages: [{ roller: 'coaster' }]
 
@@ -84,9 +85,10 @@ describe 'EngineBatch', ->
           expect(@envelope).to.deep.equal
             flowId: 'flow-id'
             instanceId: 'instance-id'
-            toNodeId: 'to-node-id'
+            toNodeId: 'engine-output'
             message:
               topic: 'message-batch'
+              devices: ['*']
               payload:
                 messages: [
                   { complications: 'its complicated' }

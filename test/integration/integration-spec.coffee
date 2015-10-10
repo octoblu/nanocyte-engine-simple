@@ -240,8 +240,13 @@ describe 'a flow with one trigger connected to a debug', ->
       expect(@meshbluHttpMessage).to.have.been.calledOnce
       expect(@meshbluHttpMessage).to.have.been.calledWith
         devices: ['*']
-        topic: 'debug'
+        topic: 'message-batch'
         payload:
-          node: "original-debug-uuid",
-          msgType: undefined
-          msg: something: 'completely-different'
+          messages: [{
+            devices: ['*']
+            topic: 'debug'
+            payload:
+              node: "original-debug-uuid",
+              msgType: undefined
+              msg: something: 'completely-different'
+          }]
