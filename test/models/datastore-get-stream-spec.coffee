@@ -18,6 +18,8 @@ describe 'DatastoreGetStream', ->
         result = @sut.read()
         return if _.isNull result
         @result = result
+
+      @sut.on 'end', =>
         done()
 
       @envelopeInStream = new PassThrough objectMode: true
@@ -52,6 +54,8 @@ describe 'DatastoreGetStream', ->
         result = @sut.read()
         return if _.isNull result
         @result = result
+
+      @sut.on 'end', =>
         done()
 
       @envelopeInStream = new PassThrough objectMode: true

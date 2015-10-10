@@ -6,8 +6,9 @@ _ = require 'lodash'
 
 class NodeAssembler
   constructor: (options, dependencies={}) ->
-    {@OutputNodeWrapper,@DatastoreGetStream,@NanocyteNodeWrapper, ComponentLoader} = dependencies
+    {@OutputNodeWrapper,@DatastoreGetStream,@DatastoreCheckKeyStream,@NanocyteNodeWrapper, ComponentLoader} = dependencies
     @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
+    @DatastoreCheckKeyStream  ?= require './datastore-check-key-stream'
     @DatastoreGetStream  ?= require './datastore-get-stream'
     ComponentLoader ?= require './component-loader'
 
@@ -26,7 +27,7 @@ class NodeAssembler
       'engine-debug':  @buildEngineDebug()
       'engine-output': @buildEngineOutput()
       'engine-pulse':  @buildEnginePulse()
-      
+
     componentMap = @componentLoader.getComponentMap()
 
     wrappedComponents = _.transform componentMap, (result, value, key) =>
@@ -66,6 +67,7 @@ class NodeAssembler
       data = new @DatastoreGetStream
       data.write envelope
       data
+        .pipe new @DatastoreCheckKeyStream
         .pipe new @EnginePulse
         .pipe new @DatastoreGetStream
         .pipe new @EngineThrottle
