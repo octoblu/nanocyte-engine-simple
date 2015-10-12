@@ -6,7 +6,8 @@ _ = require 'lodash'
 
 class NodeAssembler
   constructor: (options, dependencies={}) ->
-    {@OutputNodeWrapper,@DatastoreGetStream,@DatastoreCheckKeyStream,@NanocyteNodeWrapper, ComponentLoader} = dependencies
+    {@OutputNodeWrapper,@DatastoreGetStream,@DatastoreCheckKeyStream} = dependencies
+    {@NanocyteNodeWrapper,ComponentLoader} = dependencies
     @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
     @DatastoreCheckKeyStream  ?= require './datastore-check-key-stream'
     @DatastoreGetStream  ?= require './datastore-get-stream'
@@ -51,9 +52,7 @@ class NodeAssembler
       datastoreGetStream.write envelope
       datastoreGetStream
         .pipe new @EngineDebug
-        .pipe debugStream()
         .pipe new @EngineBatch
-        .pipe debugStream()
         .pipe new @DatastoreGetStream
         .pipe new @EngineOutput
 
