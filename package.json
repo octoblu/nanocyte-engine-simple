@@ -1,8 +1,11 @@
 {
   "name": "nanocyte-engine-simple",
-  "version": "1.16.0",
+  "version": "1.16.1",
   "description": "Simple engine for nanocytes",
   "main": "server.js",
+  "engines": {
+    "node": ">=4.0.0"
+  },
   "private": true,
   "scripts": {
     "test": "istanbul cover _mocha -- -R spec",
@@ -52,6 +55,7 @@
     "istanbul": "^0.3.21",
     "mocha": "^2.3.3",
     "mocha-istanbul": "^0.2.0",
+    "semver": "^5.0.3",
     "sinon": "^1.17.1",
     "sinon-chai": "^2.8.0"
   },
