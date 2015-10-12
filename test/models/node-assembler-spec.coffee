@@ -87,6 +87,12 @@ describe 'NodeAssembler', ->
             'nanocyte-component-trigger': TriggerNode
           }
 
+      @lockManager =
+        lock: sinon.stub()
+        unlock: sinon.stub()
+
+      @lockManager.lock.yields null
+
       @sut = new NodeAssembler {},
         DatastoreCheckKeyStream: DatastoreCheckKeyStream
         DatastoreGetStream: DatastoreGetStream
@@ -97,6 +103,7 @@ describe 'NodeAssembler', ->
         EngineOutput: EngineOutput
         EnginePulse: EnginePulse
         EngineThrottle: EngineThrottle
+        lockManager: @lockManager
 
       @nodes = @sut.assembleNodes()
 
@@ -343,7 +350,7 @@ describe 'NodeAssembler', ->
 
           it 'should construct an NanocyteNodeWrapper with an PassThrough class', ->
             expect(@NanocyteNodeWrapper).to.have.been.calledWithNew
-            expect(@NanocyteNodeWrapper).to.have.been.calledWith nodeClass: @PassThrough
+            expect(@NanocyteNodeWrapper).to.have.been.calledWith nodeClass: @PassThrough, lockManager: @lockManager
 
           it 'should write the envelope to a DatastoreGetStream', ->
             expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith message: 'in a bottle'

@@ -1,16 +1,18 @@
 {PassThrough} = require 'stream'
 debug = require('debug')('nanocyte-engine-simple:node-assembler')
 debugStream = require('debug-stream')('nanocyte-engine-simple:node-assembler')
+LockManager = require './lock-manager'
 ErrorStream = require './error-stream'
 _ = require 'lodash'
 
 class NodeAssembler
   constructor: (options, dependencies={}) ->
-    {@OutputNodeWrapper,@DatastoreGetStream,@DatastoreCheckKeyStream,@NanocyteNodeWrapper, ComponentLoader} = dependencies
+    {@OutputNodeWrapper,@DatastoreGetStream,@DatastoreCheckKeyStream,@NanocyteNodeWrapper,@lockManager,ComponentLoader} = dependencies
     @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
     @DatastoreCheckKeyStream  ?= require './datastore-check-key-stream'
     @DatastoreGetStream  ?= require './datastore-get-stream'
     ComponentLoader ?= require './component-loader'
+    @lockManager ?= new LockManager
 
     {@EngineData,@EngineDebug,@EngineOutput,@EnginePulse,@EngineThrottle} = dependencies
     @EngineData     ?= require './engine-data'
@@ -78,11 +80,14 @@ class NodeAssembler
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope
 
-      node = new @NanocyteNodeWrapper nodeClass: nodeClass
+      node = new @NanocyteNodeWrapper
+        nodeClass: nodeClass
+        lockManager: @lockManager
 
       node.on 'readable', =>
         read = node.read()
         return if _.isNull read
+
         callback null, read
 
       node.on 'error', (error) =>

@@ -5,7 +5,8 @@ _            = require 'lodash'
 Domain       = require 'domain'
 
 class NanocyteNodeWrapper extends Transform
-  constructor: ({@nodeClass}) ->
+  constructor: (options={}) ->
+    {@nodeClass, @lockManager} = options
     super objectMode: true
 
     @domain = Domain.create()
