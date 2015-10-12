@@ -7,6 +7,9 @@ class Datastore
     {@client} = dependencies
     @client ?= require '../handlers/redis-handler'
 
+  exists: (key, callback) =>
+    @client.exists key, callback
+
   hget: (key, field, callback) =>
     benchmark = new Benchmark label: 'datastore.hget'
     @client.hget key, field, (error, data) =>
@@ -18,6 +21,9 @@ class Datastore
     @client.hset key, field, JSON.stringify(value), (error) =>
       debug benchmark.toString()
       callback error
+
+  setex: (key, timeout) =>
+    @client.setex key, timeout, ''
 
   getAndIncrementCount: (key, callback) =>
     @client
