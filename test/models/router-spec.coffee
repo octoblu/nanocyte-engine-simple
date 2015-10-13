@@ -4,15 +4,21 @@ _ = require 'lodash'
 describe 'Router', ->
   beforeEach ->
     @datastore = hget: sinon.stub()
-    @debugNodeOnEnvelope = debugNodeOnEnvelope = sinon.spy => debugNodeOnEnvelope.done()
+    @lockManager =
+      lock: sinon.stub()
+      unlock: sinon.stub()
 
-    @assembleNodes = assembleNodes = sinon.stub().returns 'nanocyte-node-debug': onEnvelope: debugNodeOnEnvelope
+    class DebugNode
+      onEnvelope: sinon.spy()
+
+    @DebugNode = DebugNode
+
+    @assembleNodes = assembleNodes = sinon.stub().returns 'nanocyte-node-debug': DebugNode
 
     class NodeAssembler
       assembleNodes: assembleNodes
 
-
-    @sut = new Router {datastore: @datastore, NodeAssembler: NodeAssembler}
+    @sut = new Router {datastore: @datastore, NodeAssembler: NodeAssembler, lockManager: @lockManager}
 
   describe 'onEnvelope', ->
     describe 'when the nodeAssembler returns some nodes', ->
@@ -44,6 +50,7 @@ describe 'Router', ->
             'some-trigger-uuid':
               type: 'nanocyte-node-trigger'
               linkedTo: ['some-debug-uuid']
+              transactionGroupId: 'transaction-group-id'
 
         it 'should not be a little sissy about it', ->
           theCall = => @sut.onEnvelope
@@ -91,31 +98,84 @@ describe 'Router', ->
               linkedTo: ['some-debug-uuid']
             'some-debug-uuid':
               type: 'nanocyte-node-debug'
+              transactionGroupId: 'some-group-id'
               linkedTo: []
 
-        describe 'when given an envelope', ->
-          beforeEach (done) ->
-            @debugNodeOnEnvelope.done = done
-
+        describe 'when given an envelope without a transaction', ->
+          beforeEach ->
             @sut.onEnvelope
               fromNodeId: 'some-trigger-uuid'
               flowId: 'some-flow-uuid'
               instanceId: 'instance-uuid'
               message: 12455663
 
-          it 'should call datastore.hget', ->
-            expect(@datastore.hget).to.have.been.calledWith 'some-flow-uuid', 'instance-uuid/router/config'
+          describe 'when the lockManager yields a transaction-id', ->
+            beforeEach (done) ->
+              @DebugNode.onEnvelope = sinon.spy => done()
+              @lockManager.lock.yield null, 'a-transaction-id'
 
-          it 'should call onEnvelope in the debugNode from assembleNodes one time', ->
-            expect(@debugNodeOnEnvelope).to.have.been.calledOnce
+            it 'should call lockManager.lock with the transactionGroupId', ->
+              expect(@lockManager.lock).to.have.been.calledWith 'some-group-id'
 
-          it 'should call onEnvelope in the debugNode with the envelope', ->
-            expect(@debugNodeOnEnvelope).to.have.been.calledWith
+            it 'should call datastore.hget', ->
+              expect(@datastore.hget).to.have.been.calledWith 'some-flow-uuid', 'instance-uuid/router/config'
+
+            it 'should call onEnvelope in the debugNode with the envelope', ->
+              expect(@DebugNode.onEnvelope).to.have.been.calledWith
+                flowId: 'some-flow-uuid'
+                instanceId: 'instance-uuid'
+                fromNodeId: 'some-trigger-uuid'
+                toNodeId: 'some-debug-uuid'
+                transactionId: 'a-transaction-id'
+                message: 12455663
+
+          describe 'when the lockManager yields an error', ->
+            beforeEach ->
+              @DebugNode.onEnvelope = sinon.spy()
+              @lockManager.lock.yield new Error "Locks are for chumps"
+
+            it 'should not continue routing the message', ->
+              expect(@DebugNode.onEnvelope).to.not.have.been.called
+
+        describe 'when given an envelope with a transaction', ->
+          beforeEach ->
+            @sut.onEnvelope
+              fromNodeId: 'some-trigger-uuid'
               flowId: 'some-flow-uuid'
               instanceId: 'instance-uuid'
-              fromNodeId: 'some-trigger-uuid'
-              toNodeId: 'some-debug-uuid'
+              transactionId: 'some-previous-transaction-id'
               message: 12455663
+
+          describe 'when the lockManager yields a transaction-id', ->
+            beforeEach (done) ->
+              @DebugNode.onEnvelope = sinon.spy => done()
+              @lockManager.lock.yield null, 'some-previous-transaction-id'
+
+            it 'should call lockManager.lock with the transactionGroupId', ->
+              expect(@lockManager.lock).to.have.been.calledWith 'some-group-id', 'some-previous-transaction-id'
+
+            it 'should call datastore.hget', ->
+              expect(@datastore.hget).to.have.been.calledWith 'some-flow-uuid', 'instance-uuid/router/config'
+
+            it 'should call onEnvelope in the debugNode with the envelope', ->
+              expect(@DebugNode.onEnvelope).to.have.been.calledWith
+                flowId: 'some-flow-uuid'
+                instanceId: 'instance-uuid'
+                fromNodeId: 'some-trigger-uuid'
+                toNodeId: 'some-debug-uuid'
+                transactionId: 'some-previous-transaction-id'
+                message: 12455663
+
+          describe 'when the messaged component is done', ->
+            beforeEach (done) ->
+              @DebugNode.onEnvelope = (envelope, next, end) =>
+                end null, transactionId: 'some-other-transaction-id'
+                done()
+              @lockManager.lock.yield null, 'some-previous-transaction-id'
+
+            it 'should call lockmanager.unlock with the transactionId and transactionGroupId', ->
+              expect(@lockManager.unlock).to.have.been.calledWith 'some-group-id', 'some-other-transaction-id'
+
 
       describe 'when the trigger node is wired to two debug nodes', ->
         beforeEach ->
@@ -125,14 +185,19 @@ describe 'Router', ->
               linkedTo: ['some-debug-uuid', 'some-other-debug-uuid']
             'some-debug-uuid':
               type: 'nanocyte-node-debug'
+              transactionGroupId: 'some-group-id'
               linkedTo: []
             'some-other-debug-uuid':
               type: 'nanocyte-node-debug'
+              transactionGroupId: 'some-group-id'
               linkedTo: []
 
         describe 'when given an envelope', ->
           beforeEach (done) ->
-            @debugNodeOnEnvelope.done = _.after 2, done
+            doneTwice = _.after 2, done
+            @DebugNode.onEnvelope = sinon.spy => doneTwice()
+
+            @lockManager.lock.yields null, 'some-previous-transaction-id'
 
             @sut.onEnvelope
               flowId: 'some-flow-uuid'
@@ -145,17 +210,19 @@ describe 'Router', ->
             expect(@datastore.hget).to.have.been.called
 
           it 'should call onEnvelope in the debugNode twice', ->
-            expect(@debugNodeOnEnvelope).to.have.been.calledTwice
+            expect(@DebugNode.onEnvelope).to.have.been.calledTwice
 
           it 'should call onEnvelope in the debugNode', ->
-            expect(@debugNodeOnEnvelope).to.have.been.calledWith
+            expect(@DebugNode.onEnvelope).to.have.been.calledWith
               flowId: 'some-flow-uuid'
+              transactionId: 'some-previous-transaction-id'
               instanceId: 'some-instance-uuid'
               fromNodeId: 'some-trigger-uuid'
               toNodeId: 'some-debug-uuid'
               message: 12455663
 
-            expect(@debugNodeOnEnvelope).to.have.been.calledWith
+            expect(@DebugNode.onEnvelope).to.have.been.calledWith
+              transactionId: 'some-previous-transaction-id'
               flowId: 'some-flow-uuid'
               instanceId: 'some-instance-uuid'
               toNodeId: 'some-other-debug-uuid'
@@ -180,11 +247,16 @@ describe 'Router', ->
 
         describe 'when given an envelope', ->
           beforeEach (done) ->
-            @debugNodeOnEnvelope.done = _.after 2, done
+            doneTwice = _.after 2, done
+            @DebugNode.onEnvelope = sinon.spy =>
+              doneTwice()
+
+            @lockManager.lock.yields null, 'whatever'
+
             @sut.onEnvelope fromNodeId: 'some-trigger-uuid', message: 12455663
 
           it 'should call datastore.hget', ->
             expect(@datastore.hget).to.have.been.called
 
           it 'should call onEnvelope in the debugNode twice', ->
-            expect(@debugNodeOnEnvelope).to.have.been.calledTwice
+            expect(@DebugNode.onEnvelope).to.have.been.calledTwice

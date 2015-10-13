@@ -39,15 +39,19 @@ describe 'a flow with one trigger connected to a debug', ->
     data = JSON.stringify
       'engine-input':
         type: 'engine-input'
+        transactionGroupId: 'engine-input-group-id'
         linkedTo: ['some-trigger-uuid']
       'some-trigger-uuid':
         type: 'nanocyte-component-trigger'
+        transactionGroupId: 'trigger-group-id'
         linkedTo: ['some-debug-uuid']
       'some-debug-uuid':
         type: 'nanocyte-component-pass-through'
+        transactionGroupId: 'debug-group-id'
         linkedTo: ['engine-debug']
       'engine-debug':
         type: 'engine-debug'
+        transactionGroupId: 'engine-debug-group-id'
         linkedTo: []
 
     @client.hset 'some-flow-uuid', 'instance-uuid/router/config', data, done

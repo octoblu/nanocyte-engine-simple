@@ -44,8 +44,10 @@
     "meshblu-http": "^3.4.1",
     "moment": "^2.10.6",
     "morgan": "^1.6.1",
+    "node-uuid": "^1.4.3",
     "npm": "^3.3.5",
     "redis": "^1.0.0",
+    "redlock": "^1.0.0",
     "request": "^2.64.0"
   },
   "devDependencies": {

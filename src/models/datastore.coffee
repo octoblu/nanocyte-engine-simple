@@ -1,6 +1,6 @@
+_ = require 'lodash'
 Benchmark = require './benchmark'
 debug = require('debug')('nanocyte-engine-simple:datastore')
-_ = require 'lodash'
 
 class Datastore
   constructor: (options, dependencies={})->
