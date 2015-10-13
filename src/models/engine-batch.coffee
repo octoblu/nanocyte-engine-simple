@@ -10,7 +10,6 @@ class EngineBatch extends Transform
     EngineBatch.batches ?= {}
 
     if EngineBatch.batches[envelope.flowId]?
-      console.log "I'm an existing batch"
       EngineBatch.addToBatch envelope.flowId, envelope.message
       @push null
       next()
