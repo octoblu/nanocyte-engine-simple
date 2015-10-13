@@ -1,4 +1,5 @@
 _ = require 'lodash'
+json3 = require 'json3'
 Benchmark = require './benchmark'
 debug = require('debug')('nanocyte-engine-simple:datastore')
 
@@ -14,7 +15,7 @@ class Datastore
     benchmark = new Benchmark label: 'datastore.hget'
     @client.hget key, field, (error, data) =>
       debug benchmark.toString()
-      callback error, JSON.parse data
+      callback error, json3.parse data
 
   hset: (key, field, value, callback) =>
     benchmark = new Benchmark label: 'datastore.hset'

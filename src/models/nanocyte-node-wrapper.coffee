@@ -1,7 +1,8 @@
+_            = require 'lodash'
+json3        = require 'json3'
 {Transform}  = require 'stream'
 christacheio = require 'christacheio'
 debug        = require('debug')('nanocyte-engine-simple:nanocyte-node-wrapper')
-_            = require 'lodash'
 Domain       = require 'domain'
 
 class NanocyteNodeWrapper extends Transform
@@ -40,12 +41,12 @@ class NanocyteNodeWrapper extends Transform
     @domain.exit()
 
   _transform: (@envelope, enc, next) =>
-    newEnvelope = _.cloneDeep _.pick(@envelope, 'config', 'data', 'message')
+    newEnvelope = _.pick(@envelope, 'config', 'data', 'message')
     {config,message} = newEnvelope
 
     firstPass = @firstPass config, message
     secondPass = @secondPass firstPass, message
-    newEnvelope.config = JSON.parse secondPass
+    newEnvelope.config = json3.parse secondPass
 
     @domain.enter()
     @node.write newEnvelope, enc, =>
@@ -54,8 +55,8 @@ class NanocyteNodeWrapper extends Transform
 
   firstPass: (json, context) =>
     context = _.defaults {msg: context}, context
-    options = {tags: ['"{{', '}}"'], transformation: JSON.stringify}
-    christacheio JSON.stringify(json), context, options
+    options = {tags: ['"{{', '}}"'], transformation: json3.stringify}
+    christacheio json3.stringify(json), context, options
 
   secondPass: (str,context) =>
     context = _.defaults {msg: context}, context
