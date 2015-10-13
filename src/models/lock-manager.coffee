@@ -1,3 +1,5 @@
+_ = require 'lodash'
+NodeUuid = require 'node-uuid'
 Redlock = require 'redlock'
 debug = require('debug')('nanocyte-engine-simple:lock-manager')
 
@@ -8,15 +10,38 @@ class LockManager
     @redlock ?= new Redlock [@client]
     @activeLocks = {}
 
-  lock: (resource, callback) =>
-    @redlock.lock resource, 6000, (error, lock) =>
-      debug 'lock', resource, error
-      @activeLocks[resource] = lock unless error?
-      callback error
+  lock: (transactionGroupId, transactionId, callback) =>
+    return callback new Error('Missing transactionGroupId') unless transactionGroupId?
+    if @activeLocks[transactionGroupId]? && @activeLocks[transactionGroupId].transactionId == transactionId
+      @activeLocks[transactionGroupId].count += 1
+      return callback()
 
-  unlock: (resource) =>
-    debug 'unlock', resource
-    @activeLocks[resource]?.unlock()
-    delete @activeLocks[resource]
+    @_waitForLock transactionGroupId, transactionId, (error, lock) =>
+      transactionId = @_generateTransactionId()
+      @activeLocks[transactionGroupId] =
+        lockObject: lock
+        transactionId: transactionId
+        count: 1
+      callback error, transactionId
+
+  unlock: (transactionGroupId) =>
+    return unless transactionGroupId?
+    debug 'unlock', transactionGroupId
+    @activeLocks[transactionGroupId]?.count -= 1
+    return if @activeLocks[transactionGroupId].count != 0
+
+    @activeLocks[transactionGroupId]?.lockObject?.unlock()
+    delete @activeLocks[transactionGroupId]
+
+  _waitForLock: (transactionGroupId, transactionId, callback) =>
+    @redlock.lock "locks:#{transactionGroupId}", 6000, (error, lock) =>
+      debug 'lock', transactionGroupId
+      if error?
+        _.delay @_waitForLock, 50, transactionGroupId, transactionId, callback
+        return
+      callback null, lock
+
+  _generateTransactionId: =>
+    NodeUuid.v4()
 
 module.exports  = LockManager

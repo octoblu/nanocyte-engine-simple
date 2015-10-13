@@ -37,15 +37,16 @@ class NodeAssembler
     return assembledNodes
 
   buildEngineData: =>
-    onEnvelope: (envelope) =>
+    onEnvelope: (envelope, next, end) =>
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope
 
       engineData = new @EngineData
       datastoreGetStream.pipe engineData
+        .on 'end', => end null, envelope
 
   buildEngineDebug: =>
-    onEnvelope: (envelope) =>
+    onEnvelope: (envelope, next, end) =>
       datastoreGetStream  = new @DatastoreGetStream
       datastoreGetStream.write envelope
       datastoreGetStream
@@ -53,17 +54,19 @@ class NodeAssembler
         .pipe new @DatastoreGetStream
         .pipe new @EngineThrottle
         .pipe new @EngineOutput
+        .on 'end', => end null, envelope
 
   buildEngineOutput: =>
-    onEnvelope: (envelope) =>
+    onEnvelope: (envelope, next, end) =>
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope
       datastoreGetStream
         .pipe new @EngineThrottle
         .pipe new @EngineOutput
+        .on 'end', => end null, envelope
 
   buildEnginePulse: =>
-    onEnvelope: (envelope) =>
+    onEnvelope: (envelope, next, end) =>
       data = new @DatastoreGetStream
       data.write envelope
       data
@@ -72,9 +75,10 @@ class NodeAssembler
         .pipe new @DatastoreGetStream
         .pipe new @EngineThrottle
         .pipe new @EngineOutput
+        .on 'end', => end null, envelope
 
   wrapNanocyte: (nodeClass) =>
-    onEnvelope: (envelope, next) =>
+    onEnvelope: (envelope, next, end) =>
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope
 
@@ -85,6 +89,8 @@ class NodeAssembler
         read = node.read()
         return if _.isNull read
         next null, read
+
+      node.on 'end', => end null, envelope
 
       node.on 'error', (error) =>
         errorStream = new ErrorStream error: error
