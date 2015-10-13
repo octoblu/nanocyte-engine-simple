@@ -22,8 +22,8 @@ class Datastore
       debug benchmark.toString()
       callback error
 
-  setex: (key, timeout) =>
-    @client.setex key, timeout, ''
+  setex: (key, timeout, value, callback) =>
+    @client.setex key, timeout, value, callback
 
   getAndIncrementCount: (key, callback) =>
     @client

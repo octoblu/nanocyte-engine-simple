@@ -76,6 +76,10 @@ describe 'a flow with one trigger connected to a debug', ->
     data = JSON.stringify {}
     @client.hset 'some-flow-uuid', 'instance-uuid/some-debug-uuid/config', data, done
 
+  beforeEach (done) ->
+    data = JSON.stringify {}
+    @client.setex 'pulse:some-flow-uuid', 300, '', done
+
   afterEach (done) ->
     async.parallel [
       (done) => @client.del 'some-flow-uuid/instance-uuid/router/config', done

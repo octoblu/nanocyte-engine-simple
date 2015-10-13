@@ -11,7 +11,7 @@ class DatastoreCheckKeyStream extends Transform
   _transform: (envelope, enc, next) =>
     debug '_transform', envelope
 
-    @datastore.exists "#{envelope.flowId}-pulse", (error, exists) =>
+    @datastore.exists "pulse:#{envelope.flowId}", (error, exists) =>
       @push envelope if exists == 1
       @push null
       next()

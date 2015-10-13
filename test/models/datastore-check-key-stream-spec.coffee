@@ -6,7 +6,7 @@ describe 'DatastoreCheckKeyStream', ->
   describe 'the key exists', ->
     beforeEach (done) ->
       @datastore = exists: sinon.stub()
-      @datastore.exists.withArgs('flow-uuid-pulse').yields null, 1
+      @datastore.exists.withArgs('pulse:flow-uuid').yields null, 1
 
       @sut = new DatastoreCheckKeyStream {}, datastore: @datastore
       @sut.on 'readable', =>
@@ -35,7 +35,7 @@ describe 'DatastoreCheckKeyStream', ->
   describe 'the key does not exist', ->
     beforeEach (done) ->
       @datastore = exists: sinon.stub()
-      @datastore.exists.withArgs('flow-uuid-pulse').yields null, 0
+      @datastore.exists.withArgs('pulse:flow-uuid').yields null, 0
 
       @sut = new DatastoreCheckKeyStream {}, datastore: @datastore
       @sut.on 'readable', =>

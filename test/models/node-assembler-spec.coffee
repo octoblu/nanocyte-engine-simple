@@ -173,51 +173,64 @@ describe 'NodeAssembler', ->
         describe 'when datastoreGetStream1 emits an envelope', ->
           beforeEach ->
             @datastoreGetStreamOnWrite1.yield null,
-              config: 'some-config'
-              data: 'some-data'
+              flowId: 'flow-id'
+              instanceId: 'instance-id'
+              toNodeId: 'engine-debug'
 
-          it 'should write the data to the EngineDebug instance', ->
-            expect(@engineDebugOnWrite).to.have.been.calledWith
-              config: 'some-config'
-              data: 'some-data'
+          it 'should pass the envelope on to datastoreCheckKeyStream1', ->
+            expect(@datastoreCheckKeyStreamOnWrite).to.have.been.calledWith
+              flowId: 'flow-id'
+              instanceId: 'instance-id'
+              toNodeId: 'engine-debug'
 
-          describe 'when engineDebug emits an envelope', ->
+          describe 'when datastoreCheckKeyStream1 emits an envelope', ->
             beforeEach ->
-              @engineDebugOnWrite.yield null,
-                flowId: 'flow-id'
-                instanceId: 'instance-id'
-                toNodeId: 'engine-output'
-                message:
-                  devices: ['*']
-                  topic: 'pulse'
-                  payload: 'some-data'
+              @datastoreCheckKeyStreamOnWrite.yield null,
+                config: 'some-config'
+                data: 'some-data'
 
-            it 'should pass the envelope on to datastoreGetStream2', ->
-              expect(@datastoreGetStreamOnWrite2).to.have.been.calledWith
-                flowId: 'flow-id'
-                instanceId: 'instance-id'
-                toNodeId: 'engine-output'
-                message:
-                  devices: ['*']
-                  topic: 'pulse'
-                  payload: 'some-data'
+            it 'should write the data to the EngineDebug instance', ->
+              expect(@engineDebugOnWrite).to.have.been.calledWith
+                config: 'some-config'
+                data: 'some-data'
 
-            describe 'when datastoreGetStream2 emits an envelope', ->
+            describe 'when engineDebug emits an envelope', ->
               beforeEach ->
-                @datastoreGetStreamOnWrite2.yield null,
-                  config: 'output-config'
+                @engineDebugOnWrite.yield null,
+                  flowId: 'flow-id'
+                  instanceId: 'instance-id'
+                  toNodeId: 'engine-output'
                   message:
                     devices: ['*']
                     topic: 'pulse'
                     payload: 'some-data'
 
-              it 'should write the data to the EngineOutput instance', ->
-                expect(@engineOutput.read()).to.deep.equal
-                  config: 'output-config'
+              it 'should pass the envelope on to datastoreGetStream2', ->
+                expect(@datastoreGetStreamOnWrite2).to.have.been.calledWith
+                  flowId: 'flow-id'
+                  instanceId: 'instance-id'
+                  toNodeId: 'engine-output'
                   message:
                     devices: ['*']
                     topic: 'pulse'
                     payload: 'some-data'
+
+              describe 'when datastoreGetStream2 emits an envelope', ->
+                beforeEach ->
+                  @datastoreGetStreamOnWrite2.yield null,
+                    config: 'output-config'
+                    message:
+                      devices: ['*']
+                      topic: 'pulse'
+                      payload: 'some-data'
+
+                it 'should write the data to the EngineOutput instance', ->
+                  expect(@engineOutput.read()).to.deep.equal
+                    config: 'output-config'
+                    message:
+                      devices: ['*']
+                      topic: 'pulse'
+                      payload: 'some-data'
 
     describe 'engine-output', ->
       beforeEach ->

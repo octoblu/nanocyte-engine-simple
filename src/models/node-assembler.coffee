@@ -52,6 +52,7 @@ class NodeAssembler
       datastoreGetStream  = new @DatastoreGetStream
       datastoreGetStream.write envelope
       datastoreGetStream
+        .pipe new @DatastoreCheckKeyStream
         .pipe new @EngineDebug
         .pipe new @EngineBatch
         .pipe new @DatastoreGetStream

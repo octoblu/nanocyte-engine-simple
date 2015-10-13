@@ -6,19 +6,19 @@ describe 'Datastore', ->
       beforeEach ->
         @client = setex: sinon.stub()
         @sut = new Datastore {}, client: @client
-        @sut.setex 'foo', 1
+        @sut.setex 'foo', 1, 'val1',
 
       it 'should call @client.setex with key and timeout', ->
-        expect(@client.setex).to.have.been.calledWith 'foo', 1, ''
+        expect(@client.setex).to.have.been.calledWith 'foo', 1, 'val1'
 
     describe 'when given a different key and timeout', ->
       beforeEach ->
         @client = setex: sinon.stub()
         @sut = new Datastore {}, client: @client
-        @sut.setex 'bar', 2
+        @sut.setex 'bar', 2, 'val2'
 
       it 'should call @client.setex with key and timeout', ->
-        expect(@client.setex).to.have.been.calledWith 'bar', 2, ''
+        expect(@client.setex).to.have.been.calledWith 'bar', 2, 'val2'
 
   describe '->exists', ->
     describe 'when given a key and timeout', ->
