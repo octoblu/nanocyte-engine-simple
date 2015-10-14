@@ -6,6 +6,7 @@ meshbluHealthcheck = require 'express-meshblu-healthcheck'
 meshbluAuth        = require 'express-meshblu-auth'
 MeshbluConfig      = require 'meshblu-config'
 debug              = require('debug')('nanocyte-engine-simple:server')
+cluster            = require 'cluster'
 
 MessagesController = require './src/controllers/messages-controller'
 messagesController = new MessagesController
@@ -13,6 +14,17 @@ messagesController = new MessagesController
 PORT  = process.env.PORT ? 80
 meshbluConfig = new MeshbluConfig
 debug 'meshbluConfig', meshbluConfig.toJSON()
+
+PROCESS_NUM = 4
+
+if cluster.isMaster
+  for i in [0...PROCESS_NUM]
+    cluster.fork()
+
+  cluster.on 'exit', (worker, code, signal) =>
+    console.log "worker #{worker.process.pid} died"
+
+  return
 
 app = express()
 app.use morgan('dev', immediate: true)
