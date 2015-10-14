@@ -2,6 +2,7 @@ _         = require 'lodash'
 Datastore = require './datastore'
 Router    = require './router'
 PulseSubscriber = require './pulse-subscriber'
+debug = require('debug')('nanocyte-engine-simple:engine-input')
 
 class EngineInput
   constructor: (options, dependencies={}) ->
@@ -11,6 +12,7 @@ class EngineInput
     @pulseSubscriber ?= new PulseSubscriber
 
   onMessage: (message) =>
+    debug 'onMessage:', fromUuid: message.fromUuid
     if message.topic == 'subscribe:pulse'
       @pulseSubscriber.subscribe message.flowId
       return
