@@ -15,7 +15,9 @@ PORT  = process.env.PORT ? 80
 meshbluConfig = new MeshbluConfig
 debug 'meshbluConfig', meshbluConfig.toJSON()
 
-PROCESS_NUM = 4
+PROCESS_NUM = 8
+#os load balancing.
+cluster.schedulingPolicy = cluster.SCHED_NONE
 
 if cluster.isMaster
   for i in [0...PROCESS_NUM]
