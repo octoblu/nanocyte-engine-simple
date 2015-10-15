@@ -6,7 +6,7 @@ describe 'EngineData', ->
     @sut = new EngineData {}, datastore: @datastore
 
   describe 'when an envelope is written to it', ->
-    beforeEach ->
+    beforeEach (done)->
       envelope =
         flowId: 'flow-id'
         instanceId: 'instance-id'
@@ -16,8 +16,7 @@ describe 'EngineData', ->
         config:
           'node-instance-id': {nodeId: 'node-id'}
 
-      @callback = sinon.spy()
-      @sut.write envelope, @callback
+      @sut.write envelope, done
 
     it 'should save the message', ->
       expect(@datastore.hset).to.have.been.calledWith(
@@ -25,13 +24,6 @@ describe 'EngineData', ->
         'instance-id/node-id/data'
         'foo'
       )
-
-    describe 'when @datastore.hset yields', ->
-      beforeEach ->
-        @datastore.hset.yield null
-
-      it 'should call our callback', ->
-        expect(@callback).to.have.been.called
 
   describe 'when an differenter envelope is written to it', ->
     beforeEach ->

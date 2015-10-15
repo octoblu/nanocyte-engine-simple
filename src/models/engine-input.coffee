@@ -27,11 +27,14 @@ class EngineInput
       delete message?.payload?.from
 
       _.each fromNodeIds, (fromNodeId) =>
-        @router.onEnvelope
+        envelopeMessage =
           flowId:     flowId
           instanceId: instanceId
           fromNodeId: fromNodeId
           message:    message
+        envelopeEnd = (error) =>
+          console.log 'should be donnnnnneeeeeee'
+        @router.onEnvelope envelopeMessage, envelopeEnd
 
   _getFromNodeIds: (message, callback) =>
     fromNodeId = message.payload?.from

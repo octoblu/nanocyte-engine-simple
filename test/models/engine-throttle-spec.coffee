@@ -28,13 +28,12 @@ describe 'EngineThrottle', ->
       expect(@datastore.getAndIncrementCount).to.have.been.calledWith "user-uuid:12345"
 
     describe 'when datastore.getAndIncrementCount yields nothing', ->
-      beforeEach (done) ->
+      beforeEach () ->
         @things = []
 
         @sut.on 'readable', =>
           while thing = @sut.read()
             @things.push thing
-          done()
 
         @datastore.getAndIncrementCount.yield()
 
@@ -50,13 +49,12 @@ describe 'EngineThrottle', ->
               node: 'some-node-uuid'
 
     describe 'when datastore.getAndIncrementCount yields 10', ->
-      beforeEach (done) ->
+      beforeEach () ->
         @things = []
 
         @sut.on 'readable', =>
           while thing = @sut.read()
             @things.push thing
-          done()
 
         @datastore.getAndIncrementCount.yield null, 10
 

@@ -7,7 +7,6 @@ LockManager = require './lock-manager'
 class Router
   constructor: (dependencies={}) ->
     {NodeAssembler, @datastore, @lockManager} = dependencies
-
     @lockManager ?= new LockManager
     @datastore ?= new (require './datastore')
 
@@ -17,28 +16,51 @@ class Router
 
     @sendEnvelope = _.before 1000, @_unlimited_sendEnvelope
 
-  onEnvelope: (envelope) =>
-    {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
+  processCountUp: =>
+    @processCount++
 
+  processCountDown: =>
+    @processCount--
+
+  onEnvelope: (envelope, @endCallback=->) =>
+    @processCount = 0
+    @processCountUp()
+    @_onEnvelope envelope, =>
+      @processCountDown()
+      @endCallback null if @processCount == 0
+
+  _onEnvelope: (envelope, callback) =>
+    @processCountUp()
+    {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
     @datastore.hget flowId, "#{instanceId}/router/config", (error, routerConfig) =>
       return console.error 'router.coffee: routerConfig was not defined' unless routerConfig?
       senderNodeConfig = routerConfig[fromNodeId]
       return console.error 'router.coffee: senderNodeConfig was not defined' unless senderNodeConfig?
 
-      _.each senderNodeConfig.linkedTo, (uuid) =>
-        @sendEnvelope uuid, envelope, routerConfig
+      eachCallback = (uuid, next) =>
+        @sendEnvelope uuid, envelope, routerConfig, (error) =>
+          next error
 
-  _unlimited_sendEnvelope: (uuid, envelope, routerConfig) =>
+      endEachCallback = (error) =>
+        console.error error if error?
+        @processCountDown()
+        @endCallback null if @processCount == 0
+        callback null
+
+      async.each senderNodeConfig.linkedTo, eachCallback, endEachCallback
+
+  _unlimited_sendEnvelope: (uuid, envelope, routerConfig, next) =>
     {flowId,instanceId,toNodeId,fromNodeId,transactionId,message} = envelope
 
     receiverNodeConfig = routerConfig[uuid]
-    return console.error 'router.coffee: receiverNodeConfig was not defined' unless receiverNodeConfig?
+    return next 'router.coffee: receiverNodeConfig was not defined' unless receiverNodeConfig?
 
     receiverNode = @nodes[receiverNodeConfig.type]
-    return console.error "router.coffee: No registered type for '#{receiverNodeConfig.type}'" unless receiverNode?
+    return next "router.coffee: No registered type for '#{receiverNodeConfig.type}'" unless receiverNode?
 
     transactionGroupId = receiverNodeConfig.transactionGroupId
 
+    @processCountUp()
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
       debug 'onEnvelope', envelope
 
@@ -53,9 +75,12 @@ class Router
       , (error, envelope) =>
         return unless envelope?
         debug benchmark.toString()
-        _.defer @onEnvelope, envelope
+        _.defer @_onEnvelope, envelope, =>
       , (error, envelope) =>
-        {transactionId} = envelope
-        @lockManager.unlock transactionGroupId, transactionId
+        _.defer =>
+          {transactionId} = envelope
+          @processCountDown()
+          @lockManager.unlock transactionGroupId, transactionId
+          next()
 
 module.exports = Router

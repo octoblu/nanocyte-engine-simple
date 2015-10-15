@@ -45,7 +45,7 @@ class NodeAssembler
 
       engineData = new @EngineData
       datastoreGetStream.pipe engineData
-        .on 'end', => end null, envelope
+        .on 'finish', => end null, envelope
 
   buildEngineDebug: =>
     onEnvelope: (envelope, next, end) =>
@@ -57,7 +57,7 @@ class NodeAssembler
         .pipe new @EngineBatch
         .pipe new @DatastoreGetStream
         .pipe new @EngineOutput
-        .on 'end', => end null, envelope
+        .on 'finish', => end null, envelope
 
   buildEngineOutput: =>
     onEnvelope: (envelope, next, end) =>
@@ -66,7 +66,7 @@ class NodeAssembler
       datastoreGetStream
         .pipe new @EngineThrottle
         .pipe new @EngineOutput
-        .on 'end', => end null, envelope
+        .on 'finish', => end null, envelope
 
   buildEnginePulse: =>
     onEnvelope: (envelope, next, end) =>
@@ -78,7 +78,7 @@ class NodeAssembler
         .pipe new @EngineBatch
         .pipe new @DatastoreGetStream
         .pipe new @EngineOutput
-        .on 'end', => end null, envelope
+        .on 'finish', => end null, envelope
 
   wrapNanocyte: (nodeClass) =>
     onEnvelope: (envelope, next, end) =>

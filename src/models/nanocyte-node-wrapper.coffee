@@ -33,7 +33,8 @@ class NanocyteNodeWrapper extends Transform
       envelope  = _.omit @envelope, 'config', 'data', 'toNodeId'
       @push _.defaults {fromNodeId: toNodeId, message: message}, envelope
 
-    @node.on 'end', => @push null
+    @node.on 'end', =>
+      @push null
 
     @node.on 'error', (error) =>
       @emit 'error', error

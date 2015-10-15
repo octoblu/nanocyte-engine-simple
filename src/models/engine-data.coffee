@@ -10,7 +10,8 @@ class EngineData extends Writable
   _write: (envelope, enc, next) =>
     {flowId,instanceId,fromNodeId,message,config} = envelope
     nodeId = config[fromNodeId]?.nodeId
+    next()
     return console.error "engine-data.coffee: Node config not found for '#{fromNodeId}'" unless nodeId?
-    @datastore.hset flowId, "#{instanceId}/#{nodeId}/data", message, next
+    @datastore.hset flowId, "#{instanceId}/#{nodeId}/data", message
 
 module.exports = EngineData

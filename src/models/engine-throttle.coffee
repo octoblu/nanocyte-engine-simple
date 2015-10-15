@@ -33,7 +33,7 @@ class EngineThrottle extends Transform
 
       debug 'push'
       @push envelope
-
+      @push null
       next()
 
 module.exports = EngineThrottle

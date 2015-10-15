@@ -53,11 +53,12 @@ describe 'Router', ->
               transactionGroupId: 'transaction-group-id'
 
         it 'should not be a little sissy about it', ->
-          theCall = => @sut.onEnvelope
+          envelope =
             fromNodeId: 'some-trigger-uuid'
             flowId: 'some-flow-uuid'
             instanceId: 'instance-uuid'
             message: 12455663
+          theCall = => @sut.onEnvelope envelope, =>
           expect(theCall).not.to.throw()
 
       describe 'when the trigger node doesnt exist', ->
@@ -65,11 +66,13 @@ describe 'Router', ->
           @datastore.hget.yields null, {}
 
         it 'should not be a little sissy about it', ->
-          theCall = => @sut.onEnvelope
+          envelope =
             fromNodeId: 'some-trigger-uuid'
             flowId: 'some-flow-uuid'
             instanceId: 'instance-uuid'
             message: 12455663
+
+          theCall = => @sut.onEnvelope envelope, =>
           expect(theCall).not.to.throw()
 
       describe 'when the datastore yields a nodetype that doesnt exist', ->
@@ -170,8 +173,9 @@ describe 'Router', ->
             beforeEach (done) ->
               @DebugNode.onEnvelope = (envelope, next, end) =>
                 end null, transactionId: 'some-other-transaction-id'
-                done()
+                _.defer done
               @lockManager.lock.yield null, 'some-previous-transaction-id'
+
 
             it 'should call lockmanager.unlock with the transactionId and transactionGroupId', ->
               expect(@lockManager.unlock).to.have.been.calledWith 'some-group-id', 'some-other-transaction-id'

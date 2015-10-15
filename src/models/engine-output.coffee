@@ -8,10 +8,11 @@ class EngineOutput extends Writable
     {@MeshbluHttp} = dependencies
     @MeshbluHttp ?= require 'meshblu-http'
 
-  _write: (envelope, enc, done) =>
+  _write: (envelope, enc, next) =>
     debug '_write', envelope
     {config,message} = envelope
     meshbluHttp = new @MeshbluHttp config
     meshbluHttp.message message
+    next()
 
 module.exports = EngineOutput

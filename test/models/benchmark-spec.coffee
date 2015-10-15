@@ -27,7 +27,7 @@ describe 'Benchmark', ->
         , 50
 
       it 'should have around 50ms of elapsed time', ->
-        expect(@result).to.be.closeTo 50, 10
+        expect(@result).to.be.closeTo 50, 20
 
   describe '-> id', ->
     beforeEach ->
