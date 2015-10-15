@@ -4,15 +4,13 @@ _ = require 'lodash'
 
 class EngineBatch extends Transform
   constructor: ->
-    super objectMode: true, allowHalfOpen: true
-
-  _transform: (envelope, enc, next) =>
+    super objectMode: true
     EngineBatch.batches ?= {}
 
+  _transform: (envelope, enc, next) =>
+    next()
     if EngineBatch.batches[envelope.flowId]?
       EngineBatch.addToBatch envelope.flowId, envelope.message
-      @push null
-      next()
       return
 
     EngineBatch.batches[envelope.flowId] =
@@ -29,8 +27,6 @@ class EngineBatch extends Transform
       debug 'emitting', EngineBatch.batches[envelope.flowId]
       @push EngineBatch.batches[envelope.flowId]
       delete EngineBatch.batches[envelope.flowId]
-      @push null
-      next()
     , 100
 
   @addToBatch: (flowId, message) ->

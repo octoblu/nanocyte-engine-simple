@@ -24,11 +24,16 @@ class NodeAssembler
     @componentLoader = new ComponentLoader
 
   assembleNodes: =>
+    @engineData = @buildEngineData()
+    @engineDebug = @buildEngineDebug()
+    @engineOutput = @buildEngineOutput()
+    @enginePulse = @buildEnginePulse()
+    
     engineComponents =
-      'engine-data':   @buildEngineData
-      'engine-debug':  @buildEngineDebug
-      'engine-output': @buildEngineOutput
-      'engine-pulse':  @buildEnginePulse
+      'engine-data':   => @engineData
+      'engine-debug':  => @engineDebug
+      'engine-output': => @engineOutput
+      'engine-pulse':  => @enginePulse
 
     componentMap = @componentLoader.getComponentMap()
 

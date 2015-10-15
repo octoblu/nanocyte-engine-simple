@@ -16,7 +16,6 @@ class Router extends Writable
     NodeAssembler ?= require './node-assembler'
     nodeAssembler = new NodeAssembler()
     @nodes = nodeAssembler.assembleNodes()
-    @setMaxListeners 0
     @sendEnvelope = _.before 1000, @_unlimited_sendEnvelope
 
   _write: (envelope, enc, next) =>
