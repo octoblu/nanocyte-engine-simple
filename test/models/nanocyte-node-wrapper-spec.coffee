@@ -176,30 +176,17 @@ describe 'NanocyteNodeWrapper', ->
         constructor: ->
           super objectMode: true
 
-        read: =>
-          _.defer =>
-            throw new Error 'You WOOD die this way.'
-          return null
-
-        _transform: (nvm, nomatter, next)=>
-          next()
+        _transform: =>
+          _.defer => throw new Error 'You WOOD die this way.'
 
       @sut = new NanocyteNodeWrapper nodeClass: Timber
       @sut.initialize()
 
     describe 'when written to', ->
       beforeEach (done) ->
-        @callback = (@error) =>
-          console.log "Error:", @error
-          done()
-        @sut.on 'error', @callback
-        @sut.on 'readable', =>
-          while @sut.read()
-            null
-
-        @sut.write
-          message: 'hi'
-          config: {}
+        @sut.on 'data', =>
+        @sut.on 'error', (@error) => done()
+        @sut.write message: 'hi', config: {}
 
       it 'should have emitted the error', ->
         expect(=> throw @error).to.throw 'You WOOD die this way.'

@@ -21,7 +21,7 @@ class NanocyteNodeWrapper extends Transform
 
     try
       @node = new @nodeClass
-    catch error
+    catch error      
       @emit 'error', error
       return
 
@@ -32,8 +32,8 @@ class NanocyteNodeWrapper extends Transform
 
     @node.on 'end', => @push null
 
-    @node.on 'error', (error) =>
-      @emit 'error', error
+    # @node.on 'error', (error) =>
+    #   @emit 'error', error
 
     @domain.exit()
 
