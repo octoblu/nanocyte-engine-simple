@@ -24,16 +24,17 @@ class NodeAssembler
     @componentLoader = new ComponentLoader
 
   assembleNodes: =>
+    engineOutput = new @EngineOutput
     engineComponents =
       'engine-data':   @buildEngineData()
-      'engine-debug':  @buildEngineDebug()
-      'engine-output': @buildEngineOutput()
-      'engine-pulse':  @buildEnginePulse()
+      'engine-debug':  @buildEngineDebug engineOutput
+      'engine-output': @buildEngineOutput engineOutput
+      'engine-pulse':  @buildEnginePulse engineOutput
 
     componentMap = @componentLoader.getComponentMap()
 
     wrappedComponents = _.transform componentMap, (result, value, key) =>
-      result[key] = @wrapNanocyte value
+      result[key] = @wrapNanocyte value, engineOutput
 
     assembledNodes = _.extend {}, wrappedComponents, engineComponents
     return assembledNodes
@@ -45,42 +46,45 @@ class NodeAssembler
 
       engineData = new @EngineData
       datastoreGetStream.pipe engineData
-        .on 'end', => end null, envelope
+      engineData.on 'end', => end null, envelope
 
-  buildEngineDebug: =>
+  buildEngineDebug: (engineOutput)=>
     onEnvelope: (envelope, next, end) =>
       datastoreGetStream  = new @DatastoreGetStream
       datastoreGetStream.write envelope
-      datastoreGetStream
+      debugStream = datastoreGetStream
         .pipe new @DatastoreCheckKeyStream
         .pipe new @EngineDebug
         .pipe new @EngineBatch
         .pipe new @DatastoreGetStream
-        .pipe new @EngineOutput
-        .on 'end', => end null, envelope
 
-  buildEngineOutput: =>
+      debugStream.on 'end', => end null, envelope
+      debugStream.pipe engineOutput
+
+  buildEngineOutput: (engineOutput)=>
     onEnvelope: (envelope, next, end) =>
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope
-      datastoreGetStream
+      outputStream = datastoreGetStream
         .pipe new @EngineThrottle
-        .pipe new @EngineOutput
-        .on 'end', => end null, envelope
 
-  buildEnginePulse: =>
+      outputStream.on 'end', => end null, envelope
+      outputStream.pipe engineOutput
+
+  buildEnginePulse: (engineOutput)=>
     onEnvelope: (envelope, next, end) =>
       data = new @DatastoreGetStream
       data.write envelope
-      data
+      pulseStream = data
         .pipe new @DatastoreCheckKeyStream
         .pipe new @EnginePulse
         .pipe new @EngineBatch
         .pipe new @DatastoreGetStream
-        .pipe new @EngineOutput
-        .on 'end', => end null, envelope
 
-  wrapNanocyte: (nodeClass) =>
+      pulseStream.on 'end', => end null, envelope
+      pulseStream.pipe engineOutput
+
+  wrapNanocyte: (nodeClass, engineOutput) =>
     onEnvelope: (envelope, next, end) =>
       datastoreGetStream = new @DatastoreGetStream
       datastoreGetStream.write envelope

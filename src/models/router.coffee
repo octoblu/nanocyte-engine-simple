@@ -49,10 +49,10 @@ class Router
         fromNodeId:  fromNodeId
         transactionId: transactionId
       , (error, envelope) =>
-        return unless envelope?
-        _.defer @onEnvelope, envelope
+          return unless envelope?
+          _.defer @onEnvelope, envelope
       , (error, envelope) =>
-        {transactionId} = envelope
-        @lockManager.unlock transactionGroupId, transactionId
+          {transactionId} = envelope
+          @lockManager.unlock transactionGroupId, transactionId
 
 module.exports = Router

@@ -5,12 +5,15 @@ debug = require('debug')('nanocyte-engine-simple:lock-manager')
 
 class LockManager
   constructor: (options, dependencies={}) ->
+    @messagesInProgress = 0
     {@redlock, @client} = dependencies
     @client ?= require '../handlers/redis-handler'
     @redlock ?= new Redlock [@client]
     @activeLocks = {}
 
   lock: (transactionGroupId, transactionId, callback) =>
+    @messagesInProgress++
+    console.log "[#{Date.now()}] <#{transactionGroupId}> lock: messages in progress: #{@messagesInProgress}"
     return callback new Error('Missing transactionGroupId') unless transactionGroupId?
     if @activeLocks[transactionGroupId]? && @activeLocks[transactionGroupId].transactionId == transactionId
       @activeLocks[transactionGroupId].count += 1
@@ -25,6 +28,9 @@ class LockManager
       callback error, transactionId
 
   unlock: (transactionGroupId) =>
+    @messagesInProgress--
+    console.log "[#{Date.now()}] <#{transactionGroupId}> unlock: messages in progress: #{@messagesInProgress}"
+
     return unless transactionGroupId?
     debug 'unlock', transactionGroupId
     @activeLocks[transactionGroupId]?.count -= 1
