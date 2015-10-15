@@ -21,33 +21,29 @@ class NanocyteNodeWrapper extends Transform
 
     try
       @node = new @nodeClass
-    catch error      
+    catch error
       @emit 'error', error
       return
 
     @node.on 'data', (message) =>
-      {toNodeId} = @envelope || {}
-      envelope  = _.omit @envelope, 'config', 'data', 'toNodeId'
+      {toNodeId} = @metadata || {}
+      envelope  = _.omit @metadata, 'toNodeId'
       @push _.defaults {fromNodeId: 1, message: message, fromNodeId: toNodeId}, envelope
 
-    @node.on 'end', =>
-      @push null
-
-    # @node.on 'error', (error) =>
-    #   @emit 'error', error
+    @node.on 'end', => @push null
 
     @domain.exit()
 
-  _transform: (@envelope, enc, next) =>
-    newEnvelope = _.pick(@envelope, 'config', 'data', 'message')
-    {config,message} = newEnvelope
+  _transform: (envelope, enc, next) =>
+    @metadata = _.omit envelope, 'config', 'data', 'message'
+    {config, data, message} = envelope
 
     firstPass = @firstPass config, message
     secondPass = @secondPass firstPass, message
-    newEnvelope.config = json3.parse secondPass
+    config = json3.parse secondPass
 
     @domain.enter()
-    @node.write newEnvelope, enc, next
+    @node.write {config: config, data: data, message: message}, enc, next
     @domain.exit()
 
   firstPass: (json, context) =>
