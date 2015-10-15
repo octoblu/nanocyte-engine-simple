@@ -10,7 +10,7 @@ class EngineBatch extends Transform
   _transform: (envelope, enc, next) =>
     next()
     if EngineBatch.batches[envelope.flowId]?
-      EngineBatch.addToBatch envelope.flowId, envelope.message
+      EngineBatch.addToBatch envelope.flowId, envelope.message      
       return
 
     EngineBatch.batches[envelope.flowId] =
