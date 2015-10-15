@@ -33,7 +33,7 @@ class EngineInput
           fromNodeId: fromNodeId
           message:    message
         envelopeEnd = (error) =>
-          console.log 'should be donnnnnneeeeeee'
+          debug 'should be donnnnnneeeeeee'
         @router.onEnvelope envelopeMessage, envelopeEnd
 
   _getFromNodeIds: (message, callback) =>
