@@ -88,10 +88,10 @@ describe 'NanocyteNodeWrapper', ->
             super objectMode: true
 
           _write: (a, b, next)=>
+            @push 5
             next()
-            @emit 'readable'
 
-          read: =>
+          _read: () =>
             5
 
         @sut = new NanocyteNodeWrapper nodeClass: MahNode
@@ -99,8 +99,8 @@ describe 'NanocyteNodeWrapper', ->
 
       describe 'when an envelope is written to it', ->
         beforeEach (done) ->
-          @sut.on 'readable', =>
-            @result = @sut.read()
+          @sut.on 'data', (result) =>
+            @result = result
             done()
 
           @sut.write flowId: 555, toNodeId: 7, config: {}, message: {}
@@ -131,10 +131,7 @@ describe 'NanocyteNodeWrapper', ->
           @results = []
 
           @sut.write flowId: 555, toNodeId: 3, config: {}, message: {}
-          @sut.on 'readable', =>
-            while result = @sut.read()
-              @results.push result
-
+          @sut.on 'data', (result) => @results.push result
           @sut.on 'end', done
 
         it 'should emit the first message', ->
@@ -179,29 +176,17 @@ describe 'NanocyteNodeWrapper', ->
         constructor: ->
           super objectMode: true
 
-        read: =>
-          _.defer =>
-            throw new Error 'You WOOD die this way.'
-          return null
-
-        _transform: (nvm, nomatter, next)=>
-          next()
+        _transform: =>
+          _.defer => throw new Error 'You WOOD die this way.'
 
       @sut = new NanocyteNodeWrapper nodeClass: Timber
       @sut.initialize()
 
     describe 'when written to', ->
       beforeEach (done) ->
-        @callback = (@error) =>
-          done()
-        @sut.on 'error', @callback
-        @sut.on 'readable', =>
-          while @sut.read()
-            null
-
-        @sut.write
-          message: 'hi'
-          config: {}
+        @sut.on 'data', =>
+        @sut.on 'error', (@error) => done()
+        @sut.write message: 'hi', config: {}
 
       it 'should have emitted the error', ->
         expect(=> throw @error).to.throw 'You WOOD die this way.'
