@@ -26,37 +26,42 @@ class NanocyteNodeWrapper extends Transform
       return
 
     @node.on 'data', (message) =>
-      {toNodeId} = @envelope || {}
-      envelope  = _.omit @envelope, 'config', 'data', 'toNodeId'
-      @push _.defaults {fromNodeId: 1, message: message, fromNodeId: toNodeId}, envelope
+      return if _.isNull message
+      {toNodeId} = @envelope
+      @push _.defaults {fromNodeId: toNodeId, message: message}, _.omit(@envelope, 'toNodeId')
 
     @node.on 'end', => @push null
 
-    @node.on 'error', (error) =>
-      @emit 'error', error
+    @node.on 'error', (error) => @emit 'error', error
 
     @domain.exit()
 
-  _transform: (@envelope, enc, next) =>
-    newEnvelope = _.pick(@envelope, 'config', 'data', 'message')
-    {config,message} = newEnvelope
+  _transform: (envelope, enc, next) =>
+    @envelope = _.omit envelope, 'config', 'data'
+    {config, data, message} = envelope
 
     firstPass = @firstPass config, message
     secondPass = @secondPass firstPass, message
-    newEnvelope.config = json3.parse secondPass
 
     @domain.enter()
-    @node.write newEnvelope, enc, next
+    newEnvelope = config: JSON.parse(secondPass), message: message, data: data
+
+    delete envelope.config
+
+    secondPass = ""
+
+    @node.write newEnvelope, enc, => next()
+
     @domain.exit()
 
-  firstPass: (json, context) =>
-    context = _.defaults {msg: context}, context
+  firstPass: (config, message) =>
+    message = _.defaults {msg: message}, message
     options = {tags: ['"{{', '}}"'], transformation: json3.stringify}
-    christacheio json3.stringify(json), context, options
+    christacheio json3.stringify(config), message, options
 
-  secondPass: (str,context) =>
-    context = _.defaults {msg: context}, context
-    christacheio str, context, transformation: @escapeDoubleQuote
+  secondPass: (templatedConfig, message) =>
+    message = _.defaults {msg: message}, message
+    christacheio templatedConfig, message, transformation: @escapeDoubleQuote
 
   escapeDoubleQuote: (data) =>
     return unless data?
