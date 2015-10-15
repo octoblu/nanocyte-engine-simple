@@ -25,10 +25,10 @@ class NodeAssembler
 
   assembleNodes: =>
     engineComponents =
-      'engine-data':   @buildEngineData()
-      'engine-debug':  @buildEngineDebug()
-      'engine-output': @buildEngineOutput()
-      'engine-pulse':  @buildEnginePulse()
+      'engine-data':   @buildEngineData
+      'engine-debug':  @buildEngineDebug
+      'engine-output': @buildEngineOutput
+      'engine-pulse':  @buildEnginePulse
 
     componentMap = @componentLoader.getComponentMap()
 
@@ -39,30 +39,26 @@ class NodeAssembler
     return assembledNodes
 
   buildEngineData: =>
-    =>
-      Combine new @DatastoreGetStream, new @EngineData
+    Combine new @DatastoreGetStream, new @EngineData
 
   buildEngineDebug: =>
-    =>
-      Combine(
-        new @DatastoreGetStream
-        new @DatastoreCheckKeyStream
-        new @EngineDebug
-        new @EngineBatch
-        new @DatastoreGetStream
-        new @EngineOutput
-      )
+    Combine(
+      new @DatastoreGetStream
+      new @DatastoreCheckKeyStream
+      new @EngineDebug
+      new @EngineBatch
+      new @DatastoreGetStream
+      new @EngineOutput
+    )
 
   buildEngineOutput: =>
-    =>
-      Combine(
-        new @DatastoreGetStream
-        new @EngineThrottle
-        new @EngineOutput
-      )
+    Combine(
+      new @DatastoreGetStream
+      new @EngineThrottle
+      new @EngineOutput
+    )
 
   buildEnginePulse: =>
-    =>
       Combine(
         new @DatastoreGetStream
         new @DatastoreCheckKeyStream

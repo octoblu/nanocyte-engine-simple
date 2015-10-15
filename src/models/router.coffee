@@ -16,7 +16,7 @@ class Router extends Writable
     NodeAssembler ?= require './node-assembler'
     nodeAssembler = new NodeAssembler()
     @nodes = nodeAssembler.assembleNodes()
-
+    @setMaxListeners 0
     @sendEnvelope = _.before 1000, @_unlimited_sendEnvelope
 
   _write: (envelope, enc, next) =>
@@ -43,6 +43,7 @@ class Router extends Writable
     transactionGroupId = receiverNodeConfig.transactionGroupId
 
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
+      console.log "BEGIN #{transactionId}, #{receiverNodeConfig.type}"
       debug 'onEnvelope', envelope
 
       receiverNode = ReceiverNode()
@@ -58,6 +59,7 @@ class Router extends Writable
       receiverNode.pipe @, end: false
 
       receiverNode.on 'end', =>
+        console.log "END #{transactionId}, #{receiverNodeConfig.type}"
         @lockManager.unlock transactionGroupId, transactionId
 
 module.exports = Router
