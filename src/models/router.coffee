@@ -52,8 +52,6 @@ class Router extends Writable
         instanceId:  instanceId
         message:     message
         toNodeId:    uuid
-        fromNodeId:  fromNodeId
-        transactionId: transactionId
 
       receiverNode.pipe @, end: false
 
