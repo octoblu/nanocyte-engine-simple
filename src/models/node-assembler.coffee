@@ -109,7 +109,7 @@ class NodeAssembler
           .pipe new @EngineBatch
           .pipe new @DatastoreGetStream
           .pipe new @EngineThrottle
-          .pipe new @EngineOutput
+          .pipe engineOutput
 
       node.initialize()
       datastoreGetStream.pipe node
