@@ -1,7 +1,6 @@
 _ = require 'lodash'
 async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:router')
-Benchmark = require './benchmark'
 LockManager = require './lock-manager'
 
 class Router
@@ -42,7 +41,6 @@ class Router
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
       debug 'onEnvelope', envelope
 
-      benchmark = new Benchmark label: receiverNodeConfig.type
       _.defer receiverNode.onEnvelope,
         flowId:      flowId
         instanceId:  instanceId
@@ -52,7 +50,6 @@ class Router
         transactionId: transactionId
       , (error, envelope) =>
         return unless envelope?
-        debug benchmark.toString()
         _.defer @onEnvelope, envelope
       , (error, envelope) =>
         {transactionId} = envelope

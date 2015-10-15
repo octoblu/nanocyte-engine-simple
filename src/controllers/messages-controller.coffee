@@ -1,5 +1,6 @@
 debug = require('debug')('nanocyte-engine-simple:messages-controller')
 EngineInput = require '../models/engine-input'
+child_process = require 'child_process'
 
 class MessagesController
   constructor: (options={}) ->
@@ -14,9 +15,11 @@ class MessagesController
         return res.status(403).end()
     res.status(201).end()
 
-    engineInput = new @EngineInput
     req.body.flowId     = req.params.flowId
     req.body.instanceId = req.params.instanceId
-    engineInput.onMessage req.body
+
+    cylinder = child_process.fork './src/models/cylinder.js'
+    cylinder.on 'exit', => console.log "Cylinder shut down"
+    cylinder.send req.body
 
 module.exports = MessagesController
