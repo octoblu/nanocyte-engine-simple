@@ -27,7 +27,7 @@ class EngineInput
       delete message?.payload?.from
 
       _.each fromNodeIds, (fromNodeId) =>
-        @router.onEnvelope
+        @router.write
           flowId:     flowId
           instanceId: instanceId
           fromNodeId: fromNodeId

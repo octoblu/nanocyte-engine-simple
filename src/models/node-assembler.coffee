@@ -3,7 +3,7 @@ debug = require('debug')('nanocyte-engine-simple:node-assembler')
 debugStream = require('debug-stream')('nanocyte-engine-simple:node-assembler')
 ErrorStream = require './error-stream'
 _ = require 'lodash'
-
+Combine = require 'stream-combiner'
 class NodeAssembler
   constructor: (options, dependencies={}) ->
     {@OutputNodeWrapper,@DatastoreGetStream,@DatastoreCheckKeyStream} = dependencies
@@ -39,75 +39,59 @@ class NodeAssembler
     return assembledNodes
 
   buildEngineData: =>
-    onEnvelope: (envelope, next, end) =>
-      datastoreGetStream = new @DatastoreGetStream
-      datastoreGetStream.write envelope
-
-      engineData = new @EngineData
-      datastoreGetStream.pipe engineData
-        .on 'end', => end null, envelope
+    =>
+      Combine new @DatastoreGetStream, new @EngineData
 
   buildEngineDebug: =>
-    onEnvelope: (envelope, next, end) =>
-      datastoreGetStream  = new @DatastoreGetStream
-      datastoreGetStream.write envelope
-      datastoreGetStream
-        .pipe new @DatastoreCheckKeyStream
-        .pipe new @EngineDebug
-        .pipe new @EngineBatch
-        .pipe new @DatastoreGetStream
-        .pipe new @EngineOutput
-        .on 'end', => end null, envelope
+    =>
+      Combine(
+        new @DatastoreGetStream
+        new @DatastoreCheckKeyStream
+        new @EngineDebug
+        new @EngineBatch
+        new @DatastoreGetStream
+        new @EngineOutput
+      )
 
   buildEngineOutput: =>
-    onEnvelope: (envelope, next, end) =>
-      datastoreGetStream = new @DatastoreGetStream
-      datastoreGetStream.write envelope
-      datastoreGetStream
-        .pipe new @EngineThrottle
-        .pipe new @EngineOutput
-        .on 'end', => end null, envelope
+    =>
+      Combine(
+        new @DatastoreGetStream
+        new @EngineThrottle
+        new @EngineOutput
+      )
 
   buildEnginePulse: =>
-    onEnvelope: (envelope, next, end) =>
-      data = new @DatastoreGetStream
-      data.write envelope
-      data
-        .pipe new @DatastoreCheckKeyStream
-        .pipe new @EnginePulse
-        .pipe new @EngineBatch
-        .pipe new @DatastoreGetStream
-        .pipe new @EngineOutput
-        .on 'end', => end null, envelope
+    =>
+      Combine(
+        new @DatastoreGetStream
+        new @DatastoreCheckKeyStream
+        new @EnginePulse
+        new @EngineBatch
+        new @DatastoreGetStream
+        new @EngineOutput
+      )
 
   wrapNanocyte: (nodeClass) =>
-    onEnvelope: (envelope, next, end) =>
-      datastoreGetStream = new @DatastoreGetStream
-      datastoreGetStream.write envelope
-
-      node = new @NanocyteNodeWrapper
-        nodeClass: nodeClass
-
-      node.on 'readable', =>
-        read = node.read()
-        return if _.isNull read
-        next null, read
-
-      node.on 'end', => end null, envelope
-
-      node.on 'error', (error) =>
-        errorStream = new ErrorStream error: error
-        errorStream.write envelope
-
-        errorStream
-          .pipe new @DatastoreGetStream
-          .pipe new @EngineDebug
-          .pipe new @EngineBatch
-          .pipe new @DatastoreGetStream
-          .pipe new @EngineThrottle
-          .pipe new @EngineOutput
-
+    =>
+      node = new @NanocyteNodeWrapper nodeClass: nodeClass
       node.initialize()
-      datastoreGetStream.pipe node
+
+      Combine(
+        new @DatastoreGetStream
+        node
+      )
+
+      # node.on 'error', (error) =>
+      #   errorStream = new ErrorStream error: error
+      #   errorStream.write envelope
+      #
+      #   errorStream
+      #     .pipe new @DatastoreGetStream
+      #     .pipe new @EngineDebug
+      #     .pipe new @EngineBatch
+      #     .pipe new @DatastoreGetStream
+      #     .pipe new @EngineThrottle
+      #     .pipe new @EngineOutput
 
 module.exports = NodeAssembler

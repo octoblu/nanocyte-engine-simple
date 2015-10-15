@@ -3,9 +3,11 @@ async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:router')
 Benchmark = require './benchmark'
 LockManager = require './lock-manager'
+{Writable} = require 'stream'
 
-class Router
+class Router extends Writable
   constructor: (dependencies={}) ->
+    super objectMode: true
     {NodeAssembler, @datastore, @lockManager} = dependencies
 
     @lockManager ?= new LockManager
@@ -17,10 +19,11 @@ class Router
 
     @sendEnvelope = _.before 1000, @_unlimited_sendEnvelope
 
-  onEnvelope: (envelope) =>
+  _write: (envelope, enc, next) =>
     {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
 
     @datastore.hget flowId, "#{instanceId}/router/config", (error, routerConfig) =>
+      next()
       return console.error 'router.coffee: routerConfig was not defined' unless routerConfig?
       senderNodeConfig = routerConfig[fromNodeId]
       return console.error 'router.coffee: senderNodeConfig was not defined' unless senderNodeConfig?
@@ -34,28 +37,27 @@ class Router
     receiverNodeConfig = routerConfig[uuid]
     return console.error 'router.coffee: receiverNodeConfig was not defined' unless receiverNodeConfig?
 
-    receiverNode = @nodes[receiverNodeConfig.type]
-    return console.error "router.coffee: No registered type for '#{receiverNodeConfig.type}'" unless receiverNode?
+    ReceiverNode = @nodes[receiverNodeConfig.type]
+    return console.error "router.coffee: No registered type for '#{receiverNodeConfig.type}'" unless ReceiverNode?
 
     transactionGroupId = receiverNodeConfig.transactionGroupId
 
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
       debug 'onEnvelope', envelope
 
-      benchmark = new Benchmark label: receiverNodeConfig.type
-      _.defer receiverNode.onEnvelope,
+      receiverNode = ReceiverNode()
+
+      receiverNode.write
         flowId:      flowId
         instanceId:  instanceId
         message:     message
         toNodeId:    uuid
         fromNodeId:  fromNodeId
         transactionId: transactionId
-      , (error, envelope) =>
-        return unless envelope?
-        debug benchmark.toString()
-        _.defer @onEnvelope, envelope
-      , (error, envelope) =>
-        {transactionId} = envelope
+
+      receiverNode.pipe @, end: false
+
+      receiverNode.on 'end', =>
         @lockManager.unlock transactionGroupId, transactionId
 
 module.exports = Router
