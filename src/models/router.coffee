@@ -34,12 +34,12 @@ class Router extends Writable
     debug "onEnvelope", metadata, message
     toNodeIds = @getToNodeIds metadata.fromNodeId
 
-    newEnvelope =
+    envelope =
       metadata:
         fromNodeId: metadata.fromNodeId
       message: message
 
-    @sendEnvelopes(toNodeIds, newEnvelope)
+    @sendEnvelopes(toNodeIds, envelope)
 
   getToNodeIds: (fromNodeId) =>
     senderNodeConfig = @config[fromNodeId]
@@ -64,7 +64,7 @@ class Router extends Writable
     toNode = @nodes[toNodeConfig.type]
     return console.error "router.coffee: No registered type for '#{toNodeConfig.type}'" unless toNode?
 
-    newEnvelope =
+    envelope =
       metadata:
         flowId: @flowId
         instanceId: @instanceId
@@ -72,7 +72,7 @@ class Router extends Writable
         fromNodeId: metadata.fromNodeId
       message: message
 
-    return toNode.onEnvelope newEnvelope
+    return toNode.onEnvelope envelope
 
   _write: (envelope, enc, next) =>
     @onEnvelope envelope

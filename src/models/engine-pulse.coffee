@@ -5,12 +5,13 @@ class EnginePulse extends Transform
     {@fromNodeId} = options
     super objectMode: true
 
-  _transform: (message, enc, next) =>
+  _transform: ({config, data, message}, enc, next) =>
+    # console.log "PULSE CONFIG: ", config
     @push
       devices: ['*']
       topic: 'pulse'
       payload:
-        node: @fromNodeId
+        node: config[@fromNodeId]?.nodeId
 
     next()
 

@@ -70,8 +70,11 @@ class NodeAssembler
 
   buildEngineOutputStream: (metadata) =>
    Combine(
+     debugStream('before-batch')
+     new @EngineBatch(metadata)
+     debugStream('after-batch')
      new @EngineToNanocyteStream(metadata)
-    #  new @EngineBatch(metadata)     
+     debugStream('output-after-nanocyte')
      new @EngineOutput(metadata)
    )
 
