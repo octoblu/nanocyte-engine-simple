@@ -52,11 +52,14 @@ class NodeAssembler
 
   buildEngineDebug: =>
     onEnvelope: ({metadata,message}) =>
+      outputMetadata = _.defaults nodeId: 'engine-output', metadata
       debugOutputStream =
         Combine(
           debugStream('engine-debugOutput')
-          new @NanocyteToEngineStream(metadata)
-          @buildEngineOutputStream(metadata)
+          new @EngineToNanocyteStream(metadata)
+          new @DatastoreCheckKeyStream(metadata)
+          new @EngineDebug(metadata)
+          @buildEngineOutputStream(outputMetadata)
         )
 
       debugOutputStream.write message

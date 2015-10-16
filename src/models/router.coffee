@@ -8,12 +8,15 @@ debug = require('debug')('nanocyte-engine-router')
 class Router extends Writable
   constructor: (@flowId, @instanceId, dependencies={})->
     super objectMode: true
+    @routeCount = 0
     {NodeAssembler, @datastore} = dependencies
     @datastore ?= new (require './datastore')
     NodeAssembler ?= require './node-assembler'
 
     @nodeAssembler = new NodeAssembler()
     @nanocyteStreams = mergeStream()
+
+    @onEnvelope = _.before @_unlimited_onEnvelope, 100
 
   initialize: (callback=->) =>
     @nodes = @nodeAssembler.assembleNodes()
@@ -30,7 +33,7 @@ class Router extends Writable
       @on 'finish', => console.log "ROUTER IS DEAD"
       callback()
 
-  onEnvelope: ({metadata, message}) =>
+  _unlimited_onEnvelope: ({metadata, message}) =>
     debug "onEnvelope", metadata, message
     toNodeIds = @getToNodeIds metadata.fromNodeId
 
@@ -76,6 +79,6 @@ class Router extends Writable
 
   _write: (envelope, enc, next) =>
     @onEnvelope envelope
-    _.defer => next()
+    next()
 
 module.exports = Router
