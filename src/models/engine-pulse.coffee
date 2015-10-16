@@ -1,21 +1,19 @@
 {Transform} = require 'stream'
 
 class EnginePulse extends Transform
-  constructor: ->
+  constructor: (options={}) ->
+    {@nodeId} = options
     super objectMode: true
 
-  _transform: (envelope, enc, next) =>
-    {nodeId} = envelope.config[envelope.fromNodeId]
-    next()
-
+  _transform: (message, enc, next) =>
     @push
-      flowId: envelope.flowId
-      instanceId: envelope.instanceId
-      toNodeId: 'engine-output'
+      metadata:
+        toNodeId: 'engine-output'
       message:
         devices: ['*']
         topic: 'pulse'
         payload:
-          node: nodeId
+          node: @nodeId
+    next()
 
 module.exports = EnginePulse

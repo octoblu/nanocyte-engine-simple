@@ -1,6 +1,7 @@
 _ = require 'lodash'
 {Writable} = require 'stream'
 mergeStream = require 'merge-stream'
+debugStream = require('debug-stream')('nanocyte-engine-router')
 
 debug = require('debug')('nanocyte-engine-router')
 
@@ -26,12 +27,14 @@ class Router extends Writable
         return callback new Error errorMsg
 
       @nanocyteStreams.pipe @
+      @nanocyteStreams.pipe debugStream 'all-nanocyte-streams'
       callback()
 
-  onEnvelope: (envelope, callback) =>
+  onEnvelope: (envelope) =>
     debug "onEnvelope", envelope
     {metadata, message} = envelope
-    toNodeIds = @getToNodeIds metadata.fromNodeId
+    toNodeIds = [envelope.metadata.toNodeId] if envelope.metadata.toNodeId?
+    toNodeIds ?= @getToNodeIds metadata.fromNodeId
 
     @sendMessages(toNodeIds, message)
 
@@ -44,12 +47,12 @@ class Router extends Writable
     return senderNodeConfig.linkedTo || []
 
   sendMessages: (toNodeIds, message) =>
-    debug "sendMessages", toNodeIds, message
     _.each toNodeIds, (toNodeId) =>
-      @responseStream = @sendMessage toNodeId, message
-      @nanocyteStreams.add @responseStream
+      responseStream = @sendMessage toNodeId, message
+      @nanocyteStreams.add responseStream
 
   sendMessage: (toNodeId, message) =>
+    debug "sendMessage", toNodeId, message
     toNodeConfig = @config[toNodeId]
     return console.error 'router.coffee: toNodeConfig was not defined' unless toNodeConfig?
 
@@ -65,7 +68,9 @@ class Router extends Writable
 
     return toNode.onEnvelope envelope
 
-  _write: (envelope, callback) =>
-    @onEnvelope envelope, callback
+  _write: (envelope, enc, next) =>
+    debug "router was written:", envelope
+    @onEnvelope envelope
+    next()
 
 module.exports = Router
