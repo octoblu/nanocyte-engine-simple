@@ -62,16 +62,22 @@ class BenchmarkRunner
       testsByLabel[test.label] ?= {}
       testsByLabel[test.label].totalMs ?= 0
       testsByLabel[test.label].totalMs += test.elapsed
+      testsByLabel[test.label].times ?= []
+      testsByLabel[test.label].times.push test.elapsed
       testsByLabel[test.label].count ?= 0
       testsByLabel[test.label].count++
 
     _.each _.keys(testsByLabel), (label) =>
-      {totalMs, count} = testsByLabel[label]
+      {totalMs, count, times} = testsByLabel[label]
       totalMsWithMs = "#{totalMs}ms"
       console.log ''
       console.log colors.cyan ">>>>> #{label} Results <<<<<"
       console.log "Total Time: #{colors.green totalMsWithMs}"
       console.log "Total Count: #{colors.green count}"
+      median = @nthPercentile 50, times
+      percentile90 = @nthPercentile 90, times
+      console.log "Median: #{colors.green median}"
+      console.log "90th Percentile: #{colors.green percentile90}"
       averageTime = totalMs / count
       averageTimeWithMs = "#{averageTime}ms"
       console.log "Average Time: #{colors.green averageTimeWithMs}"
@@ -85,5 +91,12 @@ class BenchmarkRunner
     totalTime = "#{@benchmarkRunnerBenchmark.elapsed()}ms"
     console.log "Total Time: #{colors.green totalTime}"
     console.log '========================='
+
+  nthPercentile: (percentile, array) =>
+    array = _.sortBy array
+    index = (percentile / 100) * _.size(array)
+    if Math.floor(index) == index
+      return (array[index-1] + array[index]) / 2
+    return array[Math.floor index]
 
 module.exports = BenchmarkRunner
