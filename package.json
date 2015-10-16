@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node nanocyte-engine-simple.js",
     "test": "istanbul cover _mocha -- -R spec",
-    "postinstall": "./node_modules/coffee-script/bin/coffee ./scripts/install-components.coffee"
+    "postinstall": "./node_modules/coffee-script/bin/coffee ./scripts/install-components.coffee",
+    "benchmark": "node ./integration/runner.js"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
     "callback-stream": "^1.1.0",
     "christacheio": "^2.2.0",
     "coffee-script": "^1.10.0",
+    "colors": "^1.1.2",
     "debug": "^2.2.0",
     "debug-stream": "^3.0.1",
     "errorhandler": "^1.4.2",
@@ -39,6 +41,7 @@
     "express": "^4.13.3",
     "express-meshblu-auth": "^1.4.0",
     "express-meshblu-healthcheck": "^1.0.1",
+    "glob": "^5.0.15",
     "json3": "^3.3.2",
     "lodash": "^3.10.1",
     "lodash-deep": "^1.6.0",
@@ -50,7 +53,8 @@
     "npm": "^3.3.5",
     "redis": "^1.0.0",
     "redlock": "^1.0.0",
-    "request": "^2.64.0"
+    "request": "^2.64.0",
+    "simple-benchmark": "^1.0.7"
   },
   "devDependencies": {
     "chai": "^3.3.0",
