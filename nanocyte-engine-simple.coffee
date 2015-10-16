@@ -7,8 +7,6 @@ meshbluAuth        = require 'express-meshblu-auth'
 MeshbluConfig      = require 'meshblu-config'
 debug              = require('debug')('nanocyte-engine-simple:server')
 
-require 'heapdump'
-
 MessagesController = require './src/controllers/messages-controller'
 messagesController = new MessagesController
 

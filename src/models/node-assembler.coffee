@@ -17,6 +17,7 @@ class NodeAssembler
 
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
+    @SerializerStream ?= require './serializer-stream'
     @ChristacheioStream ?= require './christacheio-stream'
 
     ComponentLoader ?= require './component-loader'
@@ -78,8 +79,8 @@ class NodeAssembler
       debugStream('before-batch')
       new @EngineBatch(metadata)
       debugStream('after-batch')
-      new @EngineToNanocyteStream(metadata)
-      debugStream('output-after-nanocyte')
+      new @SerializerStream(metadata)
+      new @EngineToNanocyteStream(metadata)    
       new @EngineOutput(metadata)
     )
     # outputStream = debugStream('engine-before-batch')
