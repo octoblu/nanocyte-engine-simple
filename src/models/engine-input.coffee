@@ -8,7 +8,6 @@ class EngineInput
   constructor: (options, dependencies={}) ->
     {@datastore,@router,@pulseSubscriber} = dependencies
     @datastore ?= new Datastore
-    @router    ?= new Router
     @pulseSubscriber ?= new PulseSubscriber
 
   onMessage: (message) =>
@@ -17,21 +16,24 @@ class EngineInput
       @pulseSubscriber.subscribe message.flowId
       return
 
+    {flowId, instanceId} = message
     @_getFromNodeIds message, (error, fromNodeIds) =>
       return console.error error.stack if error?
       return console.error 'engineInput could not infer fromNodeId' if _.isEmpty fromNodeIds
 
-      flowId = message.flowId
-      instanceId = message.instanceId
-      message = _.omit message, 'devices', 'flowId', 'instanceId'
-      delete message?.payload?.from
+      router = new Router flowId, instanceId
+      router.initialize (error) =>
+        return console.error "Error initializing router:", error.message if error?
 
-      _.each fromNodeIds, (fromNodeId) =>
-        @router.write
-          flowId:     flowId
-          instanceId: instanceId
-          fromNodeId: fromNodeId
-          message:    message
+        message = _.omit message, 'devices', 'flowId', 'instanceId'
+        delete message?.payload?.from
+
+        _.each fromNodeIds, (fromNodeId) =>
+          router.write
+            metadata:
+              fromNodeId: fromNodeId
+            message: message
+
 
   _getFromNodeIds: (message, callback) =>
     fromNodeId = message.payload?.from

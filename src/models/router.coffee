@@ -1,62 +1,40 @@
-_ = require 'lodash'
-async = require 'async'
-debug = require('debug')('nanocyte-engine-simple:router')
-Benchmark = require './benchmark'
-LockManager = require './lock-manager'
 {Writable} = require 'stream'
+debug = require('debug')('nanocyte-engine-router')
 
 class Router extends Writable
-  constructor: (dependencies={}) ->
+  constructor: (@flowId, @instanceId, dependencies={})->
     super objectMode: true
-    {NodeAssembler, @datastore, @lockManager} = dependencies
-
-    @lockManager ?= new LockManager
+    {@datastore} = dependencies
     @datastore ?= new (require './datastore')
 
-    NodeAssembler ?= require './node-assembler'
-    nodeAssembler = new NodeAssembler()
-    @nodes = nodeAssembler.assembleNodes()
-    @sendEnvelope = _.before 1000, @_unlimited_sendEnvelope
+  initialize: (callback=->) =>
+    @datastore.hget @flowId, "#{@instanceId}/router/config", (error, @config) =>
+      return callback(error) if error?
 
-  _write: (envelope, enc, next) =>
-    {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
+      unless @config?
+        errorMsg = 'router.coffee: config was not defined'
+        console.error errorMsg
+        return callback new Error errorMsg
 
-    @datastore.hget flowId, "#{instanceId}/router/config", (error, routerConfig) =>
-      next()
-      return console.error 'router.coffee: routerConfig was not defined' unless routerConfig?
-      senderNodeConfig = routerConfig[fromNodeId]
-      return console.error 'router.coffee: senderNodeConfig was not defined' unless senderNodeConfig?
+      callback()
 
-      _.each senderNodeConfig.linkedTo, (uuid) =>
-        @sendEnvelope uuid, envelope, routerConfig
+  onEnvelope: (envelope, callback) =>
+    debug "onEnvelope", envelope
+    toNodeIds = @getToNodeIds envelope.metadata.fromNodeId
 
-  _unlimited_sendEnvelope: (uuid, envelope, routerConfig) =>
-    {flowId,instanceId,toNodeId,fromNodeId,transactionId,message} = envelope
+    @sendEnvelopes toNodeIds, envelope, (error, nodes) =>
+      @listenForResponses nodes
+      callback()
 
-    receiverNodeConfig = routerConfig[uuid]
-    return console.error 'router.coffee: receiverNodeConfig was not defined' unless receiverNodeConfig?
+  getToNodeIds: (fromNodeId, callback) =>
+    senderNodeConfig = @config[fromNodeId]
+    console.error 'router.coffee: senderNodeConfig was not defined' unless senderNodeConfig?
+    return renderNodeConfig?.linkedTo || []
 
-    ReceiverNode = @nodes[receiverNodeConfig.type]
-    return console.error "router.coffee: No registered type for '#{receiverNodeConfig.type}'" unless ReceiverNode?
+  sendEnvelopes: (toNodeIds, envelope) =>
+    debug "sendEnvelopes", toNodeIds, envelope
 
-    transactionGroupId = receiverNodeConfig.transactionGroupId
-
-    @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
-      console.log "BEGIN #{transactionId}, #{receiverNodeConfig.type}"
-      debug 'onEnvelope', envelope
-
-      receiverNode = ReceiverNode()
-
-      receiverNode.write
-        flowId:      flowId
-        instanceId:  instanceId
-        message:     message
-        toNodeId:    uuid
-
-      receiverNode.pipe @, end: false
-
-      receiverNode.on 'end', =>
-        console.log "END #{transactionId}, #{receiverNodeConfig.type}"
-        @lockManager.unlock transactionGroupId, transactionId
+  _write: (envelope, callback) =>
+    @onEnvelope envelope, callback
 
 module.exports = Router
