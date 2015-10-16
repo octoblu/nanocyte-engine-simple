@@ -1,8 +1,10 @@
-_         = require 'lodash'
-Datastore = require './datastore'
-Router    = require './router'
-PulseSubscriber = require './pulse-subscriber'
-debug = require('debug')('nanocyte-engine-simple:engine-input')
+_                   = require 'lodash'
+async               = require 'async'
+Datastore           = require './datastore'
+Router              = require './router'
+PulseSubscriber     = require './pulse-subscriber'
+ProcessCountManager = require './process-count-manager'
+debug               = require('debug')('nanocyte-engine-simple:engine-input')
 
 class EngineInput
   constructor: (options, dependencies={}) ->
@@ -16,7 +18,11 @@ class EngineInput
     if message.topic == 'subscribe:pulse'
       @pulseSubscriber.subscribe message.flowId
       return
+    endCallback = =>
+      debug 'everything is done!'
 
+    processCountManager = new ProcessCountManager endCallback, class: 'engine-input'
+    processCountManager.up()
     @_getFromNodeIds message, (error, fromNodeIds) =>
       return console.error error.stack if error?
       return console.error 'engineInput could not infer fromNodeId' if _.isEmpty fromNodeIds
@@ -26,15 +32,25 @@ class EngineInput
       message = _.omit message, 'devices', 'flowId', 'instanceId'
       delete message?.payload?.from
 
-      _.each fromNodeIds, (fromNodeId) =>
+      eachCallback = (fromNodeId, next) =>
+        processCountManager.up()
         envelopeMessage =
           flowId:     flowId
           instanceId: instanceId
           fromNodeId: fromNodeId
           message:    message
-        envelopeEnd = (error) =>
-          debug 'should be donnnnnneeeeeee'
-        @router.onEnvelope envelopeMessage, envelopeEnd
+        @router.onEnvelope envelopeMessage, (error) =>
+          debug 'done with envelopeMessage'
+          processCountManager.down()
+          next error
+      endEachCallback = (error) =>
+        console.error error if error?
+        debug 'done with message'
+        processCountManager.down()
+        processCountManager.checkZero()
+
+      async.each fromNodeIds, eachCallback, endEachCallback
+
 
   _getFromNodeIds: (message, callback) =>
     fromNodeId = message.payload?.from

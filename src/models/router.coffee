@@ -3,6 +3,7 @@ async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:router')
 Benchmark = require './benchmark'
 LockManager = require './lock-manager'
+ProcessCountManager = require './process-count-manager'
 
 class Router
   constructor: (dependencies={}) ->
@@ -16,21 +17,15 @@ class Router
 
     @sendEnvelope = _.before 1000, @_unlimited_sendEnvelope
 
-  processCountUp: =>
-    @processCount++
-
-  processCountDown: =>
-    @processCount--
-
-  onEnvelope: (envelope, @endCallback=->) =>
-    @processCount = 0
-    @processCountUp()
+  onEnvelope: (envelope, endCallback=->) =>
+    @processCountManager = new ProcessCountManager endCallback, class: 'router'
+    @processCountManager.up()
     @_onEnvelope envelope, =>
-      @processCountDown()
-      @endCallback null if @processCount == 0
+      @processCountManager.down()
+      @processCountManager.checkZero()
 
   _onEnvelope: (envelope, callback) =>
-    @processCountUp()
+    @processCountManager.up()
     {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
     @datastore.hget flowId, "#{instanceId}/router/config", (error, routerConfig) =>
       return console.error 'router.coffee: routerConfig was not defined' unless routerConfig?
@@ -43,8 +38,8 @@ class Router
 
       endEachCallback = (error) =>
         console.error error if error?
-        @processCountDown()
-        @endCallback null if @processCount == 0
+        @processCountManager.down()
+        @processCountManager.checkZero()
         callback null
 
       async.each senderNodeConfig.linkedTo, eachCallback, endEachCallback
@@ -60,7 +55,7 @@ class Router
 
     transactionGroupId = receiverNodeConfig.transactionGroupId
 
-    @processCountUp()
+    @processCountManager.up()
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
       debug 'onEnvelope', envelope
 
@@ -79,7 +74,7 @@ class Router
       , (error, envelope) =>
         _.defer =>
           {transactionId} = envelope
-          @processCountDown()
+          @processCountManager.down()
           @lockManager.unlock transactionGroupId, transactionId
           next()
 
