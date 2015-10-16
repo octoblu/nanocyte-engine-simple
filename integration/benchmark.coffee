@@ -73,7 +73,7 @@ class BenchmarkRunner
       console.log "Total Time: #{colors.green totalMsWithMs}"
       console.log "Total Count: #{colors.green count}"
       averageTime = totalMs / count
-      averageTimeWithMs = averageTime
+      averageTimeWithMs = "#{averageTime}ms"
       console.log "Average Time: #{colors.green averageTimeWithMs}"
 
   printBenchMarks: (tests) =>
