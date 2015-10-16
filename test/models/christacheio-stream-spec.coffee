@@ -34,3 +34,35 @@ describe 'ChristacheioStream', ->
           config: {duckGoes: 'quack'}
           data: {}
           message: {bar: '{{sound}}', sound: 'quack'}
+
+    describe 'when a non-string is passed in', ->
+      beforeEach (done) ->
+        envelope =
+          config: {duckCounts: "{{foo}}"}
+          data: {}
+          message: {foo: [1,2,3]}
+
+        @sut.write envelope
+        @sut.on 'data', (@result) => done()
+
+      it 'should call onMessage on MahNode with the array', ->
+        expect(@result).to.deep.equal
+          config: {duckCounts: [1,2,3]}
+          data: {}
+          message: {foo: [1,2,3]}
+
+    describe 'when nesting the key under msg', ->
+      beforeEach (done) ->
+        envelope =
+          config: {duckCounts: "{{msg.foo}}"}
+          data: {}
+          message: {foo: [1,2,3]}
+
+        @sut.write envelope
+        @sut.on 'data', (@result) => done()
+
+      it 'should call onMessage on MahNode with the array', ->
+        expect(@result).to.deep.equal
+          config: {duckCounts: [1,2,3]}
+          data: {}
+          message: {foo: [1,2,3]}
