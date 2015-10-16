@@ -7,10 +7,12 @@ class NanocyteToEngineStream extends Transform
     super objectMode: true
     {@nodeId} = options
 
-  _transform: (message, next) =>
+  _transform: (message, enc, next) =>
     @push
       message: message
       metadata:
         fromNodeId: @nodeId
+
+    next()
 
 module.exports = NanocyteToEngineStream

@@ -2,18 +2,16 @@
 
 class EnginePulse extends Transform
   constructor: (options={}) ->
-    {@nodeId} = options
+    {@fromNodeId} = options
     super objectMode: true
 
   _transform: (message, enc, next) =>
     @push
-      metadata:
-        toNodeId: 'engine-output'
-      message:
-        devices: ['*']
-        topic: 'pulse'
-        payload:
-          node: @nodeId
+      devices: ['*']
+      topic: 'pulse'
+      payload:
+        node: @fromNodeId
+
     next()
 
 module.exports = EnginePulse

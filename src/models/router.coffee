@@ -27,16 +27,19 @@ class Router extends Writable
         return callback new Error errorMsg
 
       @nanocyteStreams.pipe @
-      @nanocyteStreams.pipe debugStream 'all-nanocyte-streams'
+      @on 'finish', => console.log "ROUTER IS DEAD"
       callback()
 
-  onEnvelope: (envelope) =>
-    debug "onEnvelope", envelope
-    {metadata, message} = envelope
-    toNodeIds = [envelope.metadata.toNodeId] if envelope.metadata.toNodeId?
-    toNodeIds ?= @getToNodeIds metadata.fromNodeId
+  onEnvelope: ({metadata, message}) =>
+    debug "onEnvelope", metadata, message
+    toNodeIds = @getToNodeIds metadata.fromNodeId
 
-    @sendMessages(toNodeIds, message)
+    newEnvelope =
+      metadata:
+        fromNodeId: metadata.fromNodeId
+      message: message
+
+    @sendEnvelopes(toNodeIds, newEnvelope)
 
   getToNodeIds: (fromNodeId) =>
     senderNodeConfig = @config[fromNodeId]
@@ -46,31 +49,33 @@ class Router extends Writable
 
     return senderNodeConfig.linkedTo || []
 
-  sendMessages: (toNodeIds, message) =>
+  sendEnvelopes: (toNodeIds, envelope) =>
     _.each toNodeIds, (toNodeId) =>
-      responseStream = @sendMessage toNodeId, message
+      console.log "starting responseStream for #{toNodeId}"
+      responseStream = @sendEnvelope toNodeId, envelope
+      responseStream.on 'end', => console.log "response Stream died for #{toNodeId}"
       @nanocyteStreams.add responseStream
 
-  sendMessage: (toNodeId, message) =>
-    debug "sendMessage", toNodeId, message
+  sendEnvelope: (toNodeId, {metadata, message}) =>
+    debug "sendMessage", toNodeId, metadata, message
     toNodeConfig = @config[toNodeId]
     return console.error 'router.coffee: toNodeConfig was not defined' unless toNodeConfig?
 
     toNode = @nodes[toNodeConfig.type]
     return console.error "router.coffee: No registered type for '#{toNodeConfig.type}'" unless toNode?
 
-    envelope =
+    newEnvelope =
       metadata:
         flowId: @flowId
         instanceId: @instanceId
         nodeId: toNodeId
+        fromNodeId: metadata.fromNodeId
       message: message
 
-    return toNode.onEnvelope envelope
+    return toNode.onEnvelope newEnvelope
 
   _write: (envelope, enc, next) =>
-    debug "router was written:", envelope
     @onEnvelope envelope
-    next()
+    _.defer => next()
 
 module.exports = Router

@@ -51,49 +51,57 @@ class NodeAssembler
       return dataStream
 
   buildEngineDebug: =>
-    onEnvelope: (envelope) =>
-      debugOutputStream = debugStream('engine-debugOutput')
-      debugOutputStream.write envelope
+    onEnvelope: ({metadata,message}) =>
+      debugOutputStream =
+        Combine(
+          debugStream('engine-debugOutput')
+          new @NanocyteToEngineStream(metadata)
+          @buildEngineOutputStream(metadata)
+        )
+
+      debugOutputStream.write message
       return debugOutputStream
 
   buildEngineOutput: =>
-    onEnvelope: (envelope) =>
-      outputStream =
-        Combine(
-          new @EngineToNanocyteStream(envelope.metadata)
-          new debugStream('engine-output-envelope')
-          new @EngineOutput(envelope.metadata)
-        )
-
-      outputStream.write envelope.message
+    onEnvelope: ({metadata, message}) =>
+      outputStream = @buildEngineOutputStream metadata
+      outputStream.write message
       return outputStream
 
+  buildEngineOutputStream: (metadata) =>
+   Combine(
+     new @EngineToNanocyteStream(metadata)
+    #  new @EngineBatch(metadata)     
+     new @EngineOutput(metadata)
+   )
+
   buildEnginePulse: =>
-    onEnvelope: (envelope) =>
+    onEnvelope: ({message, metadata}) =>
+      outputMetadata = _.defaults nodeId: 'engine-output', metadata
       pulseStream =
         Combine(
-          new @EngineToNanocyteStream(envelope.metadata)
-          new @DatastoreCheckKeyStream(envelope.metadata)
-          new @EnginePulse(envelope.metadata)
+          new @EngineToNanocyteStream(metadata)
+          new @DatastoreCheckKeyStream(metadata)
+          new @EnginePulse(metadata)
+          @buildEngineOutputStream outputMetadata
         )
 
-      pulseStream.write envelope.message
+      pulseStream.write message
       return pulseStream
 
   wrapNanocyte: (nodeClass) =>
-    onEnvelope: (envelope) =>
+    onEnvelope: ({metadata, message}) =>
       nanocyteStream =
         Combine(
           debugStream('engine-to-nanocyte')
-          new @EngineToNanocyteStream(envelope.metadata)
+          new @EngineToNanocyteStream(metadata)
           debugStream('nanocyte-envelope')
           new nodeClass
           debugStream('after-nanocyte')
-          new @NanocyteToEngineStream(envelope.metadata)
-          debugStream('after-nanocyte-to-engine')
+          new @NanocyteToEngineStream(metadata)
         )
 
-      nanocyteStream.write envelope.message
+      nanocyteStream.write message
 
       return nanocyteStream
 

@@ -8,11 +8,11 @@ class EngineOutput extends Transform
     {@MeshbluHttp} = dependencies
     @MeshbluHttp ?= require 'meshblu-http'
 
-  _transform: (envelope, enc, done) =>
-    {config, message} = envelope
+  _transform: ({config, message}, enc, done) =>
+    @push null
     meshbluHttp = new @MeshbluHttp config
     meshbluHttp.message message, (error, response)=>
+      debug "EngineOutput", error, response
       done()
-      @push null
 
 module.exports = EngineOutput
