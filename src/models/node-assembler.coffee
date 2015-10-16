@@ -5,6 +5,7 @@ ErrorStream = require './error-stream'
 _ = require 'lodash'
 uuid = require 'node-uuid'
 Combine = require 'stream-combiner2'
+
 class NodeAssembler
   constructor: (options, dependencies={}) ->
     {@OutputNodeWrapper,@DatastoreGetStream,@DatastoreCheckKeyStream} = dependencies
@@ -38,14 +39,14 @@ class NodeAssembler
 
     componentMap = @componentLoader.getComponentMap()
 
-    wrappedComponents = _.transform componentMap, (result, value, key) =>
-      result[key] = @wrapNanocyte value
+    wrappedComponents = _.transform componentMap, (result, NanocyteClass, nanocyteType) =>
+      result[nanocyteType] = @wrapNanocyte NanocyteClass
 
     assembledNodes = _.extend {}, wrappedComponents, engineComponents
     return assembledNodes
 
-  buildEngineData: =>
-    onEnvelope: (envelope) =>
+  buildEngineData: ()=>
+    onEnvelope: ({metadata, message}) =>
       debugOutputStream = debugStream('engine-data')
       dataStream.write envelope
       return dataStream
@@ -72,43 +73,45 @@ class NodeAssembler
       return outputStream
 
   buildEngineOutputStream: (metadata) =>
-   Combine(
-     debugStream('before-batch')
-     new @EngineBatch(metadata)
-     debugStream('after-batch')
-     new @EngineToNanocyteStream(metadata)
-     debugStream('output-after-nanocyte')
-     new @EngineOutput(metadata)
-   )
+    Combine(
+      debugStream('before-batch')
+      new @EngineBatch(metadata)
+      debugStream('after-batch')
+      new @EngineToNanocyteStream(metadata)
+      debugStream('output-after-nanocyte')
+      new @EngineOutput(metadata)
+    )
+    # outputStream = debugStream('engine-before-batch')
+    # outputStream
+    #   .pipe new @EngineBatch(metadata)
+    #   .pipe debugStream('engine-after-batch')
+    #   .pipe new @EngineToNanocyteStream(metadata)
+    #   .pipe debugStream('output-after-nanocyte')
+    #   .pipe new @EngineOutput(metadata)
+
+    # return outputStream
 
   buildEnginePulse: =>
     onEnvelope: ({message, metadata}) =>
       outputMetadata = _.defaults nodeId: 'engine-output', metadata
-      pulseStream =
-        Combine(
-          new @EngineToNanocyteStream(metadata)
-          new @DatastoreCheckKeyStream(metadata)
-          new @EnginePulse(metadata)
-          @buildEngineOutputStream outputMetadata
-        )
-
+      pulseStream = debugStream 'engine-pulse'
       pulseStream.write message
-      return pulseStream
+      pulseStream
+        .pipe new @EngineToNanocyteStream(metadata)
+        .pipe new @DatastoreCheckKeyStream(metadata)
+        .pipe new @EnginePulse(metadata)
+        .pipe @buildEngineOutputStream outputMetadata
 
-  wrapNanocyte: (nodeClass) =>
+  wrapNanocyte: (NanocyteClass) =>
     onEnvelope: ({metadata, message}) =>
-      nanocyteStream =
-        Combine(
-          debugStream('engine-to-nanocyte')
-          new @EngineToNanocyteStream(metadata)
-          debugStream('nanocyte-envelope')
-          new nodeClass
-          debugStream('after-nanocyte')
-          new @NanocyteToEngineStream(metadata)
-        )
-
+      nanocyteStream = debugStream 'engine-to-nanocyte'
       nanocyteStream.write message
+      nanocyteStream
+        .pipe new @EngineToNanocyteStream(metadata)
+        .pipe debugStream('nanocyte-envelope')
+        .pipe new NanocyteClass
+        .pipe debugStream('after-nanocyte')
+        .pipe new @NanocyteToEngineStream(metadata)
 
-      return nanocyteStream
 
 module.exports = NodeAssembler
