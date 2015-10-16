@@ -8,6 +8,7 @@
   },
   "private": true,
   "scripts": {
+    "start": "node nanocyte-engine-simple.js",
     "test": "istanbul cover _mocha -- -R spec",
     "postinstall": "./node_modules/coffee-script/bin/coffee ./scripts/install-components.coffee"
   },
@@ -38,6 +39,7 @@
     "express": "^4.13.3",
     "express-meshblu-auth": "^1.4.0",
     "express-meshblu-healthcheck": "^1.0.1",
+    "heapdump": "^0.3.7",
     "json3": "^3.3.2",
     "lodash": "^3.10.1",
     "lodash-deep": "^1.6.0",
