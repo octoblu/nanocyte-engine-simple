@@ -18,7 +18,6 @@ describe 'ChristacheioStream', ->
           data: {}
           message: {bar: 'duck'}
 
-
     describe 'I think this is why we double pass', ->
       beforeEach (done) ->
         envelope =
