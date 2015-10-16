@@ -29,7 +29,7 @@ class EngineInput
         delete message?.payload?.from
 
         _.each fromNodeIds, (fromNodeId) =>
-          router.write
+          router.onEnvelope
             metadata:
               fromNodeId: fromNodeId
             message: message

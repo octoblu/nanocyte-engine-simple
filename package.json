@@ -41,16 +41,18 @@
     "json3": "^3.3.2",
     "lodash": "^3.10.1",
     "lodash-deep": "^1.6.0",
+    "merge-stream": "^1.0.0",
     "meshblu-config": "^3.1.1",
     "meshblu-http": "^3.4.1",
     "moment": "^2.10.6",
     "morgan": "^1.6.1",
     "node-uuid": "^1.4.3",
     "npm": "^3.3.5",
+    "read-only-stream": "^2.0.0",
     "redis": "^1.0.0",
     "redlock": "^1.0.0",
     "request": "^2.64.0",
-    "stream-combiner": "^0.2.2"
+    "stream-combiner2": "^1.0.2"
   },
   "devDependencies": {
     "chai": "^3.3.0",

@@ -1,13 +1,19 @@
+_ = require 'lodash'
 {Writable} = require 'stream'
 debug = require('debug')('nanocyte-engine-router')
 
 class Router extends Writable
   constructor: (@flowId, @instanceId, dependencies={})->
     super objectMode: true
-    {@datastore} = dependencies
+    {NodeAssembler, @datastore} = dependencies
     @datastore ?= new (require './datastore')
+    NodeAssembler ?= require './node-assembler'
+
+    @nodeAssembler = new NodeAssembler()
 
   initialize: (callback=->) =>
+    @nodes = @nodeAssembler.assembleNodes()
+
     @datastore.hget @flowId, "#{@instanceId}/router/config", (error, @config) =>
       return callback(error) if error?
 
@@ -26,13 +32,28 @@ class Router extends Writable
       @listenForResponses nodes
       callback()
 
-  getToNodeIds: (fromNodeId, callback) =>
+  getToNodeIds: (fromNodeId) =>
     senderNodeConfig = @config[fromNodeId]
-    console.error 'router.coffee: senderNodeConfig was not defined' unless senderNodeConfig?
-    return renderNodeConfig?.linkedTo || []
+    unless senderNodeConfig?
+      console.error 'router.coffee: senderNodeConfig was not defined'
+      return []
+
+    return senderNodeConfig.linkedTo || []
 
   sendEnvelopes: (toNodeIds, envelope) =>
     debug "sendEnvelopes", toNodeIds, envelope
+    _.each toNodeIds, (toNodeId) => @sendEnvelope toNodeId, envelope
+
+  sendEnvelope: (toNodeId, envelope) =>
+    toNodeConfig = @config[toNodeId]
+    return console.error 'router.coffee: toNodeConfig was not defined' unless toNodeConfig?
+
+    toNode = @nodes[toNodeConfig.type]
+    return console.error "router.coffee: No registered type for '#{toNodeConfig.type}'" unless toNode?
+
+    debug "sendEnvelope", toNodeConfig, toNode
+
+    return toNode.onEnvelope envelope
 
   _write: (envelope, callback) =>
     @onEnvelope envelope, callback
