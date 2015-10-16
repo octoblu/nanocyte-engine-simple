@@ -17,6 +17,7 @@ class NodeAssembler
 
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
+    @ChristacheioStream ?= require './christacheio-stream'
 
     ComponentLoader ?= require './component-loader'
 
@@ -109,6 +110,8 @@ class NodeAssembler
       nanocyteStream
         .pipe new @EngineToNanocyteStream(metadata)
         .pipe debugStream('nanocyte-envelope')
+        .pipe new @ChristacheioStream(metadata)
+        .pipe debugStream('after-christacheio')
         .pipe new NanocyteClass
         .pipe debugStream('after-nanocyte')
         .pipe new @NanocyteToEngineStream(metadata)
