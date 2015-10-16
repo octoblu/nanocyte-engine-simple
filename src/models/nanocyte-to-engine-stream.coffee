@@ -1,24 +1,19 @@
 _ = require 'lodash'
-debug = require('debug')('nanocyte-engine-simple:envelope-stream')
+debug = require('debug')('nanocyte-engine-simple:nanocyte-to-engine-stream')
 {Transform} = require 'stream'
 
-class EnvelopeStream extends Transform
+class NanocyteToEngineStream extends Transform
   constructor: (options, dependencies={}) ->
     super objectMode: true
-    {@flowId, @instanceId, @nodeId} = options
+    {@nodeId} = options
 
-    {@datastore} = dependencies
-    @datastore ?= new (require './datastore')
+  _transform: (envelope, next) =>
+    @push
+      message: envelope.message
+      metadata:
+        fromNodeId: @nodeId
 
-    debug "constructed EnvelopeStream"
-
-  _transform: (message, enc, next) =>
-    debug "EnvelopeStream: I'd add config and data, if I only knew how."
-    debug message
-    @push metadata: 'hello!', message: message
-    next()
-
-module.exports = EnvelopeStream
+module.exports = NanocyteToEngineStream
 #
 # class DatastoreGetStream extends Transform
 #   constructor: (options, dependencies={}) ->

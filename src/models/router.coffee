@@ -1,5 +1,7 @@
 _ = require 'lodash'
 {Writable} = require 'stream'
+mergeStream = require 'merge-stream'
+
 debug = require('debug')('nanocyte-engine-router')
 
 class Router extends Writable
@@ -10,6 +12,7 @@ class Router extends Writable
     NodeAssembler ?= require './node-assembler'
 
     @nodeAssembler = new NodeAssembler()
+    @nanocyteStreams = mergeStream()
 
   initialize: (callback=->) =>
     @nodes = @nodeAssembler.assembleNodes()
@@ -22,15 +25,15 @@ class Router extends Writable
         console.error errorMsg
         return callback new Error errorMsg
 
+      @nanocyteStreams.pipe @
       callback()
 
   onEnvelope: (envelope, callback) =>
     debug "onEnvelope", envelope
-    toNodeIds = @getToNodeIds envelope.metadata.fromNodeId
+    {metadata, message} = envelope
+    toNodeIds = @getToNodeIds metadata.fromNodeId
 
-    @sendEnvelopes toNodeIds, envelope, (error, nodes) =>
-      @listenForResponses nodes
-      callback()
+    @sendMessages(toNodeIds, message)
 
   getToNodeIds: (fromNodeId) =>
     senderNodeConfig = @config[fromNodeId]
@@ -40,18 +43,25 @@ class Router extends Writable
 
     return senderNodeConfig.linkedTo || []
 
-  sendEnvelopes: (toNodeIds, envelope) =>
-    debug "sendEnvelopes", toNodeIds, envelope
-    _.each toNodeIds, (toNodeId) => @sendEnvelope toNodeId, envelope
+  sendMessages: (toNodeIds, message) =>
+    debug "sendMessages", toNodeIds, message
+    _.each toNodeIds, (toNodeId) =>
+      @responseStream = @sendMessage toNodeId, message
+      @nanocyteStreams.add @responseStream
 
-  sendEnvelope: (toNodeId, envelope) =>
+  sendMessage: (toNodeId, message) =>
     toNodeConfig = @config[toNodeId]
     return console.error 'router.coffee: toNodeConfig was not defined' unless toNodeConfig?
 
     toNode = @nodes[toNodeConfig.type]
     return console.error "router.coffee: No registered type for '#{toNodeConfig.type}'" unless toNode?
 
-    debug "sendEnvelope", toNodeConfig, toNode
+    envelope =
+      metadata:
+        flowId: @flowId
+        instanceId: @instanceId
+        nodeId: toNodeId
+      message: message
 
     return toNode.onEnvelope envelope
 

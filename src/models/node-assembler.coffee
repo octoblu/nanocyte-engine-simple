@@ -3,18 +3,19 @@ debug = require('debug')('nanocyte-engine-simple:node-assembler')
 debugStream = require('debug-stream')('nanocyte-engine-simple:node-assembler')
 ErrorStream = require './error-stream'
 _ = require 'lodash'
+uuid = require 'node-uuid'
 Combine = require 'stream-combiner2'
 class NodeAssembler
   constructor: (options, dependencies={}) ->
     {@OutputNodeWrapper,@DatastoreGetStream,@DatastoreCheckKeyStream} = dependencies
     {@NanocyteNodeWrapper,ComponentLoader} = dependencies
-    {@EnvelopeStream, @MetadataStream} = dependencies
+    {@EngineToNanocyteStream, @MetadataStream} = dependencies
 
     @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
     @DatastoreCheckKeyStream  ?= require './datastore-check-key-stream'
 
-    @EnvelopeStream ?= require './envelope-stream'
-    @MetadataStream ?= require './metadata-stream'
+    @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
+    @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
 
     ComponentLoader ?= require './component-loader'
 
@@ -82,9 +83,9 @@ class NodeAssembler
     onEnvelope: (envelope) =>
       nanocyteStream =
         Combine(
-          new @EnvelopeStream(envelope.metadata)
-          new @NanocyteNodeWrapper(nodeClass: nodeClass)
-          new @EnvelopeStream(envelope.metadata)
+          new @EngineToNanocyteStream(envelope.metadata)
+          new nodeClass
+          new @NanocyteToEngineStream(envelope.metadata)
         )
 
       nanocyteStream.write envelope.message

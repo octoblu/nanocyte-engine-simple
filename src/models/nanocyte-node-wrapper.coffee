@@ -7,40 +7,33 @@ Domain       = require 'domain'
 
 class NanocyteNodeWrapper extends Transform
   constructor: (options={}) ->
-    {@nodeClass, @lockManager} = options
+    {@nodeClass} = options
     super objectMode: true
-
-    @domain = Domain.create()
-    @domain.on 'error', (error) =>
-      @domain.exit()
-      @emit 'error', error
-      @domain.enter()
-
-  initialize: =>
+    
+  _transform: (@envelope, enc, next) =>
     @domain.enter()
-
     try
-      @node = new @nodeClass
+      node = new @nodeClass
     catch error
       @emit 'error', error
-      return
+    return
+    @node.on 'data', (message) =>
 
-    @node.on 'readable', =>
-      message = @node.read()
-      return if _.isNull message
+      @node.on 'readable', =>
+        message = @node.read()
+        return if _.isNull message
 
-      {toNodeId} = @envelope
-      envelope  = _.omit @envelope, 'config', 'data', 'toNodeId'
-      @push _.defaults {fromNodeId: toNodeId, message: message}, envelope
+        {toNodeId} = @envelope
+        envelope  = _.omit @envelope, 'config', 'data', 'toNodeId'
+        @push _.defaults {fromNodeId: toNodeId, message: message}, envelope
 
-    @node.on 'end', => @push null
+      @node.on 'end', => @push null
 
-    @node.on 'error', (error) =>
-      @emit 'error', error
+      @node.on 'error', (error) =>
+        @emit 'error', error
 
-    @domain.exit()
+      @domain.exit()
 
-  _transform: (@envelope, enc, next) =>
     newEnvelope = _.pick(@envelope, 'config', 'data', 'message')
     {config,message} = newEnvelope
 
