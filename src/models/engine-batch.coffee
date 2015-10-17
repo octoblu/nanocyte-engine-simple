@@ -3,17 +3,17 @@ debug = require('debug')('nanocyte-engine-simple:engine-batch')
 _ = require 'lodash'
 
 class EngineBatch extends Transform
-  constructor: (options)->
-    {@flowId, instanceId} = options
+  constructor: (options) ->
     super objectMode: true
+    {@flowId, instanceId} = options
     EngineBatch.batches ?= {}
 
   _transform: (message, enc, next) =>
     if EngineBatch.batches[@flowId]?
+      debug 'batching', message
       EngineBatch.addToBatch @flowId, message
-      @push null
-      next()
-      return
+      return next()
+
 
     EngineBatch.batches[@flowId] =
       devices: ['*']
