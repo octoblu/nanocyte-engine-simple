@@ -1,6 +1,6 @@
 EngineInput = require '../../src/models/engine-input'
 
-describe 'EngineInput', ->
+xdescribe 'EngineInput', ->
   beforeEach ->
     @router    =
       onEnvelope: sinon.spy()

@@ -19,7 +19,7 @@ class EngineThrottle extends Transform
     @datastore.getAndIncrementCount key, (error, count) =>
       debug 'count', error, count
       next()
-      return if count > 10
+      return @push(null) if count > 10
 
       if count == 10
         nodeId = envelope.message.payload?.node
@@ -33,7 +33,7 @@ class EngineThrottle extends Transform
         debug 'emitting error', envelope
 
       debug 'push'
-      
+
       @push envelope
 
 module.exports = EngineThrottle

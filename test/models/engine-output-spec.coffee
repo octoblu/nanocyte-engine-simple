@@ -4,6 +4,8 @@ EngineOutput = require '../../src/models/engine-output'
 describe 'EngineOutput', ->
   describe 'when we pipe the envelopeStream and pipe it to the sut', ->
     beforeEach (done) ->
+      metadata =
+
       envelope =
         message:
           devices: ['*']
@@ -23,7 +25,7 @@ describe 'EngineOutput', ->
 
     it 'should instantiate MeshbluHTTP with the config', ->
       expect(@MeshbluHttp).to.have.been.calledWithNew
-      expect(@MeshbluHttp).to.have.been.calledWith uuid: 'flow-uuid', token: 'flow-token'
+      expect(@MeshbluHttp).to.have.been.calledWith uuid: 'flow-uuid', token: 'flow-token', raw: true
 
     it 'should call meshbluHttp.message with the message', ->
       expect(@meshbluHttpMessage).to.have.been.calledWith

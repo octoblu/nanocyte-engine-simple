@@ -3,7 +3,7 @@ NodeAssembler = require '../../src/models/node-assembler'
 stream  = require 'stream'
 debug = require('debug')('nanocyte-engine-simple:node-assembler-spec')
 
-describe 'NodeAssembler', ->
+xdescribe 'NodeAssembler', ->
   describe '->assembleNodes', ->
     beforeEach ->
       @datastoreGetStreamOnWrite1 = sinon.stub()

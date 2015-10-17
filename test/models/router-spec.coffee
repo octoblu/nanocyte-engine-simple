@@ -1,7 +1,7 @@
 Router = require '../../src/models/router'
 _ = require 'lodash'
 
-describe 'Router', ->
+xdescribe 'Router', ->
   beforeEach ->
     @datastore = hget: sinon.stub()
     @lockManager =
