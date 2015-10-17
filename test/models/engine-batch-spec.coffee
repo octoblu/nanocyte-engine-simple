@@ -47,7 +47,7 @@ describe 'EngineBatch', ->
               payload:
                 messages: [{ roller: 'coaster' }]
 
-        describe.only 'when we write a second time', ->
+        describe 'when we write a second time', ->
           beforeEach ->
             metadata =
               flowId: 'flow-id'
