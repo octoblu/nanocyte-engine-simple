@@ -12,6 +12,6 @@ before_install:
 before_script:
 - npm install -g codeclimate-test-reporter
 script:
-- npm test && npm run benchmark 10
+- npm test && npm run benchmark 10 40
 after_script:
 - codeclimate-test-reporter < coverage/lcov.info

@@ -5,14 +5,18 @@ Benchmark = require 'simple-benchmark'
 colors    = require 'colors'
 debug     = require('debug')('nanocyte-engine-simple:benchmark')
 
+# This avoids the first request performance hit
+Router = require '../src/models/router'
+new Router
+
 class BenchmarkRunner
   constructor: ->
     @benchmarkRunnerBenchmark = new Benchmark
     @tests = []
 
-  runCount: (timesToRun=1, callback=->) =>
-    console.log colors.cyan "** Running #{timesToRun} sets **"
-    async.timesSeries parseInt(timesToRun), @run, (error) =>
+  runCount: ({count, @maxAllowedTime}, callback=->) =>
+    console.log colors.cyan "** Running #{count} sets **"
+    async.timesSeries count, @run, (error) =>
       return callback error if error?
       console.log colors.cyan '** Done with tests **'
       @printBenchMarks()
@@ -32,20 +36,20 @@ class BenchmarkRunner
       eachCallback = (unit, done) =>
         forUnit = colors.cyan "#{unit.label}"
         console.log "#{colors.cyan(":>")} starting test for #{forUnit}"
-        benchmark = new Benchmark label: unit.label
         unit.before (error) =>
           debug 'finished before'
           return done error if error?
           debug 'about to run'
+          benchmark = new Benchmark label: unit.label
           unit.run (error) =>
+            testResults = elapsed: benchmark.elapsed(), set: count, label: unit.label
+            @tests.push testResults
+            timeTook = colors.green "#{testResults.elapsed}ms"
             debug 'ran test'
+            console.log "#{colors.cyan(":>")} finished test for #{forUnit} #{timeTook}"
             return done error if error?
             unit.after (error) =>
               debug 'finished after'
-              testResults = elapsed: benchmark.elapsed(), set: count, label: unit.label
-              @tests.push testResults
-              timeTook = colors.green "#{testResults.elapsed}ms"
-              console.log "#{colors.cyan(":>")} finished test for #{forUnit} #{timeTook}"
               return done error if error?
               done()
 
@@ -81,6 +85,9 @@ class BenchmarkRunner
       averageTime = totalMs / count
       averageTimeWithMs = "#{averageTime}ms"
       console.log "Average Time: #{colors.green averageTimeWithMs}"
+      if median > @maxAllowedTime
+        console.log colors.red 'maxAllowedTime exceeded, exiting with error'
+        process.exit 1
 
   printBenchMarks: (tests) =>
     @printAllTests tests
