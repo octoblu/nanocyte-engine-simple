@@ -31,6 +31,12 @@ describe 'NodeAssembler', ->
       @engineData = new StreamTester
       @EngineData = sinon.stub().returns @engineData
 
+      @engineDebug = new StreamTester
+      @EngineDebug = sinon.stub().returns @engineDebug
+
+      @datastoreCheckKeyStream = new StreamTester
+      @DatastoreCheckKeyStream = sinon.stub().returns @datastoreCheckKeyStream
+
       class ComponentLoader
         getComponentMap: =>
           {
@@ -43,10 +49,12 @@ describe 'NodeAssembler', ->
         ComponentLoader: ComponentLoader
         EngineToNanocyteStream: @EngineToNanocyteStream
         EngineData: @EngineData
+        EngineDebug: @EngineDebug
+        DatastoreCheckKeyStream: @DatastoreCheckKeyStream
 
       @nodes = @sut.assembleNodes()
 
-    describe.only 'engine-data', ->
+    describe 'engine-data', ->
       beforeEach ->
         @engineDataNode = @nodes['engine-data']
 
@@ -96,49 +104,56 @@ describe 'NodeAssembler', ->
 
     describe 'engine-debug', ->
       beforeEach ->
-        @PassThrough = @nodes['engine-debug']
+        @engineDebugNode = @nodes['engine-debug']
 
       it 'should have an onEnvelope function', ->
-        expect(@PassThrough.onEnvelope).to.be.a 'function'
+        expect(@engineDebugNode.onEnvelope).to.be.a 'function'
 
       describe 'when onEnvelope is called', ->
         beforeEach ->
-          @PassThrough.onEnvelope
+          @engineDebugNode.onEnvelope
+              metadata:
+                flowId: 'flow-id'
+                instanceId: 'instance-id'
+                nodeId: 'engine-debug'
+
+              message: 'hi'
+
+        it 'should create a new EngineData with the metadata', ->
+          expect(@EngineDebug).to.have.been.calledWithNew
+          expect(@EngineDebug).to.have.been.calledWith
             flowId: 'flow-id'
             instanceId: 'instance-id'
-            toNodeId: 'engine-debug'
+            nodeId: 'engine-debug'
 
-        it 'should pass the envelope on to datastoreGetStream', ->
-          expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith
-            flowId: 'flow-id'
-            instanceId: 'instance-id'
-            toNodeId: 'engine-debug'
-
-        describe 'when datastoreGetStream1 emits an envelope', ->
+        describe 'when EngineToNanocyteStream emits an envelope', ->
           beforeEach ->
-            @datastoreGetStreamOnWrite1.yield null,
-              flowId: 'flow-id'
-              instanceId: 'instance-id'
-              toNodeId: 'engine-debug'
+            @envelope =
+              config:
+                hi: true
+              data:
+                hello: false
+              message:
+                goodbye: 'maybe'
 
-          it 'should pass the envelope on to datastoreCheckKeyStream1', ->
-            expect(@datastoreCheckKeyStreamOnWrite).to.have.been.calledWith
-              flowId: 'flow-id'
-              instanceId: 'instance-id'
-              toNodeId: 'engine-debug'
+            @engineToNanocyteStream.onWrite.yield null, @envelope
 
-          describe 'when datastoreCheckKeyStream1 emits an envelope', ->
+
+          it 'should write the data to the datastoreCheckKeyStream instance', ->
+            expect(@datastoreCheckKeyStream.onRead).to.have.been.calledWith @envelope
+
+          describe 'when datastoreCheckKeyStream emits an envelope', ->
             beforeEach ->
-              @datastoreCheckKeyStreamOnWrite.yield null,
+              @datastoreCheckKeyStream.onWrite.yield null,
                 config: 'some-config'
                 data: 'some-data'
 
             it 'should write the data to the EngineDebug instance', ->
-              expect(@engineDebugOnWrite).to.have.been.calledWith
+              expect(@engineDebug.onRead).to.have.been.calledWith
                 config: 'some-config'
                 data: 'some-data'
 
-            describe 'when engineDebug emits an envelope', ->
+            describe.only 'when engineDebug emits an envelope', ->
               beforeEach ->
                 @engineDebugOnWrite.yield null,
                   flowId: 'flow-id'

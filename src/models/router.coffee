@@ -72,7 +72,6 @@ class Router extends Writable
         flowId: @flowId
         instanceId: @instanceId
         nodeId: toNodeId
-        fromNodeId: metadata.fromNodeId
       message: message
 
     return toNode.onEnvelope envelope

@@ -8,7 +8,7 @@ Combine = require 'stream-combiner2'
 
 class NodeAssembler
   constructor: (options, dependencies={}) ->
-    {@OutputNodeWrapper,@DatastoreGetStream,@DatastoreCheckKeyStream} = dependencies
+    {@OutputNodeWrapper,@DatastoreCheckKeyStream} = dependencies
     {@NanocyteNodeWrapper,ComponentLoader} = dependencies
     {@EngineToNanocyteStream, @MetadataStream} = dependencies
 
@@ -59,18 +59,15 @@ class NodeAssembler
 
   buildEngineDebug: =>
     onEnvelope: ({metadata,message}) =>
-      outputMetadata = _.defaults nodeId: 'engine-output', metadata
-      debugOutputStream =
-        Combine(
-          debugStream('engine-debugOutput')
-          new @EngineToNanocyteStream(metadata)
-          new @DatastoreCheckKeyStream(metadata)
-          new @EngineDebug(metadata)
-          @buildEngineOutputStream(outputMetadata)
-        )
+      debugStream = debugStream('engine-debug')
+      debugStream
+        .pipe new @EngineToNanocyteStream(metadata)
+        .pipe new @DatastoreCheckKeyStream(metadata)
+        .pipe new @EngineDebug(metadata)
 
-      debugOutputStream.write message
-      return debugOutputStream
+      debugStream.write message
+
+      return debugStream
 
   buildEngineOutput: =>
     onEnvelope: ({metadata, message}) =>
