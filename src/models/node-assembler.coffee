@@ -49,8 +49,12 @@ class NodeAssembler
 
   buildEngineData: ()=>
     onEnvelope: ({metadata, message}) =>
-      debugOutputStream = debugStream('engine-data')
-      dataStream.write envelope
+      dataStream = debugStream('engine-data')
+      dataStream
+        .pipe new @EngineToNanocyteStream(metadata)
+        .pipe new @EngineData(metadata)
+      dataStream.write message
+
       return dataStream
 
   buildEngineDebug: =>
@@ -80,7 +84,7 @@ class NodeAssembler
       new @EngineBatch(metadata)
       debugStream('after-batch')
       new @SerializerStream(metadata)
-      new @EngineToNanocyteStream(metadata)    
+      new @EngineToNanocyteStream(metadata)
       new @EngineOutput(metadata)
     )
     # outputStream = debugStream('engine-before-batch')

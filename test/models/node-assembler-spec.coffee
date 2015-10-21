@@ -1,154 +1,98 @@
 _ = require 'lodash'
 NodeAssembler = require '../../src/models/node-assembler'
-stream  = require 'stream'
+{Transform, PassThrough, Writable, Readable} = require 'stream'
 debug = require('debug')('nanocyte-engine-simple:node-assembler-spec')
 
-xdescribe 'NodeAssembler', ->
+describe 'NodeAssembler', ->
   describe '->assembleNodes', ->
     beforeEach ->
-      @datastoreGetStreamOnWrite1 = sinon.stub()
-      @datastoreGetStreamOnWrite2 = sinon.stub()
-      @datastoreCheckKeyStreamOnWrite = sinon.stub()
-      datastoreCheckKeyStreamOnWrite = @datastoreCheckKeyStreamOnWrite
-      datastoreGetStreamOnWrites = [@datastoreGetStreamOnWrite1, @datastoreGetStreamOnWrite2]
-
-      class DatastoreCheckKeyStream extends stream.Transform
-        constructor: ->
+      class StreamTester extends Transform
+        constructor: () ->
           super objectMode: true
-          @datastoreCheckKeyStreamOnWrite = datastoreCheckKeyStreamOnWrite
+          @onWrite = sinon.stub()
+          @onRead = sinon.stub()
 
-        _transform: (envelope, enc, next)=>
-          debug '_transform'
-          @datastoreCheckKeyStreamOnWrite envelope, (error, newEnvelope) =>
+        _transform: (envelope, enc) =>
+          @onRead envelope
+          @onWrite envelope, (error, newEnvelope) =>
             @push newEnvelope
 
-      class DatastoreGetStream extends stream.Transform
-        constructor: ->
-          super objectMode: true
-          @datastoreGetStreamOnWrite = datastoreGetStreamOnWrites.shift()
 
-        _transform: (envelope, enc, next)=>
-          debug '_transform'
-          @datastoreGetStreamOnWrite envelope, (error, newEnvelope) =>
-            @push newEnvelope
 
-      @nanocyteOnWriteMessage = nanocyteOnWriteMessage = sinon.stub()
+      @engineToNanocyteStream = new StreamTester
+      @EngineToNanocyteStream = sinon.stub().returns @engineToNanocyteStream
 
-      class NanocyteNodeWrapper extends stream.Transform
-        constructor: ->
-          super objectMode: true
+      @selectiveCollect = new StreamTester
+      @SelectiveCollect = sinon.stub().returns @selectiveCollect
 
-        initialize: =>
+      @triggerNode = new StreamTester
+      @TriggerNode = sinon.stub().returns @triggerNode
 
-        _transform: (envelope, enc, next) =>
-          nanocyteOnWriteMessage envelope, (error, nextEnvelope) =>
-            @push nextEnvelope
-
-      @NanocyteNodeWrapper = sinon.spy NanocyteNodeWrapper
-
-      @engineDebugOnWrite = engineDebugOnWrite = sinon.stub()
-      class EngineDebug extends stream.Transform
-        constructor: ->
-          super objectMode: true
-
-        _transform: (envelope, enc, next) =>
-          engineDebugOnWrite envelope, (error, nextEnvelope) =>
-            @push nextEnvelope
-            @push null
-
-      @enginePulseOnWrite = enginePulseOnWrite = sinon.stub()
-      class EnginePulse extends stream.Transform
-        constructor: ->
-          super objectMode: true
-
-        _transform: (envelope, enc, next) =>
-          enginePulseOnWrite envelope, (error, nextEnvelope) =>
-            @push nextEnvelope
-            @push null
-
-      @engineOutput = new stream.PassThrough objectMode: true
-      EngineOutput = => @engineOutput
-
-      @engineData = new stream.PassThrough objectMode: true
-      EngineData = => @engineData
-
-      @engineThrottle = new stream.PassThrough objectMode: true
-      EngineThrottle = => @engineThrottle
-
-      @engineBatch = new stream.PassThrough objectMode: true
-      EngineBatch = => @engineBatch
-
-      @PassThrough = PassThrough = sinon.spy()
-      @SelectiveCollect = SelectiveCollect = sinon.spy()
-      @TriggerNode = TriggerNode = sinon.spy()
+      @engineData = new StreamTester
+      @EngineData = sinon.stub().returns @engineData
 
       class ComponentLoader
         getComponentMap: =>
           {
             'nanocyte-component-pass-through': PassThrough
-            'nanocyte-component-selective-collect': SelectiveCollect
-            'nanocyte-component-trigger': TriggerNode
+            'nanocyte-component-selective-collect': @SelectiveCollect
+            'nanocyte-component-trigger': @TriggerNode
           }
 
       @sut = new NodeAssembler {},
-        DatastoreCheckKeyStream: DatastoreCheckKeyStream
-        DatastoreGetStream: DatastoreGetStream
-        NanocyteNodeWrapper: @NanocyteNodeWrapper
         ComponentLoader: ComponentLoader
-        EngineData: EngineData
-        EngineDebug: EngineDebug
-        EngineOutput: EngineOutput
-        EnginePulse: EnginePulse
-        EngineThrottle: EngineThrottle
-        EngineBatch: EngineBatch
+        EngineToNanocyteStream: @EngineToNanocyteStream
+        EngineData: @EngineData
 
       @nodes = @sut.assembleNodes()
 
-    it 'should return something', ->
-      expect(@nodes).not.to.be.empty
-
-    it 'should return an object with keys for each node', ->
-      expect(@nodes).to.have.all.keys [
-        'engine-data'
-        'engine-debug'
-        'engine-output'
-        'engine-pulse'
-        'nanocyte-component-pass-through'
-        'nanocyte-component-selective-collect'
-        'nanocyte-component-trigger'
-      ]
-
-    describe 'engine-data', ->
+    describe.only 'engine-data', ->
       beforeEach ->
         @engineDataNode = @nodes['engine-data']
 
       it 'should have an onEnvelope function', ->
         expect(@engineDataNode.onEnvelope).to.be.a 'function'
 
+
       describe 'when onEnvelope is called', ->
         beforeEach ->
           @engineDataNode.onEnvelope
+            metadata:
+              flowId: 'flow-id'
+              instanceId: 'instance-id'
+              nodeId: 'engine-output'
+
+            message: 'hi'
+
+        it 'should create a new NanocyteEngineStream with the metadata', ->
+          expect(@EngineToNanocyteStream).to.have.been.calledWithNew
+          expect(@EngineToNanocyteStream).to.have.been.calledWith
             flowId: 'flow-id'
             instanceId: 'instance-id'
-            toNodeId: 'engine-output'
+            nodeId: 'engine-output'
 
-        it 'should pass the envelope on to datastoreGetStream1', ->
-          expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith
+        it 'should create a new EngineData with the metadata', ->
+          expect(@EngineData).to.have.been.calledWithNew
+          expect(@EngineData).to.have.been.calledWith
             flowId: 'flow-id'
             instanceId: 'instance-id'
-            toNodeId: 'engine-output'
+            nodeId: 'engine-output'
 
-        describe 'when datastoreGetStream1 emits an envelope', ->
-          beforeEach (done) ->
-            @engineData.on 'readable', done
-            @datastoreGetStreamOnWrite1.yield null,
-              config: 'some-config'
-              data: 'some-data'
+        describe 'when EngineToNanocyteStream emits an envelope', ->
+          beforeEach ->
+            @envelope =
+              config:
+                hi: true
+              data:
+                hello: false
+              message:
+                goodbye: 'maybe'
+
+            @engineToNanocyteStream.onWrite.yield null, @envelope
+
 
           it 'should write the data to the EngineData instance', ->
-            expect(@engineData.read()).to.deep.equal
-              config: 'some-config'
-              data: 'some-data'
+            expect(@engineData.onRead).to.have.been.calledWith @envelope
 
     describe 'engine-debug', ->
       beforeEach ->
