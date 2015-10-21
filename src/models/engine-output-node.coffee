@@ -1,14 +1,10 @@
-{Writable} = require 'stream'
+class EngineOutputNode
+  constructor: (dependencies={})->
+    @EngineToNanocyteStream = dependencies.EngineToNanocyteStream
+    @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
 
-class EngineOutputNode extends Writable
-  constructor: (options, dependencies={})->
-    super objectMode: true
-    EngineToNanocyteStream = dependencies.EngineToNanocyteStream
-    EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
-    @engineToNanocyteStream = new EngineToNanocyteStream
-    console.log 'eat my shorts'
-
-  _write: (message)->
-    @engineToNanocyteStream.write message
+  message: ({metadata, message})->
+    engineToNanocyteStream = new @EngineToNanocyteStream metadata
+    engineToNanocyteStream.write message
 
 module.exports = EngineOutputNode
