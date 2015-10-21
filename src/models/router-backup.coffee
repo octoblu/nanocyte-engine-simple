@@ -1,10 +1,11 @@
 _ = require 'lodash'
 {Writable} = require 'stream'
 mergeStream = require 'merge-stream'
-debug = require('debug')('nanocyte-engine-simple:router')
+debugStream = require('debug-stream')('nanocyte-engine-router')
+
+debug = require('debug')('nanocyte-engine-router')
 
 class Router extends Writable
-
   constructor: (@flowId, @instanceId, dependencies={})->
     super objectMode: true
     @routeCount = 0
@@ -15,7 +16,7 @@ class Router extends Writable
     @nodeAssembler = new NodeAssembler()
     @nanocyteStreams = mergeStream()
 
-    @message = _.before @_unlimited_message, 1000
+    @onEnvelope = _.before @_unlimited_onEnvelope, 100
 
   initialize: (callback=->) =>
     @nodes = @nodeAssembler.assembleNodes()
@@ -30,20 +31,20 @@ class Router extends Writable
 
       @nanocyteStreams.pipe @
       @on 'finish', => console.log "ROUTER IS DEAD"
-
       callback()
 
-  _unlimited_message: (envelope) =>
-    return console.error "Error: no configuration for flow" unless @config?
+  _unlimited_onEnvelope: ({metadata, message}) =>
+    debug "onEnvelope", metadata, message
+    toNodeIds = @getToNodeIds metadata.fromNodeId
 
-    toNodeIds = @_getToNodeIds envelope.metadata.nodeId
-    @_sendMessages toNodeIds, envelope
+    envelope =
+      metadata:
+        fromNodeId: metadata.fromNodeId
+      message: message
 
-  _sendMessages: (toNodeIds, envelope) =>
-    _.each toNodeIds, (toNodeId) =>
-      @_sendMessage toNodeId, envelope
+    @sendEnvelopes(toNodeIds, envelope)
 
-  _getToNodeIds: (fromNodeId) =>
+  getToNodeIds: (fromNodeId) =>
     senderNodeConfig = @config[fromNodeId]
     unless senderNodeConfig?
       console.error 'router.coffee: senderNodeConfig was not defined'
@@ -51,22 +52,32 @@ class Router extends Writable
 
     return senderNodeConfig.linkedTo || []
 
-  _sendMessage: (toNodeId, {metadata, message}) =>
+  sendEnvelopes: (toNodeIds, envelope) =>
+    _.each toNodeIds, (toNodeId) =>
+      console.log "starting responseStream for #{toNodeId}"
+      responseStream = @sendEnvelope toNodeId, envelope
+      responseStream.on 'end', => console.log "response Stream died for #{toNodeId}"
+      @nanocyteStreams.add responseStream
+
+  sendEnvelope: (toNodeId, {metadata, message}) =>
     debug "sendMessage", toNodeId, metadata, message
     toNodeConfig = @config[toNodeId]
     return console.error 'router.coffee: toNodeConfig was not defined' unless toNodeConfig?
 
     toNode = @nodes[toNodeConfig.type]
     return console.error "router.coffee: No registered type for '#{toNodeConfig.type}'" unless toNode?
-    
+
     envelope =
-      metadata: _.extend {}, metadata, nodeId: toNodeId
+      metadata:
+        flowId: @flowId
+        instanceId: @instanceId
+        nodeId: toNodeId
       message: message
 
-    responseStream = toNode.message envelope
+    return toNode.message envelope
 
-    # responseStream.on 'end', =>
-    #   debug "responseStream finished for #{toNodeId}"
-    # @nanocyteStreams.add responseStream
+  _write: (envelope, enc, next) =>
+    @onEnvelope envelope
+    next()
 
 module.exports = Router

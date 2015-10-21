@@ -69,21 +69,6 @@ class NodeAssembler
 
       return debugStream
 
-  buildEngineOutput: =>
-    onEnvelope: ({metadata, message}) =>
-      outputStream = @buildEngineOutputStream metadata
-      outputStream.write message
-      return outputStream
-
-  buildEngineOutputStream: (metadata) =>
-    Combine(
-      debugStream('before-batch')
-      new @EngineBatch(metadata)
-      debugStream('after-batch')
-      new @SerializerStream(metadata)
-      new @EngineToNanocyteStream(metadata)
-      new @EngineOutput(metadata)
-    )
     # outputStream = debugStream('engine-before-batch')
     # outputStream
     #   .pipe new @EngineBatch(metadata)
