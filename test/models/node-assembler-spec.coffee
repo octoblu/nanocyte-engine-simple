@@ -153,7 +153,7 @@ describe 'NodeAssembler', ->
                 config: 'some-config'
                 data: 'some-data'
 
-            describe.only 'when engineDebug emits an envelope', ->
+            describe 'when engineDebug emits an envelope', ->
               beforeEach ->
                 @engineDebugOnWrite.yield null,
                   flowId: 'flow-id'
