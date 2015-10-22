@@ -43,6 +43,6 @@ class EngineInput
     @datastore.hget flowId, "#{instanceId}/engine-input/config", (error, config) =>
       return callback error if error?
       return callback null unless config?
-      callback null, _.pluck config[fromUuid], 'nodeId'
+      callback null, _.pluck config[fromUuid], 'toNodeId'
 
 module.exports = EngineInput

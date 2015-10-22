@@ -68,7 +68,7 @@ describe 'NodeAssembler', ->
             metadata:
               flowId: 'flow-id'
               instanceId: 'instance-id'
-              nodeId: 'engine-output'
+              toNodeId: 'engine-output'
 
             message: 'hi'
 
@@ -77,14 +77,14 @@ describe 'NodeAssembler', ->
           expect(@EngineToNanocyteStream).to.have.been.calledWith
             flowId: 'flow-id'
             instanceId: 'instance-id'
-            nodeId: 'engine-output'
+            toNodeId: 'engine-output'
 
         it 'should create a new EngineData with the metadata', ->
           expect(@EngineData).to.have.been.calledWithNew
           expect(@EngineData).to.have.been.calledWith
             flowId: 'flow-id'
             instanceId: 'instance-id'
-            nodeId: 'engine-output'
+            toNodeId: 'engine-output'
 
         describe 'when EngineToNanocyteStream emits an envelope', ->
           beforeEach ->
@@ -115,7 +115,7 @@ describe 'NodeAssembler', ->
               metadata:
                 flowId: 'flow-id'
                 instanceId: 'instance-id'
-                nodeId: 'engine-debug'
+                toNodeId: 'engine-debug'
 
               message: 'hi'
 
@@ -124,7 +124,7 @@ describe 'NodeAssembler', ->
           expect(@EngineDebug).to.have.been.calledWith
             flowId: 'flow-id'
             instanceId: 'instance-id'
-            nodeId: 'engine-debug'
+            toNodeId: 'engine-debug'
 
         describe 'when EngineToNanocyteStream emits an envelope', ->
           beforeEach ->

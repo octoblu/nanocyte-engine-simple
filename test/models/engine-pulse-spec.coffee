@@ -13,7 +13,7 @@ describe 'EnginePulse', ->
         message:
           some: 'data'
         config:
-          'dis-uuid': nodeId: 'dat-uuid'
+          'dis-uuid': toNodeId: 'dat-uuid'
 
       @sut = new EnginePulse metadata
       @sut.write envelope

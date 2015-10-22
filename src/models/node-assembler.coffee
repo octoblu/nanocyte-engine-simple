@@ -81,7 +81,7 @@ class NodeAssembler
 
   buildEnginePulse: =>
     onEnvelope: ({message, metadata}) =>
-      outputMetadata = _.defaults nodeId: 'engine-output', metadata
+      outputMetadata = _.defaults toNodeId: 'engine-output', metadata
       pulseStream = debugStream 'engine-pulse'
       pulseStream.write message
       pulseStream

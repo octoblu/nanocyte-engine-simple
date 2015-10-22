@@ -22,14 +22,14 @@ class EngineThrottle extends Transform
       return @push(null) if count > 10
 
       if count == 10
-        nodeId = envelope.message.payload?.node
+        toNodeId = envelope.message.payload?.node
 
         envelope.message.topic   = 'debug'
         envelope.message.devices = ['*']
         envelope.message.payload =
           msgType: 'error'
           msg: 'Engine rate limit exceeded'
-          node:    nodeId
+          node:    toNodeId
         debug 'emitting error', envelope
 
       debug 'push'

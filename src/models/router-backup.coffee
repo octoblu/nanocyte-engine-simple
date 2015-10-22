@@ -71,7 +71,7 @@ class Router extends Writable
       metadata:
         flowId: @flowId
         instanceId: @instanceId
-        nodeId: toNodeId
+        toNodeId: toNodeId
       message: message
 
     return toNode.message envelope

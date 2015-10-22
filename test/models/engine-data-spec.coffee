@@ -14,7 +14,7 @@ describe 'EngineData', ->
         toNodeId: 'engine-data'
         message: 'foo'
         config:
-          'node-instance-id': {nodeId: 'node-id'}
+          'node-instance-id': {toNodeId: 'node-id'}
 
       @callback = sinon.spy()
       @sut.write envelope, @callback
@@ -42,7 +42,7 @@ describe 'EngineData', ->
         toNodeId: 'engine-data'
         message: baz: 'bar'
         config:
-          'the-node-instance-id': {nodeId: 'the-node-id'}
+          'the-node-instance-id': {toNodeId: 'the-node-id'}
 
     it 'should save the message', ->
       expect(@datastore.hset).to.have.been.calledWith(

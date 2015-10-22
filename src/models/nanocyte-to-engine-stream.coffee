@@ -5,13 +5,13 @@ debug = require('debug')('nanocyte-engine-simple:nanocyte-to-engine-stream')
 class NanocyteToEngineStream extends Transform
   constructor: (options, dependencies={}) ->
     super objectMode: true
-    {@nodeId} = options
+    {@toNodeId} = options
 
   _transform: (message, enc, next) =>
     @push
       message: message
       metadata:
-        fromNodeId: @nodeId
+        fromNodeId: @toNodeId
 
     next()
 

@@ -9,7 +9,7 @@ describe 'EngineDebug', ->
           some: 'data'
         config:
           'dis-uuid':
-            nodeId: 'dat-uuid'
+            toNodeId: 'dat-uuid'
 
       metadata =
         flowId: 'flow-id'

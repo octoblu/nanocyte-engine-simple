@@ -10,7 +10,7 @@ describe 'DatastoreCheckKeyStream', ->
       metadata =
         flowId: 'flow-uuid'
         instanceId: 'instance-uuid'
-        nodeId: 'node-instance-uuid'
+        toNodeId: 'node-instance-uuid'
 
       @sut = new DatastoreCheckKeyStream metadata, datastore: @datastore
 
@@ -27,7 +27,7 @@ describe 'DatastoreCheckKeyStream', ->
       metadata =
         flowId: 'flow-uuid'
         instanceId: 'instance-uuid'
-        nodeId: 'node-instance-uuid'
+        toNodeId: 'node-instance-uuid'
 
       @sut = new DatastoreCheckKeyStream metadata, datastore: @datastore
 

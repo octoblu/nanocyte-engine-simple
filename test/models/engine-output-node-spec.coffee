@@ -30,7 +30,7 @@ describe 'EngineOutputNode', ->
     beforeEach ->
       @envelope =
         metadata:
-          nodeId: 'node-id'
+          toNodeId: 'node-id'
           flowId: 'flow-id'
           instanceId: 'instanceId'
         message:

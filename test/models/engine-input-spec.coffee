@@ -81,9 +81,9 @@ xdescribe 'EngineInput', ->
         beforeEach ->
           @datastore.hget.yield null,
             'some-device-uuid':
-              [{nodeId: 'some-internal-node-uuid'}]
+              [{toNodeId: 'some-internal-node-uuid'}]
 
-        it 'should use the fromUuid as the nodeId', ->
+        it 'should use the fromUuid as the toNodeId', ->
           expect(@router.onEnvelope).to.have.been.calledWith
             flowId: 'some-flow-uuid'
             instanceId: 'some-other-instance-uuid'
@@ -97,11 +97,11 @@ xdescribe 'EngineInput', ->
           @datastore.hget.yield null,
             'some-device-uuid':
               [
-                {nodeId: 'some-internal-node-uuid'}
-                {nodeId: 'some-other-internal-node-uuid'}
+                {toNodeId: 'some-internal-node-uuid'}
+                {toNodeId: 'some-other-internal-node-uuid'}
               ]
 
-        it 'should use the fromUuid as the nodeId', ->
+        it 'should use the fromUuid as the toNodeId', ->
           expect(@router.onEnvelope).to.have.been.calledTwice
           expect(@router.onEnvelope).to.have.been.calledWith
             flowId: 'some-flow-uuid'
@@ -162,7 +162,7 @@ xdescribe 'EngineInput', ->
       beforeEach ->
         @datastore.hget.yields null,
           'some-device-uuid':
-            [{nodeId: 'some-internal-node-uuid'}]
+            [{toNodeId: 'some-internal-node-uuid'}]
 
         @sut.onMessage
           topic: 'button'

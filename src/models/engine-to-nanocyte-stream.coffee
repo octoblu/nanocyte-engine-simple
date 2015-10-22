@@ -4,17 +4,17 @@ _ = require 'lodash'
 class EngineToNanocyteStream extends Transform
   constructor: (options, dependencies={}) ->
     super objectMode: true
-    {@flowId, @instanceId, @nodeId} = options
+    {@flowId, @instanceId, @toNodeId} = options
 
     {@datastore} = dependencies
     @datastore ?= new (require './datastore')
 
   _transform: (message, enc, next) =>
     @datastore.hget @flowId, "#{@instanceId}/engine-data/config", (error, dataConfig) =>
-      @datastore.hget @flowId, "#{@instanceId}/#{@nodeId}/config", (error, config) =>
-        nodeId = dataConfig[@nodeId]?.nodeId
-        nodeId ?= @nodeId
-        @datastore.hget @flowId, "#{@instanceId}/#{nodeId}/data", (error, data) =>          
+      @datastore.hget @flowId, "#{@instanceId}/#{@toNodeId}/config", (error, config) =>
+        toNodeId = dataConfig[@toNodeId]?.toNodeId
+        toNodeId ?= @toNodeId
+        @datastore.hget @flowId, "#{@instanceId}/#{toNodeId}/data", (error, data) =>          
           @push message: message, config: config, data: data
           next()
     return

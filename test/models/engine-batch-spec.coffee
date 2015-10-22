@@ -10,7 +10,7 @@ describe 'EngineBatch', ->
       metadata =
         flowId: 'flow-id'
         instanceId: 'instance-id'
-        nodeId: 'to-node-id'
+        toNodeId: 'to-node-id'
 
       @sut = new EngineBatch metadata
       @sut.write complications: 'its complicated'
@@ -31,7 +31,7 @@ describe 'EngineBatch', ->
           metadata =
             flowId: 'flow-id'
             instanceId: 'instance-id'
-            nodeId: 'to-node-id'
+            toNodeId: 'to-node-id'
 
           @sut = new EngineBatch metadata
           @sut.write roller: 'coaster'
@@ -52,7 +52,7 @@ describe 'EngineBatch', ->
             metadata =
               flowId: 'flow-id'
               instanceId: 'instance-id'
-              nodeId: 'to-node-id'
+              toNodeId: 'to-node-id'
 
             engine2 = new EngineBatch metadata
             engine2.write sabotage: "Why aren't you all listening - it's sabotage!"

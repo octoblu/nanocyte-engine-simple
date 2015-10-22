@@ -11,7 +11,7 @@ class EnginePulse extends Transform
       devices: ['*']
       topic: 'pulse'
       payload:
-        node: config[@fromNodeId]?.nodeId
+        node: config[@fromNodeId]?.toNodeId
 
     next()
 
