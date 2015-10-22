@@ -1,17 +1,17 @@
 _         = require 'lodash'
 Datastore = require './datastore'
-Router    = require './router'
 PulseSubscriber = require './pulse-subscriber'
 debug = require('debug')('nanocyte-engine-simple:engine-input')
 
 class EngineInput
   constructor: (options, dependencies={}) ->
-    {@datastore,@router,@pulseSubscriber} = dependencies
+    {@datastore,@Router,@pulseSubscriber} = dependencies
     @datastore ?= new Datastore
     @pulseSubscriber ?= new PulseSubscriber
+    @Router ?= require './router'
 
-  onMessage: (message) =>
-    debug 'onMessage:', fromUuid: message.fromUuid
+  message: (message) =>
+    debug 'message:', fromUuid: message.fromUuid
     if message.topic == 'subscribe:pulse'
       @pulseSubscriber.subscribe message.flowId
       return
@@ -21,7 +21,7 @@ class EngineInput
       return console.error error.stack if error?
       return console.error 'engineInput could not infer fromNodeId' if _.isEmpty fromNodeIds
 
-      router = new Router flowId, instanceId
+      router = new @Router flowId, instanceId
       router.initialize (error) =>
         return console.error "Error initializing router:", error.message if error?
 
