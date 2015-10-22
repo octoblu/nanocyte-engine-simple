@@ -24,8 +24,7 @@ class Router extends Writable
       return callback(error) if error?
 
       unless @config?
-        errorMsg = "router.coffee: config was not defined for flow: #{@flowId}, instance: #{@instanceId}"
-        console.error errorMsg
+        errorMsg = @_logError "config was not defined"
         return callback new Error errorMsg
 
       @nanocyteStreams.pipe @
@@ -33,14 +32,14 @@ class Router extends Writable
       callback()
 
   _unlimited_message: (envelope) =>
-    return console.error "Error: no configuration for flow: #{@flowId}, instance: #{@instanceId}" unless @config?
+    return @_logError "no configuration" unless @config?
     toNodeIds = @_getToNodeIds envelope.metadata.fromNodeId
     @_sendMessages toNodeIds, envelope
 
   _getToNodeIds: (fromNodeId) =>
     senderNodeConfig = @config[fromNodeId]
     unless senderNodeConfig?
-      console.error "router.coffee: senderNodeConfig was not defined for node: #{fromNodeId} in flow: #{@flowId}, instance: #{@instanceId}"
+      @_logError "senderNodeConfig was not defined for node: #{fromNodeId} in flow: #{@flowId}, instance: #{@instanceId}"
       return []
 
     return senderNodeConfig.linkedTo || []
@@ -53,15 +52,15 @@ class Router extends Writable
     debug "from: #{metadata.fromNodeId}, sendMessage to: #{toNodeId}", metadata, message
 
     toNodeConfig = @config[toNodeId]
-    return console.error "router.coffee: toNodeConfig was not defined for node: #{toNodeId} in flow: #{@flowId}, instance: #{@instanceId}" unless toNodeConfig?
+    return @_logError "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
 
     ToNodeClass = @nodes[toNodeConfig.type]
-    return console.error "router.coffee: No registered type for '#{toNodeConfig.type}' for node #{toNodeId} in flow: #{@flowId}, instance: #{@instanceId}" unless ToNodeClass?
+    return @_logError "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
     toNode = new ToNodeClass
 
     @lockManager.lock toNodeConfig.transactionGroupId, metadata.transactionId, (error, transactionId) =>
       debug "instantiated type #{toNodeConfig.type} of class #{ToNodeClass}"
-      return console.error "router.coffee: lockManager unable to lock for node #{toNodeId} in flow: #{@flowId}, instance: #{@instanceId}, with error: #{error}" if error?
+      return @_logError "lockManager unable to lock for node #{toNodeId}, with error: #{error}" if error?
 
       envelope =
         metadata: _.extend {}, metadata,
@@ -83,5 +82,10 @@ class Router extends Writable
     debug "Router is routing message:", envelope
     @message envelope
     next()
+
+  _logError: (errorString) =>
+    logErrorString = "router.coffee: #{errorString} in flow: #{@flowId}, instance: #{@instanceId}"
+    console.error logErrorString
+    logErrorString
 
 module.exports = Router
