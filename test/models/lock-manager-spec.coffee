@@ -4,7 +4,7 @@ LockManager = require '../../src/models/lock-manager'
 describe 'LockManager', ->
   beforeEach ->
     @redlock = lock: sinon.stub(), unlock: sinon.spy()
-    @sut = new LockManager {}, redlock: @redlock
+    @sut = new LockManager {}, redlock: @redlock, client: true
     @sut._generateTransactionId = sinon.stub()
 
   it 'should exist', ->

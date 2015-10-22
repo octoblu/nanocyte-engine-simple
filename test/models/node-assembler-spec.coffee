@@ -3,7 +3,7 @@ NodeAssembler = require '../../src/models/node-assembler'
 {Transform, PassThrough, Writable, Readable} = require 'stream'
 debug = require('debug')('nanocyte-engine-simple:node-assembler-spec')
 
-describe 'NodeAssembler', ->
+xdescribe 'NodeAssembler', ->
   describe '->assembleNodes', ->
     beforeEach ->
       class StreamTester extends Transform

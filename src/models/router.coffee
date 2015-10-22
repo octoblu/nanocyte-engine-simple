@@ -9,6 +9,7 @@ class Router extends Writable
     super objectMode: true
     @routeCount = 0
     {NodeAssembler, @datastore, @lockManager} = dependencies
+
     @datastore ?= new (require './datastore')
     NodeAssembler ?= require './node-assembler'
 

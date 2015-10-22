@@ -2,9 +2,6 @@ EngineThrottle = require '../../src/models/engine-throttle'
 _ = require 'lodash'
 
 describe 'EngineThrottle', ->
-  it 'should exist', ->
-    new EngineThrottle
-
   describe 'when a message is written to it', ->
     beforeEach ->
       @datastore = getAndIncrementCount: sinon.stub()
