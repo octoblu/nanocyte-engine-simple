@@ -9,9 +9,9 @@ class DatastoreCheckKeyStream extends Transform
     {@datastore} = dependencies
     @datastore ?= new (require './datastore')
 
-  _transform: (envelope, enc, next) =>
+  _transform: (message, enc, next) =>
     @datastore.exists "pulse:#{@flowId}", (error, exists) =>
-      @push envelope if exists == 1
+      @push message if exists == 1
       next()
 
 module.exports = DatastoreCheckKeyStream

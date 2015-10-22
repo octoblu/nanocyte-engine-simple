@@ -14,7 +14,7 @@ class EngineToNanocyteStream extends Transform
       @datastore.hget @flowId, "#{@instanceId}/#{@toNodeId}/config", (error, config) =>
         toNodeId = dataConfig[@toNodeId]?.toNodeId
         toNodeId ?= @toNodeId
-        @datastore.hget @flowId, "#{@instanceId}/#{toNodeId}/data", (error, data) =>          
+        @datastore.hget @flowId, "#{@instanceId}/#{toNodeId}/data", (error, data) =>
           @push message: message, config: config, data: data
           next()
     return
