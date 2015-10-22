@@ -11,20 +11,43 @@ describe 'Router', ->
       lock: sinon.stub()
       unlock: sinon.stub()
 
-    @debugNodeStream = debugNodeStream = new TestStream
 
     class DebugNode
-      constructor: ->        
-        @message = DebugNode.debugNodeMessage
+      constructor: ->
+        @stream = new TestStream
+        @stream.onWrite = (envelope, callback) =>
+          DebugNode.messages.push envelope
+          callback null, envelope
+          callback null, null
 
-      @debugNodeMessage: sinon.spy (envelope) =>
-        debugNodeStream.write envelope
-        debugNodeStream
+      message: (envelope) =>
+        console.log "DebugNode message called"
+        DebugNode.messageCount++
+        @stream.write envelope
+        @stream
+
+      @messageCount: 0
+      @messages: []
+
 
     @DebugNode = DebugNode
 
     class EngineDebugNode
-      message: sinon.stub().returns new TestStream()
+      constructor: ->
+        @stream = new TestStream
+        @stream.onWrite = (envelope, callback) =>
+          EngineDebugNode.messages.push envelope
+          callback null, envelope
+          callback null, null
+
+      message: (envelope) =>
+        console.log "EngineDebug message called"
+        EngineDebugNode.messageCount++
+        @stream.write envelope
+        @stream
+
+      @messageCount: 0
+      @messages: []
 
     @EngineDebugNode = EngineDebugNode
 
@@ -152,9 +175,7 @@ describe 'Router', ->
 
         describe 'when given an envelope', ->
           beforeEach (done) ->
-            @debugNodeStream.onWrite (newEnvelope, callback) =>
-              console.log "onWrite", newEnvelope
-              done()
+            @sut.on 'finish', done
 
             @sut.message
               metadata:
@@ -164,11 +185,11 @@ describe 'Router', ->
                 nodeId: 'some-trigger-uuid'
               message: 12455663
 
-          it.only 'should call message in the debugNode twice', ->
-            expect(@DebugNode.message).to.have.been.calledTwice
+          it 'should call message in the debugNode twice', ->
+            expect(@DebugNode.messageCount).to.equal 2
 
           it 'should call message in the debugNode', ->
-            expect(@DebugNode.message).to.have.been.calledWith
+            expect(@DebugNode.messages).to.contain
               metadata:
                 flowId: 'some-flow-uuid'
                 transactionId: 'some-previous-transaction-id'
@@ -176,7 +197,7 @@ describe 'Router', ->
                 nodeId: 'some-debug-uuid'
               message: 12455663
 
-            expect(@DebugNode.message).to.have.been.calledWith
+            expect(@DebugNode.messages).to.contain
               metadata:
                 transactionId: 'some-previous-transaction-id'
                 flowId: 'some-flow-uuid'
@@ -204,12 +225,7 @@ describe 'Router', ->
 
         describe 'when given an envelope', ->
           beforeEach (done) ->
-            doneTwice = _.after 2, done
-            # @sut.on 'finish', done
-
-            @debugNodeStream.onWrite = (newEnvelope, callback) =>
-              console.log "I GOT AN ENVELOPE", newEnvelope
-              callback null, newEnvelope
+            @sut.on 'finish', done
 
             @sut.message
               metadata:
@@ -219,8 +235,8 @@ describe 'Router', ->
           it 'should call datastore.hget', ->
             expect(@datastore.hget).to.have.been.called
 
-          it.only 'should call message in the debugNode twice', ->
-            expect(@DebugNode.message).to.have.been.calledTwice
+          it 'should call message in the debugNode twice', ->
+            expect(@DebugNode.messageCount).to.equal 2
 
       describe 'when the trigger node is wired to a debug node thats wired to engine-debug', ->
         beforeEach (done) ->
@@ -232,7 +248,7 @@ describe 'Router', ->
               type: 'nanocyte-node-debug'
               linkedTo: ['engine-debug']
             'engine-debug':
-              type: 'nanocyte-node-debug'
+              type: 'engine-debug'
               linkedTo: []
 
           @sut.initialize => done()
@@ -240,8 +256,6 @@ describe 'Router', ->
         describe 'when given an envelope', ->
           beforeEach (done) ->
             @sut.on 'finish', done
-            @EngineDebugNode.message = sinon.spy =>
-              doneTwice()
 
             @sut.message
               metadata:
@@ -249,7 +263,7 @@ describe 'Router', ->
               message: 12455663
 
           it 'should call message in the debugNode', ->
-            expect(@DebugNode.message).to.have.been.called
+            expect(@DebugNode.messageCount).to.equal 1
 
           it 'should call message in the engineDebugNode', ->
-            expect(@EngineDebugNode.message).to.have.been.called
+            expect(@EngineDebugNode.messageCount).to.equal 1

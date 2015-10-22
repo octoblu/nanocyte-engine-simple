@@ -5,7 +5,7 @@ class StreamTester extends Transform
     @onWrite = sinon.stub()
     @onRead = sinon.stub()
 
-  _transform: (envelope, enc) =>
+  _transform: (envelope) =>
     @onRead envelope
     @onWrite envelope, (error, newEnvelope) =>
       @push newEnvelope

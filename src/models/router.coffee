@@ -58,6 +58,7 @@ class Router extends Writable
     ToNodeClass = @nodes[toNodeConfig.type]
     return console.error "router.coffee: No registered type for '#{toNodeConfig.type}' for node #{toNodeId} in flow: #{@flowId}, instance: #{@instanceId}" unless ToNodeClass?
     toNode = new ToNodeClass
+    debug "instantiated type #{toNodeConfig.type} of class #{ToNodeClass}"
 
     envelope =
       metadata: _.extend {}, metadata, nodeId: toNodeId
@@ -70,7 +71,7 @@ class Router extends Writable
 
   _write: (envelope, enc, next) =>
     debug "Router is routing message:", envelope
-    @message envelope    
+    @message envelope
     next()
 
 module.exports = Router
