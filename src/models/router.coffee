@@ -8,7 +8,7 @@ class Router extends Writable
   constructor: (@flowId, @instanceId, dependencies={})->
     super objectMode: true
     @routeCount = 0
-    {NodeAssembler, @datastore} = dependencies
+    {NodeAssembler, @datastore, @lockManager} = dependencies
     @datastore ?= new (require './datastore')
     NodeAssembler ?= require './node-assembler'
 
@@ -38,10 +38,6 @@ class Router extends Writable
     toNodeIds = @_getToNodeIds envelope.metadata.nodeId
     @_sendMessages toNodeIds, envelope
 
-  _sendMessages: (toNodeIds, envelope) =>
-    _.each toNodeIds, (toNodeId) =>
-      @_sendMessage toNodeId, envelope
-
   _getToNodeIds: (fromNodeId) =>
     senderNodeConfig = @config[fromNodeId]
     unless senderNodeConfig?
@@ -50,24 +46,34 @@ class Router extends Writable
 
     return senderNodeConfig.linkedTo || []
 
+  _sendMessages: (toNodeIds, envelope) =>
+    _.each toNodeIds, (toNodeId) =>
+      @_sendMessage toNodeId, envelope
+
   _sendMessage: (toNodeId, {metadata, message}) =>
-    debug "sendMessage", toNodeId, metadata, message
+    debug "from: #{metadata.nodeId}, sendMessage to: #{toNodeId}", metadata, message
+
     toNodeConfig = @config[toNodeId]
     return console.error "router.coffee: toNodeConfig was not defined for node: #{toNodeId} in flow: #{@flowId}, instance: #{@instanceId}" unless toNodeConfig?
 
     ToNodeClass = @nodes[toNodeConfig.type]
     return console.error "router.coffee: No registered type for '#{toNodeConfig.type}' for node #{toNodeId} in flow: #{@flowId}, instance: #{@instanceId}" unless ToNodeClass?
     toNode = new ToNodeClass
-    debug "instantiated type #{toNodeConfig.type} of class #{ToNodeClass}"
 
-    envelope =
-      metadata: _.extend {}, metadata, nodeId: toNodeId
-      message: message
+    @lockManager.lock toNodeConfig.transactionGroupId, metadata.transactionId, (error, transactionId) =>
+      debug "instantiated type #{toNodeConfig.type} of class #{ToNodeClass}"
+      return console.error "router.coffee: lockManager unable to lock for node #{toNodeId} in flow: #{@flowId}, instance: #{@instanceId}, with error: #{error}" if error?
 
-    responseStream = toNode.message envelope
-    responseStream.on 'end', =>
-      debug "responseStream finished for #{toNodeId}"
-    @nanocyteStreams.add responseStream
+      envelope =
+        metadata: _.extend {}, metadata, nodeId: toNodeId, transactionId: transactionId
+        message: message
+
+      responseStream = toNode.message envelope
+      responseStream.on 'end', =>
+        debug "responseStream finished for #{toNodeId}"
+        @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
+
+      @nanocyteStreams.add responseStream
 
   _write: (envelope, enc, next) =>
     debug "Router is routing message:", envelope

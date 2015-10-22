@@ -21,7 +21,6 @@ describe 'Router', ->
           callback null, null
 
       message: (envelope) =>
-        console.log "DebugNode message called"
         DebugNode.messageCount++
         @stream.write envelope
         @stream
@@ -41,7 +40,6 @@ describe 'Router', ->
           callback null, null
 
       message: (envelope) =>
-        console.log "EngineDebug message called"
         EngineDebugNode.messageCount++
         @stream.write envelope
         @stream
@@ -147,7 +145,7 @@ describe 'Router', ->
           expect(theCall).not.to.throw()
 
       describe 'when the trigger node is wired to a debug node', ->
-        beforeEach ->
+        beforeEach (done)->
           @datastore.hget.yields null,
             'some-trigger-uuid':
               type: 'nanocyte-node-trigger'
@@ -155,6 +153,79 @@ describe 'Router', ->
             'some-debug-uuid':
               type: 'nanocyte-node-debug'
               transactionGroupId: 'some-group-id'
+
+          @sut.initialize done
+
+        describe 'when given an envelope without a transaction', ->
+          beforeEach ->
+            @sut.message
+              metadata:
+                nodeId: 'some-trigger-uuid'
+                flowId: 'some-flow-uuid'
+                instanceId: 'instance-uuid'
+              message: 12455663
+
+          describe 'when the lockManager yields a transaction-id', ->
+            beforeEach (done) ->
+              @sut.on 'finish', done
+              @lockManager.lock.yield null, 'a-transaction-id'
+
+            it 'should call lockManager.lock with the transactionGroupId', ->
+              expect(@lockManager.lock).to.have.been.calledWith 'some-group-id'
+
+            it 'should call onEnvelope in the debugNode with the envelope', ->
+              expect(@DebugNode.messages).to.contain
+                metadata:
+                  flowId: 'some-flow-uuid'
+                  instanceId: 'instance-uuid'
+                  nodeId: 'some-debug-uuid'
+                  transactionId: 'a-transaction-id'
+
+                message: 12455663
+
+          describe 'when the lockManager yields an error', ->
+            beforeEach ->
+              @lockManager.lock.yield new Error "Locks are for chumps"
+
+            it 'should not continue routing the message', ->
+              expect(@DebugNode.messages.length).to.equal 0
+
+        describe 'when given an envelope with a transaction', ->
+          beforeEach ->
+            @sut.message
+              metadata:
+                nodeId: 'some-trigger-uuid'
+                flowId: 'some-flow-uuid'
+                instanceId: 'instance-uuid'
+                transactionId: 'some-previous-transaction-id'
+              message: 12455663
+
+          describe 'when the lockManager yields a transaction-id', ->
+            beforeEach (done) ->
+              @sut.on 'finish', done
+              @lockManager.lock.yield null, 'some-previous-transaction-id'
+
+            it 'should call lockManager.lock with the transactionGroupId', ->
+              expect(@lockManager.lock).to.have.been.calledWith 'some-group-id', 'some-previous-transaction-id'
+
+            it 'should call message in the debugNode with the envelope', ->
+              expect(@DebugNode.messages).to.contain
+                metadata:
+                  flowId: 'some-flow-uuid'
+                  instanceId: 'instance-uuid'
+                  nodeId: 'some-debug-uuid'
+                  transactionId: 'some-previous-transaction-id'
+                message: 12455663
+
+          describe 'when the messaged component is done', ->
+            beforeEach (done) ->
+              @sut.on 'finish', done
+              @lockManager.lock.yield null, 'some-previous-transaction-id'
+
+
+            it 'should call lockmanager.unlock with the transactionId and transactionGroupId', ->
+              expect(@lockManager.unlock).to.have.been.calledWith 'some-group-id', 'some-previous-transaction-id'
+
 
       describe 'when the trigger node is wired to two debug nodes', ->
         beforeEach (done) ->
@@ -184,6 +255,8 @@ describe 'Router', ->
                 instanceId: 'some-instance-uuid'
                 nodeId: 'some-trigger-uuid'
               message: 12455663
+
+            @lockManager.lock.yield null, 'some-previous-transaction-id'
 
           it 'should call message in the debugNode twice', ->
             expect(@DebugNode.messageCount).to.equal 2
@@ -232,8 +305,7 @@ describe 'Router', ->
                 nodeId: 'some-trigger-uuid'
               message: 12455663
 
-          it 'should call datastore.hget', ->
-            expect(@datastore.hget).to.have.been.called
+            @lockManager.lock.yield null, 'some-previous-transaction-id'
 
           it 'should call message in the debugNode twice', ->
             expect(@DebugNode.messageCount).to.equal 2
@@ -256,6 +328,7 @@ describe 'Router', ->
         describe 'when given an envelope', ->
           beforeEach (done) ->
             @sut.on 'finish', done
+            @lockManager.lock.yields null, 'some-previous-transaction-id'
 
             @sut.message
               metadata:
@@ -267,3 +340,26 @@ describe 'Router', ->
 
           it 'should call message in the engineDebugNode', ->
             expect(@EngineDebugNode.messageCount).to.equal 1
+
+  describe 'initialize', ->
+    describe 'when called and hget returns no data', ->
+      beforeEach (done) ->
+        @sut.initialize (@error) => done()
+        @datastore.hget.yield null, null
+
+      it 'should call datastore.hget', ->
+        expect(@datastore.hget).to.have.been.calledWith 'some-flow-uuid', 'some-instance-uuid/router/config'
+
+      it 'should call the callback with an error', ->
+        expect(@error).to.exist
+
+    describe 'when called and hget returns an error', ->
+      beforeEach (done) ->
+        @sut.initialize (@error) => done()
+        @datastore.hget.yield new Error 'oh no', null
+
+      it 'should call datastore.hget', ->
+        expect(@datastore.hget).to.have.been.calledWith 'some-flow-uuid', 'some-instance-uuid/router/config'
+
+      it 'should call the callback with an error', ->
+        expect(@error).to.exist
