@@ -2,10 +2,8 @@ EngineOutput = require '../../src/models/engine-output'
 {PassThrough} = require 'stream'
 
 describe 'EngineOutput', ->
-  describe 'when we pipe the envelopeStream and pipe it to the sut', ->
+  describe 'when we write to the sut', ->
     beforeEach (done) ->
-      metadata =
-
       envelope =
         message:
           devices: ['*']
@@ -19,9 +17,9 @@ describe 'EngineOutput', ->
       @MeshbluHttp = sinon.spy => message: @meshbluHttpMessage
 
       @sut = new EngineOutput {}, MeshbluHttp: @MeshbluHttp
-      @envelopeStream = new PassThrough objectMode: true
-      @envelopeStream.pipe @sut
-      @envelopeStream.write envelope, done
+      @sut.write envelope
+      @sut.on 'data', =>
+      @sut.on 'end', done
 
     it 'should instantiate MeshbluHTTP with the config', ->
       expect(@MeshbluHttp).to.have.been.calledWithNew

@@ -15,6 +15,7 @@ class EngineDebug extends Transform
         msg: message
         node: toNodeId
 
+    @push null
     next()
 
 module.exports = EngineDebug

@@ -11,7 +11,7 @@ class LockManager
     @activeLocks = {}
 
   lock: (transactionGroupId, transactionId, callback) =>
-    return callback new Error('Missing transactionGroupId') unless transactionGroupId?
+    return callback() unless transactionGroupId?
     if @activeLocks[transactionGroupId]? && @activeLocks[transactionGroupId].transactionId == transactionId
       @activeLocks[transactionGroupId].count += 1
       return callback()

@@ -18,12 +18,13 @@ describe 'EngineDebug', ->
 
       @sut = new EngineDebug metadata
       @sut.write envelope
-      @sut.on 'data', (@result) => done()
+      @sut.on 'data', (@result) =>
+      @sut.on 'end', done
 
     it 'should have the envelope waiting in the stream', ->
       expect(@result).to.deep.equal
         devices: ['*']
         topic: 'debug'
         payload:
-          node: 'dat-uuid'        
+          node: 'dat-uuid'
           msg: some: 'data'

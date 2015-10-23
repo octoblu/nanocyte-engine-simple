@@ -17,7 +17,8 @@ describe 'EnginePulse', ->
 
       @sut = new EnginePulse metadata
       @sut.write envelope
-      @sut.on 'data', (@result) => done()
+      @sut.on 'data', (@result) =>
+      @sut.on 'end', done
 
     it 'should have the message waiting in the stream', ->
       expect(@result).to.deep.equal

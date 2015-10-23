@@ -53,6 +53,9 @@ describe 'a flow with one trigger connected to a debug', ->
         type: 'engine-debug'
         transactionGroupId: 'engine-debug-group-id'
         linkedTo: []
+      'engine-output':
+        type: 'engine-output'        
+        linkedTo: []
 
     @client.hset 'some-flow-uuid', 'instance-uuid/router/config', data, done
 
