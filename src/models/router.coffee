@@ -32,6 +32,8 @@ class Router extends Transform
         .pipe debugStream()
         .pipe @
 
+      @.on 'end', => debug "Router finished!"
+
       callback()
 
   _unlimited_message: (envelope) =>
