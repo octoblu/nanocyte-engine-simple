@@ -68,10 +68,12 @@ describe 'EngineDebugNode', ->
       @engineBatch.onWrite = (envelope, callback) =>
         callback null, @engineBatchMessage
 
-      @result = @sut.message @envelope
+      @nanocyteToEngineStreamMessage =
+        swarm: true
+      @nanocyteToEngineStream.onWrite = (envelope, callback) =>
+        callback null, @nanocyteToEngineStreamMessage
 
-    it 'should return the nanocyteToEngineStream', ->
-      expect(@result).to.equal @nanocyteToEngineStream
+      @result = @sut.message @envelope
 
     it 'should construct the DatastoreCheckKeyStream with the flow-id and instance-id', ->
       expect(@DatastoreCheckKeyStream).to.have.been.calledWithNew
@@ -120,3 +122,10 @@ describe 'EngineDebugNode', ->
 
       it 'should send the envelope to the nanocyteToEngineStream', ->
         expect(@nanocyteToEngineStream.onRead).to.have.been.calledWith @engineBatchMessage
+
+    describe 'when nanocyteToEngineStream emits a message', ->
+      beforeEach (done) ->
+        @result.on 'data', (@data) => done()
+
+      it 'should emit the message on the returned stream', ->
+        expect(@data).to.deep.equal @nanocyteToEngineStreamMessage

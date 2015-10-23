@@ -10,12 +10,16 @@ class EngineOutputNode
 
   message: ({metadata, message}) =>
     inputStream = debugStream 'in'
-    inputStream.write message
+    outputStream = debugStream 'out'
 
     inputStream
       .pipe new @EngineToNanocyteStream metadata
       .pipe new @EngineThrottle metadata
       .pipe new @EngineOutput metadata
       .pipe new @NanocyteToEngineStream metadata
+      .pipe outputStream
+
+    inputStream.write message
+    outputStream
 
 module.exports = EngineOutputNode

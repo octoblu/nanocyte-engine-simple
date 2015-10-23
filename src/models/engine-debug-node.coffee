@@ -10,7 +10,7 @@ class EngineDebugNode
 
   message: ({metadata, message}) =>
     inputStream = debugStream 'in'
-    inputStream.write message
+    outputStream = debugStream 'out'
 
     inputStream
       .pipe new @DatastoreCheckKeyStream metadata
@@ -18,5 +18,10 @@ class EngineDebugNode
       .pipe new @EngineDebug metadata
       .pipe new @EngineBatch metadata
       .pipe new @NanocyteToEngineStream metadata
+      .pipe outputStream
+
+    inputStream.write message
+
+    outputStream
 
 module.exports = EngineDebugNode

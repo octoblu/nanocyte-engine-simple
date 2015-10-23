@@ -57,11 +57,12 @@ describe 'EngineOutputNode', ->
       @engineThrottle.onWrite = (envelope, callback) =>
         callback null, @engineThrottleMessage
 
+      @nanocyteToEngineStreamMessage =
+        swarm: true
+      @nanocyteToEngineStream.onWrite = (envelope, callback) =>
+        callback null, @nanocyteToEngineStreamMessage
+
       @result = @sut.message @envelope
-
-    it 'should return the nanocyteToEngineStream', ->
-      expect(@result).to.equal @nanocyteToEngineStream
-
 
     describe 'when the engineToNanocyteStream emits an envelope', ->
 
@@ -93,3 +94,10 @@ describe 'EngineOutputNode', ->
 
       it 'should send the envelope to the nanocyteToEngineStream', ->
         expect(@nanocyteToEngineStream.onRead).to.have.been.calledWith @engineOutputMessage
+
+    describe 'when nanocyteToEngineStream emits a message', ->
+      beforeEach (done) ->
+        @result.on 'data', (@data) => done()
+
+      it 'should emit the message on the returned stream', ->
+        expect(@data).to.deep.equal @nanocyteToEngineStreamMessage
