@@ -9,13 +9,15 @@ httpSignature      = require '@octoblu/connect-http-signature'
 MessagesController = require './src/controllers/messages-controller'
 messagesController = new MessagesController
 
+publicKey = require './public-key.json'
+
 PORT  = process.env.PORT ? 80
 
 app = express()
 app.use morgan('dev', immediate: false)
 app.use errorHandler()
 app.use meshbluHealthcheck()
-app.use httpSignature.verify pub: fs.readFileSync("#{__dirname}/public.pem", 'ascii')
+app.use httpSignature.verify pub: publicKey.publicKey
 app.use httpSignature.gateway()
 app.use bodyParser.urlencoded limit: '50mb', extended : true
 app.use bodyParser.json limit : '50mb'

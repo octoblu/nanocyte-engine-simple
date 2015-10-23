@@ -31,4 +31,4 @@ meshblu.json
 nanocyte-node-registry.json
 
 *.swp
-public.pem
+public-key.json
