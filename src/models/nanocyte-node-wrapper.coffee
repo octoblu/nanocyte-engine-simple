@@ -1,12 +1,15 @@
-debugStream = require('debug-stream')('nanocyte-engine-simple:engine-debug-node')
+debugStream = require('debug-stream')('nanocyte-engine-simple:nanocyte-node-wrapper')
 
 class NanocyteNodeWrapper
 
-  @wrap: (NanocyteClass) =>
+  @wrap: (NanocyteClass) ->
 
     class WrappedNanocyteClass
       constructor: (dependencies={}) ->
-        {@ChristacheioStream} = dependencies
+        {@EngineToNanocyteStream, @NanocyteToEngineStream,@ChristacheioStream} = dependencies
+
+        @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
+        @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
         @ChristacheioStream ?= require './christacheio-stream'
 
       message: ({metadata, message}) =>
@@ -14,8 +17,10 @@ class NanocyteNodeWrapper
         outputStream = debugStream 'out'
 
         inputStream
+          .pipe new @EngineToNanocyteStream metadata
           .pipe new @ChristacheioStream metadata
           .pipe new NanocyteClass metadata
+          .pipe new @NanocyteToEngineStream metadata
           .pipe outputStream
 
         inputStream.write message
