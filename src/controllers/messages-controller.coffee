@@ -7,10 +7,8 @@ class MessagesController
     @EngineInput ?= EngineInput
 
   create: (req, res) =>
-    debug 'meshbluAuth', req.meshbluAuth
-
     unless process.env.DISABLE_MESHBLU_AUTH
-      unless req.meshbluAuth.uuid == req.params.flowId
+      unless req.header('X-MESHBLU-UUID') == req.params.flowId
         return res.status(403).end()
     res.status(201).end()
 
