@@ -4,8 +4,8 @@ _            = require 'lodash'
 class TriggerComponent extends EngineRunner
   before: (done=->) =>
     super =>
-      @triggerNodeOnMessage = => @triggerNodeOnMessage.done()
-      @fakeOutComponent 'nanocyte-component-trigger', @triggerNodeOnMessage
+      @triggerNodemessage = => @triggerNodemessage.done()
+      @fakeOutComponent 'nanocyte-component-trigger', @triggerNodemessage
       _.defer done
 
   after: (done=->) =>

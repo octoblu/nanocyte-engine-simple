@@ -66,7 +66,7 @@ class TriggerToDebug extends SendingTrigger
     response = {}
     response.status = => response
     response.end = => response
-    @triggerNodeOnMessage.done = done
+    @triggerNodemessage.done = done
     @sut = new MessagesController
     @sut.create request, response
 

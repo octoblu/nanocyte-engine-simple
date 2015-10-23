@@ -17,6 +17,6 @@ class MessagesController
     engineInput = new @EngineInput
     req.body.flowId     = req.params.flowId
     req.body.instanceId = req.params.instanceId
-    engineInput.onMessage req.body
+    engineInput.message req.body
 
 module.exports = MessagesController

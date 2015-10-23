@@ -92,8 +92,8 @@ describe 'a flow with one trigger connected to a debug', ->
   describe 'sending a message to a trigger node', ->
     beforeEach ->
       @timeout 4000
-      @triggerNodeOnMessage = sinon.spy => @triggerNodeOnMessage.done()
-      fakeOutComponent 'nanocyte-component-trigger', @triggerNodeOnMessage
+      @triggerNodemessage = sinon.spy => @triggerNodemessage.done()
+      fakeOutComponent 'nanocyte-component-trigger', @triggerNodemessage
 
       MessagesController = require '../../src/controllers/messages-controller'
       @sut = new MessagesController
@@ -117,12 +117,12 @@ describe 'a flow with one trigger connected to a debug', ->
               params:
                 foo: 'bar'
 
-        @triggerNodeOnMessage.done = done
+        @triggerNodemessage.done = done
         debug '@sut.create'
         @sut.create request, @response
 
-      it 'should call onMessage on the triggerNode', ->
-        expect(@triggerNodeOnMessage).to.have.been.calledWith
+      it 'should call message on the triggerNode', ->
+        expect(@triggerNodemessage).to.have.been.calledWith
           config: {}
           data: null
           message:
@@ -152,11 +152,11 @@ describe 'a flow with one trigger connected to a debug', ->
                 something: 'completely-different'
               }
 
-        @triggerNodeOnMessage.done = done
+        @triggerNodemessage.done = done
         @sut.create request, @response
 
-      it 'should call onMessage on the triggerNode', ->
-        expect(@triggerNodeOnMessage).to.have.been.calledWith
+      it 'should call message on the triggerNode', ->
+        expect(@triggerNodemessage).to.have.been.calledWith
           config: {}
           data: null
           message:

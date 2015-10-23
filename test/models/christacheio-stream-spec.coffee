@@ -28,7 +28,7 @@ describe 'ChristacheioStream', ->
         @sut.write envelope
         @sut.on 'data', (@result) => done()
 
-      it 'should call onMessage on MahNode after running through christacheio twice', ->
+      it 'should call message on MahNode after running through christacheio twice', ->
         expect(@result).to.deep.equal
           config: {duckGoes: 'quack'}
           data: {}
@@ -44,7 +44,7 @@ describe 'ChristacheioStream', ->
         @sut.write envelope
         @sut.on 'data', (@result) => done()
 
-      it 'should call onMessage on MahNode with the array', ->
+      it 'should call message on MahNode with the array', ->
         expect(@result).to.deep.equal
           config: {duckCounts: [1,2,3]}
           data: {}
@@ -60,7 +60,7 @@ describe 'ChristacheioStream', ->
         @sut.write envelope
         @sut.on 'data', (@result) => done()
 
-      it 'should call onMessage on MahNode with the array', ->
+      it 'should call message on MahNode with the array', ->
         expect(@result).to.deep.equal
           config: {duckCounts: [1,2,3]}
           data: {}
