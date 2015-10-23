@@ -25,7 +25,7 @@ describe 'EngineOutput', ->
 
     it 'should instantiate MeshbluHTTP with the config', ->
       expect(@MeshbluHttp).to.have.been.calledWithNew
-      expect(@MeshbluHttp).to.have.been.calledWith uuid: 'flow-uuid', token: 'flow-token', raw: true
+      expect(@MeshbluHttp).to.have.been.calledWith uuid: 'flow-uuid', token: 'flow-token'
 
     it 'should call meshbluHttp.message with the message', ->
       expect(@meshbluHttpMessage).to.have.been.calledWith

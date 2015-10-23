@@ -10,8 +10,7 @@ class EngineOutput extends Transform
     @MeshbluHttp ?= require 'meshblu-http'
 
   _transform: ({config, message}, enc, done) =>
-    meshbluConfig = _.extend raw: true, config
-    meshbluHttp = new @MeshbluHttp meshbluConfig
+    meshbluHttp = new @MeshbluHttp config
     meshbluHttp.message message
     done()
 
