@@ -359,6 +359,7 @@ describe 'Router', ->
         it 'should route the message to engine-output', ->
           expect(@EngineOutputNode.messages.length).to.equal 1
           throw new Error "We're not done yet!"
+          #also, when the router never finishes
 
   describe 'initialize', ->
     describe 'when called and hget returns no data', ->
