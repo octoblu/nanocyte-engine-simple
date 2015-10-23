@@ -7,21 +7,20 @@ describe 'EngineOutputNode', ->
     @engineToNanocyteStream = new TestStream
     @EngineToNanocyteStream = sinon.stub().returns @engineToNanocyteStream
 
-    @engineOutput = new TestStream
-    @EngineOutput = sinon.stub().returns @engineOutput
+    @engineOutputStream = new TestStream
+    @EngineOutput = sinon.stub().returns @engineOutputStream
 
-    @engineBatch = new TestStream
-    @EngineBatch = sinon.stub().returns @engineBatch
+    @engineThrottle = new TestStream
+    @EngineThrottle = sinon.stub().returns @engineThrottle
 
-    @serializerStream = new TestStream
-    @SerializerStream = sinon.stub().returns @serializerStream
+    @nanocyteToEngineStream = new TestStream
+    @NanocyteToEngineStream = sinon.stub().returns @nanocyteToEngineStream
 
     @dependencies =
-      EngineBatch : @EngineBatch
-      SerializerStream: @SerializerStream
       EngineToNanocyteStream: @EngineToNanocyteStream
       EngineOutput: @EngineOutput
-
+      EngineThrottle: @EngineThrottle
+      NanocyteToEngineStream: @NanocyteToEngineStream
 
   it 'should exist', ->
     expect(EngineOutputNode).to.exist
@@ -37,58 +36,60 @@ describe 'EngineOutputNode', ->
           hi: true
 
       @sut = new EngineOutputNode @dependencies
-      @sut.message @envelope
 
-    it 'should write the envelope to the engineToNanocyteStream', ->
-      expect(@engineBatch.onRead).to.have.been.calledWith @envelope.message
+      @engineToNanocyteMessage =
+        config: a: 'config'
+        data: some: 'data'
+        message: its: 'a message'
 
-    it 'should construct the EngineToNanocyteStream with the flow-id and instance-id', ->
-      expect(@EngineBatch).to.have.been.calledWithNew
-      expect(@EngineBatch).to.have.been.calledWith @envelope.metadata
+      @engineToNanocyteStream.onWrite = (envelope, callback) =>
+        callback null, @engineToNanocyteMessage
 
-    it 'should construct the EngineToNanocyteStream with the flow-id and instance-id', ->
-      expect(@EngineToNanocyteStream).to.have.been.calledWithNew
-      expect(@EngineToNanocyteStream).to.have.been.calledWith @envelope.metadata
+      @engineOutputMessage = something: 'else'
+
+      @engineOutputStream.onWrite = (envelope, callback) =>
+        callback null, @engineOutputMessage
+
+      @engineThrottleMessage =
+        a: 'batch'
+        of: 'cookies'
+
+      @engineThrottle.onWrite = (envelope, callback) =>
+        callback null, @engineThrottleMessage
+
+      @result = @sut.message @envelope
+
+    it 'should return the nanocyteToEngineStream', ->
+      expect(@result).to.equal @nanocyteToEngineStream
 
 
-    it 'should create a new EngineOutput with the metadata', ->
-      expect(@EngineOutput).to.have.been.calledWithNew
-      expect(@EngineOutput).to.have.been.calledWith @envelope.metadata
+    describe 'when the engineToNanocyteStream emits an envelope', ->
 
-    it 'should create a new SerializerStream', ->
-      expect(@SerializerStream).to.have.been.calledWithNew
+      it 'should construct the EngineToNanocyteStream with the flow-id and instance-id', ->
+        expect(@EngineToNanocyteStream).to.have.been.calledWithNew
+        expect(@EngineToNanocyteStream).to.have.been.calledWith @envelope.metadata
 
-    describe 'when EngineBatch emits a batched message', ->
-      beforeEach ->
-        @message =
-          topic: 'message-batch'
-          payload:
-            hi: true
 
-        @engineBatch.onWrite.yield null, @message
+    describe 'when the EngineToNanocyteStream emits a nanocyte envelope', ->
+      it 'should construct the EngineOutput with the flow-id and instance-id', ->
+        expect(@EngineThrottle).to.have.been.calledWithNew
+        expect(@EngineThrottle).to.have.been.calledWith @envelope.metadata
 
-      it 'should write the data to the SerializerStream instance', ->
-        expect(@serializerStream.onRead).to.have.been.calledWith @message
+      it 'should send the envelope to EngineThrottle', ->
+        expect(@engineThrottle.onRead).to.have.been.calledWith @engineToNanocyteMessage
 
-      describe 'when SerializerStream emits a stringified message', ->
-        beforeEach ->
-          @message = "whatever"
-          @serializerStream.onWrite.yield null, @message
+    describe 'when the EngineThrottle emits an envelope', ->
+      it 'should construct the EngineThrottle with the flow-id and instance-id', ->
+        expect(@EngineOutput).to.have.been.calledWithNew
+        expect(@EngineOutput).to.have.been.calledWith @envelope.metadata
 
-        it 'should write the data to the SerializerStream instance', ->
-          expect(@engineToNanocyteStream.onRead).to.have.been.calledWith @message
+      it 'should send the envelope to EngineOutput', ->
+        expect(@engineOutputStream.onRead).to.have.been.calledWith @engineThrottleMessage
 
-        describe 'when EngineToNanocyteStream emits a nanocyte message', ->
-          beforeEach ->
-            @envelope =
-              config:
-                hi: true
-              data:
-                hello: false
-              message:
-                goodbye: 'maybe'
+    describe 'when the EngineOutput emits an envelope', ->
+      it 'should construct the NanocyteToEngineStream with the flow-id and instance-id', ->
+        expect(@NanocyteToEngineStream).to.have.been.calledWithNew
+        expect(@NanocyteToEngineStream).to.have.been.calledWith @envelope.metadata
 
-            @engineToNanocyteStream.onWrite.yield null, @envelope
-
-          it 'should write the data to the SerializerStream instance', ->
-            expect(@engineOutput.onRead).to.have.been.calledWith @envelope
+      it 'should send the envelope to the nanocyteToEngineStream', ->
+        expect(@nanocyteToEngineStream.onRead).to.have.been.calledWith @engineOutputMessage

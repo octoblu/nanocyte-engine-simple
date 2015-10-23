@@ -1,25 +1,21 @@
-{Writable} = require 'stream'
-class EngineOutputNode extends Writable
-  constructor: (dependencies={})->
-    super objectMode: true
-    {@EngineBatch, @SerializerStream, @EngineToNanocyteStream, @EngineOutput} = dependencies
-    @EngineBatch ?= require './engine-batch'
-    @SerializerStream ?= require './serializer-stream'
+debugStream = require('debug-stream')('nanocyte-engine-simple:engine-output-node')
+class EngineOutputNode
+  constructor: (dependencies) ->
+    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineOutput, @EngineThrottle} = dependencies
+
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
+    @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
     @EngineOutput ?= require './engine-output'
+    @EngineThrottle ?= require './engine-throttle'
 
-  _write: (envelope, enc, next) =>
-    @message envelope
-    next()
+  message: ({metadata, message}) =>
+    inputStream = debugStream 'in'
+    inputStream.write message
 
-  message: ({metadata, message})=>
-    engineBatch = new @EngineBatch metadata
-
-    engineBatch
-      .pipe new @SerializerStream metadata
+    inputStream
       .pipe new @EngineToNanocyteStream metadata
+      .pipe new @EngineThrottle metadata
       .pipe new @EngineOutput metadata
-
-    engineBatch.write message
+      .pipe new @NanocyteToEngineStream metadata
 
 module.exports = EngineOutputNode

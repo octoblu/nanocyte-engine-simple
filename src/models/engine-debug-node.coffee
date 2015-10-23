@@ -1,7 +1,6 @@
-{Writable} = require 'stream'
-class EngineDebugNode extends Writable
+debugStream = require('debug-stream')('nanocyte-engine-simple:engine-debug-node')
+class EngineDebugNode
   constructor: (dependencies) ->
-    super objectMode: true
     {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineDebug, @DatastoreCheckKeyStream, @EngineBatch} = dependencies
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
@@ -10,10 +9,11 @@ class EngineDebugNode extends Writable
     @EngineBatch ?= require './engine-batch'
 
   message: ({metadata, message}) =>
-    inputStream = new @DatastoreCheckKeyStream metadata
+    inputStream = debugStream 'in'
     inputStream.write message
 
     inputStream
+      .pipe new @DatastoreCheckKeyStream metadata
       .pipe new @EngineToNanocyteStream metadata
       .pipe new @EngineDebug metadata
       .pipe new @EngineBatch metadata
