@@ -90,11 +90,9 @@ class Router extends PassThrough
     outputNodeId = _.findKey @config, type: 'engine-output'
     return unless outputNodeId?
 
-    nodesToWireToOutput = _.filter @config, type: 'engine-debug'
-    _.each nodesToWireToOutput, (nodeToWireToOutput) =>
-      nodeToWireToOutput.linkedTo.push outputNodeId unless _.contains nodeToWireToOutput.linkedTo,outputNodeId
+    nodesToWireToOutput = _.filter @config, (node) =>
+      return node.type == 'engine-debug' || node.type == 'engine-pulse'
 
-    nodesToWireToOutput = _.filter @config, type: 'engine-pulse'
     _.each nodesToWireToOutput, (nodeToWireToOutput) =>
       nodeToWireToOutput.linkedTo.push outputNodeId unless _.contains nodeToWireToOutput.linkedTo,outputNodeId
 
