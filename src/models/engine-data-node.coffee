@@ -1,6 +1,6 @@
 debugStream = require('debug-stream')('nanocyte-engine-simple:engine-debug-node')
 class EngineDataNode
-  constructor: (dependencies) ->
+  constructor: (dependencies={}) ->
     {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineData} = dependencies
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'

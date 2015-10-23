@@ -6,7 +6,8 @@ class NanocyteToEngineStream extends Transform
   constructor: (metadata, dependencies={}) ->
     super objectMode: true
 
-    debug "NanocyteToEngineStream constructed"    
+    debug "NanocyteToEngineStream constructed"
+
     @metadata = _.clone metadata
     @metadata.fromNodeId = @metadata.toNodeId
     delete @metadata.toNodeId
