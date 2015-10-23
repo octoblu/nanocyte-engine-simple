@@ -34,7 +34,7 @@ class NodeAssembler
     assembledNodes = _.extend {}, wrappedComponents, engineComponents
     return assembledNodes
 
-  wrapNanocyte: (NanocyteClass) =>    
+  wrapNanocyte: (NanocyteClass) =>
     return @NanocyteNodeWrapper.wrap NanocyteClass
 
 module.exports = NodeAssembler
