@@ -5,28 +5,6 @@ redis = require 'redis'
 _ = require 'lodash'
 debug = require('debug')('nanoparticle')
 
-# fakeOutComponent = (packageName, onWrite) ->
-#   class FakeNode extends stream.Transform
-#     constructor: ->
-#       super objectMode: true
-#
-#     _transform: (envelope, encoding, next=->) =>
-#       onWrite envelope, (error, newEnvelope) =>
-#         @push newEnvelope
-#         @push null
-#
-#       next()
-#
-#   require packageName
-#
-#   theModule = require.cache[path.join(__dirname, '../../node_modules', packageName, 'index.js')]
-#   theModule.exports = FakeNode
-#   theModule.original = theModule.exports.prototype
-
-restoreComponent = (packageName) ->
-  theModule = require.cache[path.join(__dirname, '../../node_modules', packageName, 'index.js')]
-  theModule.exports = theModule.original
-
 describe 'a flow with one trigger connected to a debug', ->
   beforeEach ->
     @client = redis.createClient()
@@ -72,7 +50,7 @@ describe 'a flow with one trigger connected to a debug', ->
     @client.hset 'some-flow-uuid', 'instance-uuid/engine-data/config', data, done
 
   beforeEach (done) ->
-    data = JSON.stringify payload: "{{msg}}"
+    data = JSON.stringify payload: "{{msg.payload}}"
     @client.hset 'some-flow-uuid', 'instance-uuid/some-trigger-uuid/config', data, done
 
   beforeEach (done) ->
@@ -95,16 +73,13 @@ describe 'a flow with one trigger connected to a debug', ->
   describe 'sending a message to a trigger node', ->
     beforeEach ->
       @timeout 4000
-      # fakeOutComponent 'nanocyte-component-trigger', @triggerNodemessage
-
       MessagesController = require '../../src/controllers/messages-controller'
       @sut = new MessagesController
 
-    afterEach ->
-      # restoreComponent 'nanocyte-component-trigger'
-
     describe 'when /flows/:flowId/instances/:instanceId/messages receives a message', ->
       beforeEach (done) ->
+        @messages = []
+
         request =
           params:
             flowId: 'some-flow-uuid'
@@ -119,19 +94,20 @@ describe 'a flow with one trigger connected to a debug', ->
               params:
                 foo: 'bar'
 
-        @sut.on 'finish', => done()
-        debug '@sut.create'
-        @sut.create request, @response
+        routerStream = @sut.create request, @response
 
-      it 'should call message on the triggerNode', ->
-        expect(@triggerNodemessage).to.have.been.calledWith
-          config: {}
-          data: null
+        routerStream.on 'data', (message) => @messages.push message
+        routerStream.on 'end', done
+
+      it 'should cause the trigger node to output a message', ->
+        expect(@messages).to.containSubset [{
+          metadata:
+            fromNodeId: 'some-trigger-uuid'
           message:
-            topic: 'button'
             payload:
               params:
                 foo: 'bar'
+        }]
 
       it 'should call response.status with a 201 and send', ->
         expect(@response.status).to.have.been.calledWith 201
@@ -160,7 +136,6 @@ describe 'a flow with one trigger connected to a debug', ->
         @messageStream.on 'finish', => done()
 
       it 'should call message on the triggerNode', ->
-        console.log JSON.stringify @messages, null, 2
         expect(@messages).to.containSubset [{
           metadata:
             flowId: 'some-flow-uuid'
@@ -168,10 +143,8 @@ describe 'a flow with one trigger connected to a debug', ->
             fromNodeId: 'some-trigger-uuid'
           message:
             payload:
-              topic: 'button'
-              payload:
-                parmesian:
-                  something: 'completely-different'
+              parmesian:
+                something: 'completely-different'
           }]
 
       it 'should call response.status with a 201 and send', ->
@@ -180,16 +153,9 @@ describe 'a flow with one trigger connected to a debug', ->
 
   describe 'and now a word from trigger, to the debug node', ->
     beforeEach (done) ->
-      @triggerNodeWrite = sinon.stub().yields null, parmesian: 123456
-      @debugNodeWrite = sinon.spy =>
-        done()
-
-      fakeOutComponent 'nanocyte-component-pass-through', @debugNodeWrite
-      fakeOutComponent 'nanocyte-component-trigger', @triggerNodeWrite
-
       MessagesController = require '../../src/controllers/messages-controller'
       @sut = new MessagesController
-
+      @messages = []
       request =
         params:
           flowId: 'some-flow-uuid'
@@ -204,32 +170,23 @@ describe 'a flow with one trigger connected to a debug', ->
             params:
               parmesian: 123456
 
-      @sut.create request, @response
+      routerStream = @sut.create request, @response
+      routerStream.on 'data', (message) => @messages.push message
+      routerStream.on 'end', done
 
-    afterEach ->
-      restoreComponent 'nanocyte-component-pass-through'
-      restoreComponent 'nanocyte-component-trigger'
+    it 'should cause the debug node to emit a message', ->
+      expect(@messages).to.containSubset [{
+          metadata:
+            fromNodeId: 'some-debug-uuid'
+          message:
+            payload:
+              params:
+                parmesian: 123456
+        }]
 
-    it 'should write the message to the debug node', ->
-      expect(@debugNodeWrite).to.have.been.calledWith
-        config: {}
-        data: null
-        message: { parmesian: 123456 }
 
   describe 'stay tuned for more words from our debug node -> meshblu', ->
     beforeEach (done) ->
-      @meshbluHttpMessage = sinon.spy =>
-        done()
-
-      MeshbluHttp = require 'meshblu-http'
-      MeshbluHttp.prototype.message = @meshbluHttpMessage
-
-      @debugOnWrite = sinon.stub().yields null, something: 'completely-different'
-      @triggerOnWrite = sinon.stub().yields null, something: 'completely-different'
-
-      fakeOutComponent 'nanocyte-component-pass-through', @debugOnWrite
-      fakeOutComponent 'nanocyte-component-trigger', @triggerOnWrite
-
       MessagesController = require '../../src/controllers/messages-controller'
       @sut = new MessagesController
 
@@ -247,23 +204,30 @@ describe 'a flow with one trigger connected to a debug', ->
             params:
               foo: 'bar'
 
-      @sut.create request, @response
+      @messages = []
+      routerStream = @sut.create request, @response
+      routerStream.on 'data', (message) => @messages.push message
+      routerStream.on 'end', done
 
-    afterEach ->
-      restoreComponent 'nanocyte-component-pass-through'
-      restoreComponent 'nanocyte-component-trigger'
-
-    it 'should call message on a MeshbluHttp instance', ->
-      expect(@meshbluHttpMessage).to.have.been.calledOnce
-      expect(@meshbluHttpMessage).to.have.been.calledWith
-        devices: ['*']
-        topic: 'message-batch'
-        payload:
-          messages: [{
-            devices: ['*']
-            topic: 'debug'
+    it 'should call cause engine-debug to emit a message', ->
+        expect(@messages).to.containSubset [{
+          metadata:
+            fromNodeId: 'engine-debug'
+          message:
+            devices: [ '*' ]
+            topic: 'message-batch'
             payload:
-              node: "original-debug-uuid",
-              msgType: undefined
-              msg: something: 'completely-different'
-          }]
+              messages: [
+                {
+                  devices: [
+                    "*"
+                  ]
+                  payload:
+                    msg:
+                      payload:
+                        params:
+                          foo: "bar"
+                    node: "original-debug-uuid"
+                }
+              ]
+        }]
