@@ -12,6 +12,8 @@ class Router extends Writable
 
     @datastore ?= new (require './datastore')
     NodeAssembler ?= require './node-assembler'
+    unless @lockManager
+      @lockManager ?= new (require './lock-manager')
 
     @nodeAssembler = new NodeAssembler()
     @nanocyteStreams = mergeStream()
