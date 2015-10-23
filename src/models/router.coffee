@@ -24,10 +24,7 @@ class Router extends PassThrough
 
     @datastore.hget @flowId, "#{@instanceId}/router/config", (error, @config) =>
       return callback(error) if error?
-
-      unless @config?
-        errorMsg = @_logError "config was not defined"
-        return callback new Error errorMsg
+      return callback @_logError "config was not defined" unless @config?
 
       @_setupEngineNodeRoutes()
 
@@ -49,7 +46,7 @@ class Router extends PassThrough
   _getToNodeIds: (fromNodeId) =>
     senderNodeConfig = @config[fromNodeId]
     unless senderNodeConfig?
-      @_logError "senderNodeConfig was not defined for node: #{fromNodeId} in flow: #{@flowId}, instance: #{@instanceId}"
+      @_logError "senderNodeConfig was not defined for node: #{fromNodeId}"
       return []
 
     return senderNodeConfig.linkedTo || []
@@ -103,6 +100,6 @@ class Router extends PassThrough
   _logError: (errorString) =>
     logErrorString = "router.coffee: #{errorString} in flow: #{@flowId}, instance: #{@instanceId}"
     console.error logErrorString
-    logErrorString
+    new Error logErrorString
 
 module.exports = Router
