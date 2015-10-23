@@ -88,7 +88,8 @@ class Router extends PassThrough
     @message envelope
     next()
 
-  _setupEngineNodeRoutes: =>    
+  _setupEngineNodeRoutes: =>
+    #this should be _.pick with a predicate
     outputNode = _.find @config, type: 'engine-output'
     return unless outputNode?
 
