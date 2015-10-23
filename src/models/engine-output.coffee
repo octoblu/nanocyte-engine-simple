@@ -11,7 +11,7 @@ class EngineOutput extends Transform
 
   _transform: ({config, message}, enc, done) =>
     meshbluHttp = new @MeshbluHttp config
-    meshbluHttp.message message
+    meshbluHttp.message message    
     done()
 
 module.exports = EngineOutput

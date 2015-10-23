@@ -87,13 +87,16 @@ class Router extends PassThrough
     next()
 
   _setupEngineNodeRoutes: =>
-    #this should be _.pick with a predicate so we can get the key as well
-    outputNode = _.find @config, type: 'engine-output'
-    return unless outputNode?
+    outputNodeId = _.findKey @config, type: 'engine-output'
+    return unless outputNodeId?
 
     nodesToWireToOutput = _.filter @config, type: 'engine-debug'
     _.each nodesToWireToOutput, (nodeToWireToOutput) =>
-      nodeToWireToOutput.linkedTo.push 'engine-output'
+      nodeToWireToOutput.linkedTo.push outputNodeId unless _.contains nodeToWireToOutput.linkedTo,outputNodeId
+
+    nodesToWireToOutput = _.filter @config, type: 'engine-pulse'
+    _.each nodesToWireToOutput, (nodeToWireToOutput) =>
+      nodeToWireToOutput.linkedTo.push outputNodeId unless _.contains nodeToWireToOutput.linkedTo,outputNodeId
 
     debug "config is now:", @config
 

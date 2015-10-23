@@ -42,18 +42,34 @@ describe 'Router', ->
 
     @EngineDebugNode = EngineDebugNode
 
+    class EnginePulseNode extends EngineNode
+      constructor: ->
+        super EnginePulseNode.messages
+      @messages: []
+
+    @EnginePulseNode = EnginePulseNode
+
     class EngineOutputNode extends EngineNode
       constructor: ->
         super EngineOutputNode.messages
-
       @messages: []
 
     @EngineOutputNode = EngineOutputNode
+
+    #nanocyte nodes need to close the stream
+    class PulseNode extends EngineNode
+      constructor: ->
+        super PulseNode.messages
+      @messages: []
+
+    @PulseNode = PulseNode
 
     @assembleNodes = assembleNodes = sinon.stub().returns
       'nanocyte-node-debug': DebugNode
       'engine-debug' : EngineDebugNode
       'engine-output': EngineOutputNode
+      'engine-pulse' : EnginePulseNode
+      'pulse': PulseNode
 
     class NodeAssembler
       assembleNodes: assembleNodes
@@ -335,7 +351,7 @@ describe 'Router', ->
           it 'should call message in the engineDebugNode', ->
             expect(@EngineDebugNode.messages.length).to.equal 1
 
-      describe 'when a engine-debug emits a message', ->
+      describe 'when an engine-debug emits a message', ->
         beforeEach (done) ->
           @lockManager.lock.yields null, 'who-cares'
           @datastore.hget.yields null,
@@ -350,16 +366,149 @@ describe 'Router', ->
 
         beforeEach (done) ->
           @sut.on 'finish', done
-          @sut.message
+          @debugEnvelope =
             metadata:
               fromNodeId: 'engine-debug'
             message:
               debugging: "It's not just for chumps anymore"
 
+          @sut.message @debugEnvelope
+
         it 'should route the message to engine-output', ->
           expect(@EngineOutputNode.messages.length).to.equal 1
-          throw new Error "We're not done yet!"
-          #also, when the router never finishes
+          expect(@EngineOutputNode.messages[0].message).to.deep.equal @debugEnvelope.message
+
+    describe 'when an engine-pulse emits a message', ->
+      beforeEach (done) ->
+        @lockManager.lock.yields null, 'who-cares'
+        @datastore.hget.yields null,
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+
+        @sut.initialize => done()
+
+      beforeEach (done) ->
+        @sut.on 'finish', done
+        @pulseMessage =
+          metadata:
+            fromNodeId: 'engine-pulse'
+          message:
+            'star-type': 'pulsar'
+        @sut.message @pulseMessage
+
+      it 'should route the message to engine-output', ->
+        expect(@EngineOutputNode.messages.length).to.equal 1
+        expect(@EngineOutputNode.messages[0].message).to.deep.equal @pulseMessage.message
+
+    describe 'when an engine-pulse emits a message and engine-output has a different id for some reason', ->
+      beforeEach (done) ->
+        @lockManager.lock.yields null, 'who-cares'
+        @datastore.hget.yields null,
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
+          'engine-smoutput':
+            type: 'engine-output'
+            linkedTo: []
+
+        @sut.initialize => done()
+
+      beforeEach (done) ->
+        @sut.on 'finish', done
+        @pulseMessage =
+          metadata:
+            fromNodeId: 'engine-pulse'
+          message:
+            'star-type': 'pulsar'
+        @sut.message @pulseMessage
+
+      it 'should still route the message to the engine-output', ->
+        expect(@EngineOutputNode.messages.length).to.equal 1
+        expect(@EngineOutputNode.messages[0].message).to.deep.equal @pulseMessage.message
+
+    describe 'when an engine-pulse emits a message there is no engine-output', ->
+      beforeEach (done) ->
+        @lockManager.lock.yields null, 'who-cares'
+        @datastore.hget.yields null,
+          'pulse':
+            type: 'pulse'
+            linkedTo: ['engine-pulse']
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
+          'engine-output':
+            type: 'engine-kroutput'
+            linkedTo: []
+
+        @sut.initialize => done()
+
+      beforeEach (done) ->
+        @sut.on 'finish', done
+        @pulseMessage =
+          metadata:
+            fromNodeId: 'pulse'
+          message:
+            'star-type': 'pulsar'
+        @sut.message @pulseMessage
+
+      it 'should not try to route the message to the engine-output', ->
+        expect(@EngineOutputNode.messages.length).to.equal 0
+
+    describe 'when an engine-debug emits a message and engine-debug is already connected to engine-output', ->
+      beforeEach (done) ->
+        @lockManager.lock.yields null, 'who-cares'
+        @datastore.hget.yields null,
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: ['engine-output']
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+
+        @sut.initialize => done()
+
+      beforeEach (done) ->
+        @sut.on 'finish', done
+        @pulseMessage =
+          metadata:
+            fromNodeId: 'engine-debug'
+          message:
+            'debug-type': 'dragonfly'
+        @sut.message @pulseMessage
+
+      it 'should only route one message to engine-output', ->
+        expect(@EngineOutputNode.messages.length).to.equal 1
+        expect(@EngineOutputNode.messages[0].message).to.deep.equal @pulseMessage.message
+
+    describe 'when an engine-pulse emits a message and engine-pulse is already connected to engine-output', ->
+      beforeEach (done) ->
+        @lockManager.lock.yields null, 'who-cares'
+        @datastore.hget.yields null,
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: ['engine-output']
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+
+        @sut.initialize => done()
+
+      beforeEach (done) ->
+        @sut.on 'finish', done
+        @pulseMessage =
+          metadata:
+            fromNodeId: 'engine-pulse'
+          message:
+            'star-type': 'pulsar'
+        @sut.message @pulseMessage
+
+      it 'should only route one message to engine-output', ->
+        expect(@EngineOutputNode.messages.length).to.equal 1
+        expect(@EngineOutputNode.messages[0].message).to.deep.equal @pulseMessage.message
 
   describe 'initialize', ->
     describe 'when called and hget returns no data', ->
