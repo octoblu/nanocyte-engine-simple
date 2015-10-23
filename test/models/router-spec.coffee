@@ -11,7 +11,6 @@ describe 'Router', ->
       lock: sinon.stub()
       unlock: sinon.stub()
 
-
     class DebugNode
       constructor: ->
         @stream = new TestStream
@@ -26,13 +25,10 @@ describe 'Router', ->
           callback null, null
 
       message: (envelope) =>
-        DebugNode.messageCount++
         @stream.write envelope
         @stream
 
-      @messageCount: 0
       @messages: []
-
 
     @DebugNode = DebugNode
 
@@ -48,11 +44,9 @@ describe 'Router', ->
           callback null, null
 
       message: (envelope) =>
-        EngineDebugNode.messageCount++
         @stream.write envelope
         @stream
 
-      @messageCount: 0
       @messages: []
 
     @EngineDebugNode = EngineDebugNode
@@ -236,7 +230,6 @@ describe 'Router', ->
             it 'should call lockmanager.unlock with the transactionId and transactionGroupId', ->
               expect(@lockManager.unlock).to.have.been.calledWith 'some-group-id', 'some-previous-transaction-id'
 
-
       describe 'when the trigger node is wired to two debug nodes', ->
         beforeEach (done) ->
           @datastore.hget.yields null,
@@ -268,7 +261,7 @@ describe 'Router', ->
               message: 12455663
 
           it 'should call message in the debugNode twice', ->
-            expect(@DebugNode.messageCount).to.equal 2
+            expect(@DebugNode.messages.length).to.equal 2
 
           it 'should call message in the debugNode', ->
             expect(@DebugNode.messages).to.contain
@@ -279,15 +272,6 @@ describe 'Router', ->
                 toNodeId: 'some-debug-uuid'
                 fromNodeId: 'some-trigger-uuid'
               message: 12455663
-
-            # expect(@DebugNode.messages).to.contain
-            #   metadata:
-            #     transactionId: 'some-previous-transaction-id'
-            #     flowId: 'some-flow-uuid'
-            #     instanceId: 'some-instance-uuid'
-            #     toNodeId: 'some-debug-uuid'
-            #     fromNodeId: 'some-trigger-uuid'
-            #   message: 12455663
 
       describe 'when the trigger node is wired to two debug nodes and another mystery node', ->
         beforeEach (done) ->
@@ -318,7 +302,7 @@ describe 'Router', ->
               message: 12455663
 
           it 'should call message in the debugNode twice', ->
-            expect(@DebugNode.messageCount).to.equal 2
+            expect(@DebugNode.messages.length).to.equal 2
 
       describe 'when the trigger node is wired to a debug node thats wired to engine-debug', ->
         beforeEach (done) ->
@@ -346,10 +330,33 @@ describe 'Router', ->
               message: 12455663
 
           it 'should call message in the debugNode', ->
-            expect(@DebugNode.messageCount).to.equal 1
+            expect(@DebugNode.messages.length).to.equal 1
 
           it 'should call message in the engineDebugNode', ->
-            expect(@EngineDebugNode.messageCount).to.equal 1
+            expect(@EngineDebugNode.messages.length).to.equal 1
+
+      describe 'when a engine-debug emits a message', ->
+        beforeEach (done) ->
+          @datastore.hget.yields null,
+            'engine-debug':
+              type: 'engine-debug'
+              linkedTo: []
+            'engine-output':
+              type: 'engine-output'
+              linkedTo: []
+
+          @sut.initialize => done()
+
+        beforeEach (done) ->
+          @sut.on 'finish', done
+          @sut.message
+            metadata:
+              fromNodeId: 'engine-debug'
+            message:
+              debugging: "It's not just for chumps anymore"
+
+        it 'should route the message to engine-output', ->
+          expect(true).to.equal false
 
   describe 'initialize', ->
     describe 'when called and hget returns no data', ->

@@ -1,9 +1,10 @@
 _ = require 'lodash'
-{Writable} = require 'stream'
+{PassThrough} = require 'stream'
 mergeStream = require 'merge-stream'
 debug = require('debug')('nanocyte-engine-simple:router')
+debugStream = require('debug-stream')('nanocyte-engine-simple:router')
 
-class Router extends Writable
+class Router extends PassThrough
 
   constructor: (@flowId, @instanceId, dependencies={})->
     super objectMode: true
@@ -30,7 +31,9 @@ class Router extends Writable
         errorMsg = @_logError "config was not defined"
         return callback new Error errorMsg
 
-      @nanocyteStreams.pipe @
+      @nanocyteStreams
+        .pipe debugStream 'nanocyte-stream'
+        .pipe @
 
       callback()
 
@@ -38,6 +41,7 @@ class Router extends Writable
     return @_logError "no configuration" unless @config?
     toNodeIds = @_getToNodeIds envelope.metadata.fromNodeId
     @_sendMessages toNodeIds, envelope
+    return @
 
   _getToNodeIds: (fromNodeId) =>
     senderNodeConfig = @config[fromNodeId]
@@ -72,7 +76,6 @@ class Router extends Writable
           transactionId: transactionId
         message: message
 
-      debug "Router is sending the message", envelope, "in flow: #{@flowId}, instance: #{@instanceId}"
       responseStream = toNode.message envelope
 
       responseStream.on 'end', =>
@@ -82,7 +85,6 @@ class Router extends Writable
       @nanocyteStreams.add responseStream
 
   _write: (envelope, enc, next) =>
-    debug "Router is routing message:", envelope
     @message envelope
     next()
 
