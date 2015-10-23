@@ -98,7 +98,7 @@ describe 'a flow with one trigger connected to a debug', ->
       @sut = new MessagesController
 
     afterEach ->
-      restoreComponent 'nanocyte-component-trigger'
+      # restoreComponent 'nanocyte-component-trigger'
 
     describe 'when /flows/:flowId/instances/:instanceId/messages receives a message', ->
       beforeEach (done) ->
