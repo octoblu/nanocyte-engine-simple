@@ -4,23 +4,27 @@ TestStream = require '../helpers/test-stream'
 describe 'EngineDebugNode', ->
   beforeEach ->
 
-    @engineToNanocyteStream = new TestStream
-    @EngineToNanocyteStream = sinon.stub().returns @engineToNanocyteStream
-
     @datastoreCheckKeyStream = new TestStream
     @DatastoreCheckKeyStream = sinon.stub().returns @datastoreCheckKeyStream
 
+    @engineToNanocyteStream = new TestStream
+    @EngineToNanocyteStream = sinon.stub().returns @engineToNanocyteStream
+
     @engineDebugStream = new TestStream
     @EngineDebug = sinon.stub().returns @engineDebugStream
+
+    @engineBatch = new TestStream
+    @EngineBatch = sinon.stub().returns @engineBatch
 
     @nanocyteToEngineStream = new TestStream
     @NanocyteToEngineStream = sinon.stub().returns @nanocyteToEngineStream
 
     @dependencies =
-      EngineToNanocyteStream: @EngineToNanocyteStream
-      NanocyteToEngineStream: @NanocyteToEngineStream
       DatastoreCheckKeyStream: @DatastoreCheckKeyStream
+      EngineToNanocyteStream: @EngineToNanocyteStream
       EngineDebug: @EngineDebug
+      EngineBatch: @EngineBatch
+      NanocyteToEngineStream: @NanocyteToEngineStream
 
   it 'should exist', ->
     expect(EngineDebugNode).to.exist
@@ -57,9 +61,16 @@ describe 'EngineDebugNode', ->
       @engineDebugStream.onWrite = (envelope, callback) =>
         callback null, @engineDebugMessage
 
+      @engineBatchMessage =
+        a: 'batch'
+        of: 'cookies'
+
+      @engineBatch.onWrite = (envelope, callback) =>
+        callback null, @engineBatchMessage
+
       @result = @sut.message @envelope
 
-    it 'should return the engineToNanocyteStream', ->
+    it 'should return the nanocyteToEngineStream', ->
       expect(@result).to.equal @nanocyteToEngineStream
 
     it 'should construct the DatastoreCheckKeyStream with the flow-id and instance-id', ->
@@ -76,7 +87,7 @@ describe 'EngineDebugNode', ->
     # it 'should write the envelope to the engineToNanocyteStream', ->
     #   expect(@engineToNanocyteStream.onRead).to.have.been.calledWith @envelope.message
 
-    describe 'when the DatastoreCheckKeyStream emits a nanocyte envelope', ->
+    describe 'when the DatastoreCheckKeyStream emits an envelope', ->
 
       it 'should construct the EngineToNanocyteStream with the flow-id and instance-id', ->
         expect(@EngineToNanocyteStream).to.have.been.calledWithNew
@@ -95,9 +106,17 @@ describe 'EngineDebugNode', ->
         expect(@engineDebugStream.onRead).to.have.been.calledWith @engineToNanocyteMessage
 
     describe 'when the EngineDebug emits an envelope', ->
+      it 'should construct the EngineBatch with the flow-id and instance-id', ->
+        expect(@EngineBatch).to.have.been.calledWithNew
+        expect(@EngineBatch).to.have.been.calledWith @envelope.metadata
+
+      it 'should send the envelope to EngineBatch', ->
+        expect(@engineBatch.onRead).to.have.been.calledWith @engineDebugMessage
+
+    describe 'when the EngineBatch emits an envelope', ->
       it 'should construct the NanocyteToEngineStream with the flow-id and instance-id', ->
         expect(@NanocyteToEngineStream).to.have.been.calledWithNew
         expect(@NanocyteToEngineStream).to.have.been.calledWith @envelope.metadata
 
-      it 'should send the envelope to EngineToNanocyteStream', ->
-        expect(@nanocyteToEngineStream.onRead).to.have.been.calledWith @engineDebugMessage
+      it 'should send the envelope to the nanocyteToEngineStream', ->
+        expect(@nanocyteToEngineStream.onRead).to.have.been.calledWith @engineBatchMessage
