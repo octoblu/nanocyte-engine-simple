@@ -54,7 +54,7 @@ describe 'a flow with one trigger connected to a debug', ->
         transactionGroupId: 'engine-debug-group-id'
         linkedTo: []
       'engine-output':
-        type: 'engine-output'        
+        type: 'engine-output'
         linkedTo: []
 
     @client.hset 'some-flow-uuid', 'instance-uuid/router/config', data, done
@@ -72,7 +72,7 @@ describe 'a flow with one trigger connected to a debug', ->
     @client.hset 'some-flow-uuid', 'instance-uuid/engine-data/config', data, done
 
   beforeEach (done) ->
-    data = JSON.stringify {}
+    data = JSON.stringify payload: "{{msg}}"
     @client.hset 'some-flow-uuid', 'instance-uuid/some-trigger-uuid/config', data, done
 
   beforeEach (done) ->
@@ -139,6 +139,7 @@ describe 'a flow with one trigger connected to a debug', ->
 
     describe 'when /flows/:flowId/instances/:instanceId/messages receives a different message', ->
       beforeEach (done) ->
+        @messages = []
         request =
           params:
             flowId: 'some-flow-uuid'
@@ -155,17 +156,23 @@ describe 'a flow with one trigger connected to a debug', ->
               }
 
         @messageStream = @sut.create request, @response
+        @messageStream.on 'data', (message) => @messages.push message
         @messageStream.on 'finish', => done()
 
-      it.only 'should call message on the triggerNode', ->
-        # expect(@triggerNodemessage).to.have.been.calledWith
-        #   config: {}
-        #   data: null
-        #   message:
-        #     topic: 'button'
-        #     payload:
-        #       parmesian:
-        #         something: 'completely-different'
+      it 'should call message on the triggerNode', ->
+        console.log JSON.stringify @messages, null, 2
+        expect(@messages).to.containSubset [{
+          metadata:
+            flowId: 'some-flow-uuid'
+            instanceId: 'instance-uuid'
+            fromNodeId: 'some-trigger-uuid'
+          message:
+            payload:
+              topic: 'button'
+              payload:
+                parmesian:
+                  something: 'completely-different'
+          }]
 
       it 'should call response.status with a 201 and send', ->
         expect(@response.status).to.have.been.calledWith 201

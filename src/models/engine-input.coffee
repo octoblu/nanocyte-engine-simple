@@ -14,6 +14,7 @@ class EngineInput
   message: (message) =>
     stream = new PassThrough objectMode: true
     debug 'message:', fromUuid: message.fromUuid
+
     if message.topic == 'subscribe:pulse'
       @pulseSubscriber.subscribe message.flowId
       return stream
@@ -26,8 +27,6 @@ class EngineInput
       router = new @Router flowId, instanceId
       router.initialize (error) =>
         return console.error "Error initializing router:", error.message if error?
-        # return console.error "fromNodeId does not exist" unless message.payload?.from?
-
         delete message.payload?.from
 
         message = _.omit message, 'devices', 'flowId', 'instanceId'
