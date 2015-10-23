@@ -40,6 +40,7 @@ class Router extends PassThrough
 
   _unlimited_message: (envelope) =>
     return @_logError "no configuration" unless @config?
+
     toNodeIds = @_getToNodeIds envelope.metadata.fromNodeId
     @_sendMessages toNodeIds, envelope
     return @
@@ -53,6 +54,7 @@ class Router extends PassThrough
     return senderNodeConfig.linkedTo || []
 
   _sendMessages: (toNodeIds, envelope) =>
+    debug "sending a message to", toNodeIds
     _.each toNodeIds, (toNodeId) =>
       @_sendMessage toNodeId, envelope
 
@@ -65,7 +67,6 @@ class Router extends PassThrough
     toNode = new ToNodeClass
 
     @lockManager.lock toNodeConfig.transactionGroupId, metadata.transactionId, (error, transactionId) =>
-      debug "instantiated type #{toNodeConfig.type} of class #{ToNodeClass}"
       return @_logError "lockManager unable to lock for node #{toNodeId}, with error: #{error}" if error?
 
       envelope =
@@ -96,6 +97,8 @@ class Router extends PassThrough
     debug "nodes to wire to output:", nodesToWireToOutput
     _.each nodesToWireToOutput, (nodeToWireToOutput) =>
       nodeToWireToOutput.linkedTo.push 'engine-output'
+
+    debug "config is now:", @config
 
   _logError: (errorString) =>
     logErrorString = "router.coffee: #{errorString} in flow: #{@flowId}, instance: #{@instanceId}"

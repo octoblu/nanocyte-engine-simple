@@ -53,7 +53,7 @@ describe 'Router', ->
     @assembleNodes = assembleNodes = sinon.stub().returns
       'nanocyte-node-debug': DebugNode
       'engine-debug' : EngineDebugNode
-      # 'engine-output': EngineOutputNode
+      'engine-output': EngineOutputNode
 
     class NodeAssembler
       assembleNodes: assembleNodes
@@ -337,6 +337,7 @@ describe 'Router', ->
 
       describe 'when a engine-debug emits a message', ->
         beforeEach (done) ->
+          @lockManager.lock.yields null, 'who-cares'
           @datastore.hget.yields null,
             'engine-debug':
               type: 'engine-debug'
@@ -356,7 +357,8 @@ describe 'Router', ->
               debugging: "It's not just for chumps anymore"
 
         it 'should route the message to engine-output', ->
-          expect(true).to.equal false
+          expect(@EngineOutputNode.messages.length).to.equal 1
+          throw new Error "We're not done yet!"
 
   describe 'initialize', ->
     describe 'when called and hget returns no data', ->
