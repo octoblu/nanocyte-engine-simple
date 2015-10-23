@@ -2,13 +2,10 @@ _ = require 'lodash'
 json3 = require 'json3'
 Benchmark = require './benchmark'
 debug = require('debug')('nanocyte-engine-simple:datastore')
-# testDebug = require('debug')('nanocyte-test')
 
 class Datastore
   constructor: (options, dependencies={})->
     {@client} = dependencies
-    # unless @client?
-    #   throw new Error 'Constructing a REAL data store!!!'
 
     @client ?= require '../handlers/redis-handler'
 

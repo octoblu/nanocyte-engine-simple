@@ -1,10 +1,10 @@
 _ = require 'lodash'
-{PassThrough} = require 'stream'
+{Transform, PassThrough} = require 'stream'
 mergeStream = require 'merge-stream'
 debug = require('debug')('nanocyte-engine-simple:router')
 debugStream = require('debug-stream')('nanocyte-engine-simple:router:nanocyte-stream')
 
-class Router extends PassThrough
+class Router extends Transform
 
   constructor: (@flowId, @instanceId, dependencies={})->
     super objectMode: true
@@ -57,6 +57,8 @@ class Router extends PassThrough
       @_sendMessage toNodeId, envelope
 
   _sendMessage: (toNodeId, {metadata, message}) =>
+    stream = new PassThrough objectMode: true
+
     toNodeConfig = @config[toNodeId]
     return @_logError "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
 
@@ -80,10 +82,13 @@ class Router extends PassThrough
         debug "responseStream finished for #{toNodeId}"
         @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
 
-      @nanocyteStreams.add responseStream
+      responseStream.pipe stream
 
-  _write: (envelope, enc, next) =>
+    @nanocyteStreams.add stream
+
+  _transform: (envelope, enc, next) =>
     @message envelope
+    @push envelope
     next()
 
   _setupEngineNodeRoutes: =>

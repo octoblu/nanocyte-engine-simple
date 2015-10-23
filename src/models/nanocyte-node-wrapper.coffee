@@ -3,6 +3,7 @@ debugStream = require('debug-stream')('nanocyte-engine-simple:nanocyte-node-wrap
 class NanocyteNodeWrapper
 
   @wrap: (NanocyteClass) ->
+    throw new Error 'NanocyteClass is undefined' unless NanocyteClass?
 
     class WrappedNanocyteClass
       constructor: (dependencies={}) ->

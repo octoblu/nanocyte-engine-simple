@@ -6,7 +6,7 @@ class MessagesController
     {@EngineInput} = options
     @EngineInput ?= EngineInput
 
-  create: (req, res) =>
+  create: (req, res, options) =>
     debug 'meshbluAuth', req.meshbluAuth
 
     unless process.env.DISABLE_MESHBLU_AUTH
@@ -17,6 +17,7 @@ class MessagesController
     engineInput = new @EngineInput
     req.body.flowId     = req.params.flowId
     req.body.instanceId = req.params.instanceId
-    engineInput.message req.body
+
+    return engineInput.message req.body
 
 module.exports = MessagesController

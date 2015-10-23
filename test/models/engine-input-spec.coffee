@@ -5,6 +5,7 @@ describe 'EngineInput', ->
     @router    =
       message: sinon.spy()
       initialize: sinon.stub().yields()
+      pipe: sinon.spy()
 
     @Router = sinon.stub().returns @router
     @datastore = hget: sinon.stub()
