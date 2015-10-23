@@ -8,7 +8,6 @@ class Router extends PassThrough
 
   constructor: (@flowId, @instanceId, dependencies={})->
     super objectMode: true
-    @routeCount = 0
     {NodeAssembler, @datastore, @lockManager} = dependencies
 
     @datastore ?= new (require './datastore')
@@ -39,7 +38,9 @@ class Router extends PassThrough
       callback()
 
   _unlimited_message: (envelope) =>
-    return @_logError "no configuration" unless @config?
+    unless @config?
+      @_logError "no configuration"
+      return @
 
     toNodeIds = @_getToNodeIds envelope.metadata.fromNodeId
     @_sendMessages toNodeIds, envelope
