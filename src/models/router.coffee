@@ -88,13 +88,11 @@ class Router extends PassThrough
     @message envelope
     next()
 
-  _setupEngineNodeRoutes: =>
-    debug "_setupEngineNodeRoutes"
+  _setupEngineNodeRoutes: =>    
     outputNode = _.find @config, type: 'engine-output'
     return unless outputNode?
 
     nodesToWireToOutput = _.filter @config, type: 'engine-debug'
-    debug "nodes to wire to output:", nodesToWireToOutput
     _.each nodesToWireToOutput, (nodeToWireToOutput) =>
       nodeToWireToOutput.linkedTo.push 'engine-output'
 
