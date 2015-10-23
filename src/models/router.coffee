@@ -89,7 +89,7 @@ class Router extends PassThrough
     next()
 
   _setupEngineNodeRoutes: =>
-    #this should be _.pick with a predicate
+    #this should be _.pick with a predicate so we can get the key as well
     outputNode = _.find @config, type: 'engine-output'
     return unless outputNode?
 
