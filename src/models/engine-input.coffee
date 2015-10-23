@@ -24,13 +24,17 @@ class EngineInput
       router = new @Router flowId, instanceId
       router.initialize (error) =>
         return console.error "Error initializing router:", error.message if error?
+        # return console.error "fromNodeId does not exist" unless message.payload?.from?
+
+        delete message.payload?.from
 
         message = _.omit message, 'devices', 'flowId', 'instanceId'
-        delete message?.payload?.from
 
         _.each fromNodeIds, (fromNodeId) =>
-          router.onEnvelope
+          router.message
             metadata:
+              flowId: flowId
+              instanceId: instanceId
               fromNodeId: fromNodeId
             message: message
 

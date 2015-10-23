@@ -4,7 +4,7 @@ describe 'EngineInput', ->
   beforeEach ->
     @router    =
       message: sinon.spy()
-      initialize: sinon.stub()
+      initialize: sinon.stub().yields()
 
     @Router = sinon.stub().returns @router
     @datastore = hget: sinon.stub()
@@ -27,9 +27,10 @@ describe 'EngineInput', ->
 
       it 'should send a converted message to the router', ->
         expect(@router.message).to.have.been.calledWith
-          flowId: 'some-flow-uuid'
-          instanceId: 'some-instance-uuid'
-          fromNodeId: 'some-trigger-uuid'
+          metadata:
+            flowId: 'some-flow-uuid'
+            instanceId: 'some-instance-uuid'
+            fromNodeId: 'some-trigger-uuid'
           message:
             topic: 'button'
             payload:
@@ -59,9 +60,10 @@ describe 'EngineInput', ->
 
       it 'should send a converted message to router', ->
         expect(@router.message).to.have.been.calledWith
-          flowId: 'some-flow-uuid'
-          instanceId: 'some-other-instance-uuid'
-          fromNodeId: 'some-other-trigger-uuid'
+          metadata:
+            flowId: 'some-flow-uuid'
+            instanceId: 'some-other-instance-uuid'
+            fromNodeId: 'some-other-trigger-uuid'
           message:
             topic: 'button'
             payload:
@@ -87,9 +89,10 @@ describe 'EngineInput', ->
 
         it 'should use the fromUuid as the toNodeId', ->
           expect(@router.message).to.have.been.calledWith
-            flowId: 'some-flow-uuid'
-            instanceId: 'some-other-instance-uuid'
-            fromNodeId: 'some-internal-node-uuid'
+            metadata:
+              flowId: 'some-flow-uuid'
+              instanceId: 'some-other-instance-uuid'
+              fromNodeId: 'some-internal-node-uuid'
             message:
               topic: 'button'
               fromUuid: 'some-device-uuid'
@@ -106,16 +109,18 @@ describe 'EngineInput', ->
         it 'should use the fromUuid as the toNodeId', ->
           expect(@router.message).to.have.been.calledTwice
           expect(@router.message).to.have.been.calledWith
-            flowId: 'some-flow-uuid'
-            instanceId: 'some-other-instance-uuid'
-            fromNodeId: 'some-internal-node-uuid'
+            metadata:
+              flowId: 'some-flow-uuid'
+              instanceId: 'some-other-instance-uuid'
+              fromNodeId: 'some-internal-node-uuid'
             message:
               topic: 'button'
               fromUuid: 'some-device-uuid'
           expect(@router.message).to.have.been.calledWith
-            flowId: 'some-flow-uuid'
-            instanceId: 'some-other-instance-uuid'
-            fromNodeId: 'some-other-internal-node-uuid'
+            metadata:
+              flowId: 'some-flow-uuid'
+              instanceId: 'some-other-instance-uuid'
+              fromNodeId: 'some-other-internal-node-uuid'
             message:
               topic: 'button'
               fromUuid: 'some-device-uuid'
@@ -176,9 +181,10 @@ describe 'EngineInput', ->
 
       it 'should not break apart the payload', ->
         expect(@router.message).to.have.been.calledWith
-          flowId: 'some-flow-uuid'
-          instanceId: 'some-other-instance-uuid'
-          fromNodeId: 'some-internal-node-uuid'
+          metadata:
+            flowId: 'some-flow-uuid'
+            instanceId: 'some-other-instance-uuid'
+            fromNodeId: 'some-internal-node-uuid'
           message:
             topic: 'button'
             fromUuid: 'some-device-uuid'
