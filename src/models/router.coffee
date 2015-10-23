@@ -2,7 +2,7 @@ _ = require 'lodash'
 {PassThrough} = require 'stream'
 mergeStream = require 'merge-stream'
 debug = require('debug')('nanocyte-engine-simple:router')
-debugStream = require('debug-stream')('nanocyte-engine-simple:router')
+debugStream = require('debug-stream')('nanocyte-engine-simple:router:nanocyte-stream')
 
 class Router extends PassThrough
 
@@ -33,7 +33,7 @@ class Router extends PassThrough
       @_setupEngineNodeRoutes()
 
       @nanocyteStreams
-        .pipe debugStream 'nanocyte-stream'
+        .pipe debugStream()
         .pipe @
 
       callback()
