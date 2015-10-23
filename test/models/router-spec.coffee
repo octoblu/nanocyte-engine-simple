@@ -11,11 +11,11 @@ describe 'Router', ->
       lock: sinon.stub()
       unlock: sinon.stub()
 
-    class DebugNode
-      constructor: ->
+    class EngineNode
+      constructor: (@messages=[])->
         @stream = new TestStream
         @stream.onWrite = (envelope, callback) =>
-          DebugNode.messages.push envelope
+          @messages.push envelope
 
           envelope = _.cloneDeep envelope
           envelope.metadata.fromNodeId = envelope.metadata.toNodeId
@@ -28,32 +28,32 @@ describe 'Router', ->
         @stream.write envelope
         @stream
 
+    class DebugNode extends EngineNode
+      constructor: ->
+        super DebugNode.messages
       @messages: []
 
     @DebugNode = DebugNode
 
-    class EngineDebugNode
+    class EngineDebugNode extends EngineNode
       constructor: ->
-        @stream = new TestStream
-        @stream.onWrite = (envelope, callback) =>
-          envelope.metadata.fromNodeId = envelope.metadata.toNodeId
-          delete envelope.metadata.toNodeId
-
-          EngineDebugNode.messages.push envelope
-          callback null, envelope
-          callback null, null
-
-      message: (envelope) =>
-        @stream.write envelope
-        @stream
-
+        super EngineDebugNode.messages
       @messages: []
 
     @EngineDebugNode = EngineDebugNode
 
+    class EngineOutputNode extends EngineNode
+      constructor: ->
+        super EngineOutputNode.messages
+
+      @messages: []
+
+    @EngineOutputNode = EngineOutputNode
+
     @assembleNodes = assembleNodes = sinon.stub().returns
       'nanocyte-node-debug': DebugNode
       'engine-debug' : EngineDebugNode
+      # 'engine-output': EngineOutputNode
 
     class NodeAssembler
       assembleNodes: assembleNodes

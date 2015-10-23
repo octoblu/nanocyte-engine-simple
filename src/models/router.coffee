@@ -13,8 +13,7 @@ class Router extends PassThrough
 
     @datastore ?= new (require './datastore')
     NodeAssembler ?= require './node-assembler'
-    unless @lockManager
-      @lockManager ?= new (require './lock-manager')
+    @lockManager ?= new (require './lock-manager')
 
     @nodeAssembler = new NodeAssembler()
     @nanocyteStreams = mergeStream()
@@ -30,6 +29,8 @@ class Router extends PassThrough
       unless @config?
         errorMsg = @_logError "config was not defined"
         return callback new Error errorMsg
+
+      @_setupEngineNodeRoutes()
 
       @nanocyteStreams
         .pipe debugStream 'nanocyte-stream'
@@ -56,8 +57,6 @@ class Router extends PassThrough
       @_sendMessage toNodeId, envelope
 
   _sendMessage: (toNodeId, {metadata, message}) =>
-    debug "from: #{metadata.fromNodeId}, sendMessage to: #{toNodeId}", metadata, message
-
     toNodeConfig = @config[toNodeId]
     return @_logError "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
 
@@ -87,6 +86,16 @@ class Router extends PassThrough
   _write: (envelope, enc, next) =>
     @message envelope
     next()
+
+  _setupEngineNodeRoutes: =>
+    debug "_setupEngineNodeRoutes"
+    outputNode = _.find @config, type: 'engine-output'
+    return unless outputNode?
+
+    nodesToWireToOutput = _.filter @config, type: 'engine-debug'
+    debug "nodes to wire to output:", nodesToWireToOutput
+    _.each nodesToWireToOutput, (nodeToWireToOutput) =>
+      nodeToWireToOutput.linkedTo.push 'engine-output'
 
   _logError: (errorString) =>
     logErrorString = "router.coffee: #{errorString} in flow: #{@flowId}, instance: #{@instanceId}"
