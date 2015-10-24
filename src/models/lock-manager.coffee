@@ -27,8 +27,8 @@ class LockManager
 
   unlock: (transactionGroupId) =>
     return unless transactionGroupId?
-    debug 'unlock', transactionGroupId
     @activeLocks[transactionGroupId]?.count -= 1
+    debug "unlocking: #{transactionGroupId}. #{@activeLocks[transactionGroupId]?.count} locks remaining"
     return if @activeLocks[transactionGroupId].count != 0
 
     @activeLocks[transactionGroupId]?.lockObject?.unlock()

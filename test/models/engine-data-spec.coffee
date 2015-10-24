@@ -2,7 +2,7 @@ EngineData = require '../../src/models/engine-data'
 
 describe 'EngineData', ->
   beforeEach ->
-    @datastore = hset: sinon.stub()
+    @datastore = hset: sinon.stub().yields()
 
   describe 'when constructed with some metadata', ->
     beforeEach ->

@@ -1,5 +1,6 @@
 {Transform} = require 'stream'
 Datastore = require './datastore'
+debug = require('debug')('nanocyte-engine-simple:engine-data')
 
 class EngineData extends Transform
   constructor: (metadata, dependencies={}) ->
@@ -11,12 +12,13 @@ class EngineData extends Transform
 
   _transform: ({message, data, config}, enc, next) =>
     nodeId = config[@fromNodeId]?.nodeId
-    @push null
-
     unless nodeId?
       console.error "engine-data.coffee: Node config not found for '#{@fromNodeId}'"
       return next()
 
-    @datastore.hset @flowId, "#{@instanceId}/#{nodeId}/data", message, next
+    debug "setting data for #{nodeId} to", message
+    @datastore.hset @flowId, "#{@instanceId}/#{nodeId}/data", message, =>
+      @push null
+      next()
 
 module.exports = EngineData
