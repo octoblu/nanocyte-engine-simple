@@ -15,6 +15,7 @@ class EngineData extends Transform
     nodeId = config[@fromNodeId]?.nodeId
     unless nodeId?
       console.error "engine-data.coffee: Node config not found for '#{@fromNodeId}'"
+      @push null
       return next()
 
     debug "setting data for #{nodeId} to", message
