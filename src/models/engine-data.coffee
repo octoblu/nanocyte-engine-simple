@@ -11,13 +11,15 @@ class EngineData extends Transform
     @datastore ?= new Datastore
 
   _transform: ({message, data, config}, enc, next) =>
+    debug "data is currently", data
     nodeId = config[@fromNodeId]?.nodeId
     unless nodeId?
       console.error "engine-data.coffee: Node config not found for '#{@fromNodeId}'"
       return next()
 
     debug "setting data for #{nodeId} to", message
-    @datastore.hset @flowId, "#{@instanceId}/#{nodeId}/data", message, =>
+    @datastore.hset @flowId, "#{@instanceId}/#{nodeId}/data", message, (error, result)=>
+      debug "datastore responded with", error, result
       @push null
       next()
 

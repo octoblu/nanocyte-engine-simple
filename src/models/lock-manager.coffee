@@ -11,10 +11,12 @@ class LockManager
     @activeLocks = {}
 
   lock: (transactionGroupId, transactionId, callback) =>
-    debug 'lock', transactionGroupId
+    debug 'locking', transactionGroupId
     return callback() unless transactionGroupId?
     if @activeLocks[transactionGroupId]? && @activeLocks[transactionGroupId].transactionId == transactionId
       @activeLocks[transactionGroupId].count += 1
+
+      debug "locked: #{transactionGroupId}. count: #{@activeLocks[transactionGroupId].count}"
       return callback()
 
     @_waitForLock transactionGroupId, transactionId, (error, lock) =>
@@ -23,16 +25,20 @@ class LockManager
         lockObject: lock
         transactionId: transactionId
         count: 1
+
+      debug "locked: #{transactionGroupId}. count: #{@activeLocks[transactionGroupId].count}"
       callback error, transactionId
 
   unlock: (transactionGroupId) =>
     return unless transactionGroupId?
     @activeLocks[transactionGroupId]?.count -= 1
     debug "unlocking: #{transactionGroupId}. #{@activeLocks[transactionGroupId]?.count} locks remaining"
-    return if @activeLocks[transactionGroupId].count != 0
 
+    return if @activeLocks[transactionGroupId].count != 0
     @activeLocks[transactionGroupId]?.lockObject?.unlock()
     delete @activeLocks[transactionGroupId]
+
+    debug "unlocked: #{transactionGroupId}"
 
   _waitForLock: (transactionGroupId, transactionId, callback) =>
     @redlock.lock "locks:#{transactionGroupId}", 6000, (error, lock) =>
