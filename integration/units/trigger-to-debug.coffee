@@ -21,10 +21,7 @@ class TriggerToDebug extends EngineRunner
 
   before: (done=->) =>
     super =>
-      async.parallel [
-        (done) =>
-          data = JSON.stringify {'some-debug-uuid': {nodeId: 'original-debug-uuid'}}
-          @client.hset 'some-flow-uuid', 'instance-uuid/engine-debug/config', data, done
+      async.parallel [        
         (done) =>
           data = JSON.stringify {uuid: 'some-flow-uuid', token: 'some-token'}
           @client.hset 'some-flow-uuid', 'instance-uuid/engine-output/config', data, done
