@@ -6,5 +6,8 @@ runnerConfig = require path.join __dirname, './compose-race-condition-config.jso
 
 runner = new RouterRunner runnerConfig
 
+runner.initialize =>
+  routerStream = runner.triggerByName 'Handshake', {handshake: 'down-low'}
+  routerStream = runner.triggerByName 'Greeting', {handshake: 'down-low'}
 
-runner.triggerByName 'Handshake', {the: 'message'}
+  routerStream.on 'data', (data) => console.log "router said", data

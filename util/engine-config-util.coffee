@@ -15,7 +15,7 @@ getEngineConfig = (flowId, instanceId, callback) =>
   redis.hgetall flowId, (error, data) =>
     return callback error if error?
     rawConfig = _.pick data, (value, key) => _.startsWith key, instanceId
-    config = _.mapValues rawConfig, JSON.parse        
+    config = _.mapValues rawConfig, JSON.parse
 
     callback null, config
 

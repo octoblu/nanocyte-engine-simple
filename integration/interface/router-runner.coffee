@@ -1,22 +1,32 @@
-_                = require 'lodash'
-Router           = require '../../src/models/router'
-NodeAssembler    = require '../../src/models/node-assembler'
-EngineOutputNode = require '../../src/models/engine-output-node'
-ArrayStream      = require 'array-stream'
+_             = require 'lodash'
+async         = require 'async'
+{PassThrough} = require 'stream'
+redisHandler  = require '../../src/handlers/redis-handler'
+Router        = require '../../src/models/router'
 
-debugStream = require('debug-stream')('nanocyte-router-runner')
-debug = require('debug')('nanocyte-router-runner')
-
-class JsonDatastore
-  constructor: (@config) ->
-
-  hget: (key, field, callback) =>
-    callback null, @config[field]
+debugStream   = require('debug-stream')('nanocyte-router-runner')
+debug         = require('debug')('nanocyte-router-runner')
 
 class RouterRunner
   constructor: ({@flowId, @instanceId, @config}) ->
-    @jsonDatastore = new JsonDatastore @config
-    @routerDependencies = datastore: @jsonDatastore, NodeAssembler: @buildNodeAssembler()
+
+  initialize: (callback) =>
+    configKeys = _.keys @config
+    setKey = (key, done) =>
+      data = JSON.stringify @config[key]
+      debug "setting #{key}"
+      redisHandler.hset @flowId, key, data, done
+
+    async.each configKeys, setKey, (error) =>
+      return callback error if error?
+      redisHandler.set "pulse:#{@flowId}", 1, callback
+
+  done: (callback) =>
+    configKeys = _.keys @config
+    unsetKey = (key, done) =>
+      data = JSON.stringify @config[key]
+      debug "setting #{key}"
+      redisHandler.hdel @flowId, key, data, done
 
   triggerByName: (triggerName, message, callback) =>
     triggerId = @findTriggerIdByName triggerName
@@ -31,29 +41,18 @@ class RouterRunner
         instanceId: @instanceId
       message: message
 
-    router = new Router @flowId, @instanceId, @routerDependencies
+    router = new Router @flowId, @instanceId
 
     router.initialize =>
       debug "router initialized."
       router.message envelope
-      router.on 'end', => debug 'done'
+      router.on 'end', => process.exit -1
       router.on 'data', (data) => debug "router said:", data
+
+    router
 
   findTriggerIdByName: (triggerName) =>
     trigger = _.findWhere @config, {name: triggerName, type: 'operation:trigger'}
     return trigger?.id
-
-  buildNodeAssembler: =>
-    runner = @
-    class RunnerOutputNode extends EngineOutputNode
-      constructor: ->
-        super EngineOutput: =>
-          ArrayStream (list) => debug 'hi'
-
-    class RunnerNodeAssembler extends NodeAssembler
-      constructor: (options)->
-        super options, EngineOutputNode: RunnerOutputNode
-
-    RunnerNodeAssembler
 
   module.exports = RouterRunner
