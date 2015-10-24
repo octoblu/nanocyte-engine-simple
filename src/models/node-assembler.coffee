@@ -4,7 +4,6 @@ debugStream = require('debug-stream')('nanocyte-node-assembler')
 ErrorStream = require './error-stream'
 _ = require 'lodash'
 uuid = require 'node-uuid'
-Combine = require 'stream-combiner2'
 
 class NodeAssembler
   constructor: (options, dependencies={}) ->

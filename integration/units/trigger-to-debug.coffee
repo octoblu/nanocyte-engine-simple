@@ -1,9 +1,8 @@
 _                  = require 'lodash'
 async              = require 'async'
-SendingTrigger     = require '../classes/trigger-component'
 MessagesController = require '../../src/controllers/messages-controller'
-
-class TriggerToDebug extends SendingTrigger
+EngineRunner       = require '../classes/engine-runner'
+class TriggerToDebug extends EngineRunner
   constructor: ->
     @label = "TriggerToDebug"
     @FLOW_UUID = 'some-flow-uuid'
@@ -49,12 +48,12 @@ class TriggerToDebug extends SendingTrigger
       ], done
 
   run: (done=->) =>
+    @messages = []
     request =
+      header: => 'some-flow-uuid'
       params:
         flowId: 'some-flow-uuid'
         instanceId: 'instance-uuid'
-      meshbluAuth:
-        uuid: 'some-flow-uuid'
       body:
         topic: 'button'
         devices: ['some-flow-uuid']
@@ -66,9 +65,11 @@ class TriggerToDebug extends SendingTrigger
     response = {}
     response.status = => response
     response.end = => response
-    @triggerNodeOnMessage.done = done
+
     @sut = new MessagesController
-    @sut.create request, response
+    routerStream = @sut.create request, response
+    routerStream.on 'data', (message) => @messages.push message
+    routerStream.on 'end', done
 
   after: (done=->) =>
     super =>
