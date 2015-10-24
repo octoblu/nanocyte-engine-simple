@@ -48,7 +48,7 @@ class TriggerToDebug extends EngineRunner
       ], done
 
   run: (done=->) =>
-    @messages = []
+    messages = []
     request =
       header: => 'some-flow-uuid'
       params:
@@ -68,8 +68,10 @@ class TriggerToDebug extends EngineRunner
 
     @sut = new MessagesController
     routerStream = @sut.create request, response
-    routerStream.on 'data', (message) => @messages.push message
-    routerStream.on 'end', done
+    routerStream.on 'data', (message) =>
+      messages.push _.extend(timestamp: Date.now(), message)
+      
+    routerStream.on 'end', => done null, messages
 
   after: (done=->) =>
     super =>
