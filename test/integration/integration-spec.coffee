@@ -81,11 +81,10 @@ describe 'a flow with one trigger connected to a debug', ->
         @messages = []
 
         request =
+          header: sinon.stub().returns 'some-flow-uuid'
           params:
             flowId: 'some-flow-uuid'
             instanceId: 'instance-uuid'
-          meshbluAuth:
-            uuid: 'some-flow-uuid'
           body:
             topic: 'button'
             devices: ['some-flow-uuid']
@@ -117,11 +116,10 @@ describe 'a flow with one trigger connected to a debug', ->
       beforeEach (done) ->
         @messages = []
         request =
+          header: sinon.stub().returns 'some-flow-uuid'
           params:
             flowId: 'some-flow-uuid'
             instanceId: 'instance-uuid'
-          meshbluAuth:
-            uuid: 'some-flow-uuid'
           body:
             topic: 'button'
             devices: ['some-flow-uuid']
@@ -157,11 +155,10 @@ describe 'a flow with one trigger connected to a debug', ->
       @sut = new MessagesController
       @messages = []
       request =
+        header: sinon.stub().returns 'some-flow-uuid'
         params:
           flowId: 'some-flow-uuid'
           instanceId: 'instance-uuid'
-        meshbluAuth:
-          uuid: 'some-flow-uuid'
         body:
           topic: 'button'
           devices: ['some-flow-uuid']
@@ -191,11 +188,10 @@ describe 'a flow with one trigger connected to a debug', ->
       @sut = new MessagesController
 
       request =
+        header: sinon.stub().returns 'some-flow-uuid'
         params:
           flowId: 'some-flow-uuid'
           instanceId: 'instance-uuid'
-        meshbluAuth:
-          uuid: 'some-flow-uuid'
         body:
           topic: 'button'
           devices: ['some-flow-uuid']

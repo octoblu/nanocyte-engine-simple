@@ -18,11 +18,10 @@ describe '/messages', ->
   describe 'when /messages receives an authorized message', ->
     beforeEach ->
       request =
+        header: sinon.stub().returns 'some-flow-uuid'
         params:
           flowId: 'some-flow-uuid'
-          instanceId: 'some-instance-uuid'
-        meshbluAuth:
-          uuid: 'some-flow-uuid'
+          instanceId: 'some-instance-uuid'        
         body:
           foo: 'bar'
 
@@ -41,11 +40,10 @@ describe '/messages', ->
   describe 'when /messages receives a different authorized message', ->
     beforeEach ->
       request =
+        header: sinon.stub().returns 'some-other-flow-uuid'
         params:
           flowId:     'some-other-flow-uuid'
           instanceId: 'some-instance-uuid'
-        meshbluAuth:
-          uuid: 'some-other-flow-uuid'
         body:
           shoe: 'spar'
 
@@ -60,11 +58,10 @@ describe '/messages', ->
   describe 'when /messages receives a different authorized message from the wrong uuid', ->
     beforeEach ->
       request =
+        header: sinon.stub().returns 'wrong-uuid'
         params:
           flowId:     'some-other-flow-uuid'
           instanceId: 'some-instance-uuid'
-        meshbluAuth:
-          uuid: 'wrong-uuid'
         body:
           shoe: 'spar'
 

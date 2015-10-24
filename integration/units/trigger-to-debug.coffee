@@ -29,7 +29,7 @@ class TriggerToDebug extends SendingTrigger
     super =>
       async.parallel [
         (done) =>
-          data = JSON.stringify {'some-debug-uuid': {toNodeId: 'original-debug-uuid'}}
+          data = JSON.stringify {'some-debug-uuid': {nodeId: 'original-debug-uuid'}}
           @client.hset 'some-flow-uuid', 'instance-uuid/engine-debug/config', data, done
         (done) =>
           data = JSON.stringify {uuid: 'some-flow-uuid', token: 'some-token'}
@@ -66,7 +66,7 @@ class TriggerToDebug extends SendingTrigger
     response = {}
     response.status = => response
     response.end = => response
-    @triggerNodemessage.done = done
+    @triggerNodeOnMessage.done = done
     @sut = new MessagesController
     @sut.create request, response
 
