@@ -11,6 +11,7 @@ class LockManager
     @activeLocks = {}
 
   lock: (transactionGroupId, transactionId, callback) =>
+    debug 'lock', transactionGroupId
     return callback() unless transactionGroupId?
     if @activeLocks[transactionGroupId]? && @activeLocks[transactionGroupId].transactionId == transactionId
       @activeLocks[transactionGroupId].count += 1
@@ -35,8 +36,9 @@ class LockManager
 
   _waitForLock: (transactionGroupId, transactionId, callback) =>
     @redlock.lock "locks:#{transactionGroupId}", 6000, (error, lock) =>
-      debug 'lock', transactionGroupId
+      debug 'waitForLock end', transactionGroupId
       if error?
+        debug "error locking #{transactionGroupId}:", error
         _.delay @_waitForLock, 50, transactionGroupId, transactionId, callback
         return
       callback null, lock

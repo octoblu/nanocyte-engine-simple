@@ -18,11 +18,6 @@ class TriggerToDebug extends EngineRunner
       'some-debug-uuid':
         type: 'nanocyte-component-pass-through'
         transactionGroupId: 'debug-group-id'
-        linkedTo: ['engine-debug']
-      'engine-debug':
-        type: 'engine-debug'
-        transactionGroupId: 'engine-debug-group-id'
-        linkedTo: []
 
   before: (done=->) =>
     super =>
@@ -70,7 +65,7 @@ class TriggerToDebug extends EngineRunner
     routerStream = @sut.create request, response
     routerStream.on 'data', (message) =>
       messages.push _.extend(timestamp: Date.now(), message)
-      
+
     routerStream.on 'end', => done null, messages
 
   after: (done=->) =>
