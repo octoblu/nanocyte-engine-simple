@@ -63,8 +63,6 @@ class TriggerToDebug extends EngineRunner
     super =>
       async.parallel [
         (done) => @client.del @FLOW_UUID + '/instance-uuid/router/config', done
-        (done) => @client.del @FLOW_UUID + '/instance-uuid/engine-debug/config', done
-        (done) => @client.del @FLOW_UUID + '/instance-uuid/engine-output/config', done
         (done) => @client.del @FLOW_UUID + '/instance-uuid/some-trigger-uuid/config', done
         (done) => @client.del @FLOW_UUID + '/instance-uuid/some-debug-uuid/config', done
       ], done
