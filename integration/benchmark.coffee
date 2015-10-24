@@ -48,7 +48,6 @@ class BenchmarkRunner
             debug 'ran test'
             console.log "#{colors.cyan(":>")} finished test for #{forUnit} #{timeTook}"
             if messages?
-              console.log "Message trace:"
               @printMessageTrace messages
             return done error if error?
             unit.after (error) =>
@@ -103,13 +102,15 @@ class BenchmarkRunner
     console.log '========================='
 
   printMessageTrace: (messages) =>
-    console.log '\n~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*'
+    console.log '\nMessage Trace:'
+    bookend = "#{colors.rainbow '~*~*~*~*~*~*~~*~*~*~*~*~*~'}"
+    console.log bookend
     lastTime = null
     _.each messages, (message) =>
       elapsed = message.timestamp - lastTime if lastTime?
       console.log "#{@getMessageString message, elapsed}"
       lastTime = message.timestamp
-    console.log '~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*'
+    console.log bookend, '\n'
 
   getMessageString: (message, elapsed) =>
     timeString = "[first]"
