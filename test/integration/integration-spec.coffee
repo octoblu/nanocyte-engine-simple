@@ -38,7 +38,7 @@ describe 'a flow with one trigger connected to a debug', ->
     @client.hset 'some-flow-uuid', 'instance-uuid/router/config', data, done
 
   beforeEach (done) ->
-    data = JSON.stringify {'some-debug-uuid': {toNodeId: 'original-debug-uuid'}}
+    data = JSON.stringify {'some-debug-uuid': {nodeId: 'original-debug-uuid'}}
     @client.hset 'some-flow-uuid', 'instance-uuid/engine-debug/config', data, done
 
   beforeEach (done) ->
