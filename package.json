@@ -62,6 +62,7 @@
     "chai-subset": "^1.1.0",
     "coffee-coverage": "^0.6.3",
     "coffee-script": "^1.10.0",
+    "commander": "^2.9.0",
     "istanbul": "^0.3.21",
     "mocha": "^2.3.3",
     "mocha-istanbul": "^0.2.0",

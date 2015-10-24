@@ -28,9 +28,8 @@ class Router extends Transform
 
       @_setupEngineNodeRoutes()
 
-      @nanocyteStreams
-        .pipe debugStream()
-        .pipe @
+      @nanocyteStreams.pipe debugStream()
+      @nanocyteStreams.pipe @
 
       @.on 'end', => debug "Router finished!"
 
