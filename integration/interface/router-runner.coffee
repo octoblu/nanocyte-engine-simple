@@ -1,30 +1,49 @@
-_      = require 'lodash'
-path   = require 'path'
+_                = require 'lodash'
+Router           = require '../../src/models/router'
+NodeAssembler    = require '../../src/models/node-assembler'
+EngineOutputNode = require '../../src/models/engine-output-node'
 
-Router = require '../../../src/models/router'
-NodeAssembler = require '../../../src/models/node-assembler'
+debugStream = require('debug-stream')('nanocyte-router-runner')
+debug = require('debug')('nanocyte-router-runner')
 
-{flowId, instanceId, config} = require path.join __dirname, './compose-race-condition-config.json'
+class RunnerOutputNode extends EngineOutputNode
+  constructor: -> super EngineOutput: debugStream
+
+class RunnerNodeAssembler extends NodeAssembler
+  constructor: (options)-> super options, EngineOutputNode: RunnerOutputNode
 
 class JsonDatastore
   constructor: (@config) ->
+
   hget: (key, field, callback) =>
     callback null, @config[field]
 
-jsonDatastore = new JsonDatastore config
+class RouterRunner
+  constructor: ({@flowId, @instanceId, @config}) ->
+    @jsonDatastore = new JsonDatastore @config
+    @routerDependencies = datastore: @jsonDatastore, NodeAssembler: RunnerNodeAssembler
 
-console.log "firing up router"
-router = new Router flowId, instanceId, datastore: jsonDatastore
+  triggerByName: (triggerName, message, callback) =>
+    triggerId = @findTriggerIdByName triggerName
+    return callback new Error "Can't find a trigger named '#{triggerName}'" unless triggerId?
+    @messageRouter triggerId, message, callback
+    
+  messageRouter: (nodeId, message, callback) =>
+    envelope =
+      metadata:
+        fromNodeId: nodeId
+        flowId: @flowId
+        instanceId: @instanceId
+      message: message
 
+    router = new Router @flowId, @instanceId, @routerDependencies
 
-HANDSHAKE_TRIGGER = 'a1c90ab0-7a14-11e5-82b6-e142987dbe9c'
+    router.initialize =>
+      debug "router initialized."
+      router.message envelope
 
-router.initialize =>
-  console.log "router initialized."
-  router.message
-    metadata:
-      fromNodeId: 'a1c90ab0-7a14-11e5-82b6-e142987dbe9c'
-      flowId: flowId
-      instanceId: instanceId
-    message:
-      hi: "mom"
+  findTriggerIdByName: (triggerName) =>
+    trigger = _.findWhere @config, {name: triggerName, type: 'operation:trigger'}
+    return trigger?.id
+
+  module.exports = RouterRunner
