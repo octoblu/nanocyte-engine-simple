@@ -2,20 +2,21 @@
 Datastore = require './datastore'
 
 class EngineData extends Transform
-  constructor: (options, dependencies={}) ->
+  constructor: (metadata, dependencies={}) ->
     super objectMode: true
+    {@flowId, @instanceId, @fromNodeId} = metadata
+
     {@datastore} = dependencies
     @datastore ?= new Datastore
 
-  _transform: (envelope, enc, next) =>
-    {flowId,instanceId,fromNodeId,message,config} = envelope
-    toNodeId = config[fromNodeId]?.toNodeId
+  _transform: ({message, data, config}, enc, next) =>
+    nodeId = config[@fromNodeId]?.nodeId
     @push null
 
-    unless toNodeId?
-      console.error "engine-data.coffee: Node config not found for '#{fromNodeId}'"
+    unless nodeId?
+      console.error "engine-data.coffee: Node config not found for '#{@fromNodeId}'"
       return next()
 
-    @datastore.hset flowId, "#{instanceId}/#{toNodeId}/data", message, next
+    @datastore.hset @flowId, "#{@instanceId}/#{nodeId}/data", message, next
 
 module.exports = EngineData
