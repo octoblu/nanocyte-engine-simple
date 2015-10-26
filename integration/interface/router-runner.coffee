@@ -24,8 +24,7 @@ class RouterRunner
   done: (callback) =>
     configKeys = _.keys @config
     unsetKey = (key, done) =>
-      data = JSON.stringify @config[key]
-      debug "setting #{key}"
+      data = JSON.stringify @config[key]    
       redisHandler.hdel @flowId, key, data, done
 
   triggerByName: (triggerName, message, callback) =>

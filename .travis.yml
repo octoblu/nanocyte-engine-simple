@@ -15,3 +15,12 @@ script:
 - npm test && npm run benchmark 10 40
 after_script:
 - codeclimate-test-reporter < coverage/lcov.info
+
+deploy:
+  provider: npm
+  email: sqrt@octoblu.com
+  api_key:
+    secure: UaULSjJNoVUL5f0fov/vJt1g13s+sRPJm1rCqqRNJfvc/iG14/97ojOF4GRrfYYq9cmtteujpBTqxDW7czzbW+wCP40R5qtexWm0H93yzYZUIwAD80qgg5b9FNwJoUDfJJ2+LNZ0K7vY49+HoJMMd9HJgZxpTPPpW9coqNTzMZ0=
+  on:
+    tags: true
+    all_branches: true
