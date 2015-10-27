@@ -11,7 +11,11 @@ class DatastoreCheckKeyStream extends Transform
 
   _transform: (message, enc, next) =>
     @datastore.exists "pulse:#{@flowId}", (error, exists) =>
-      @push message if exists == 1
+      if exists == 1
+        @push message
+      else
+        @push null
+
       next()
 
 module.exports = DatastoreCheckKeyStream

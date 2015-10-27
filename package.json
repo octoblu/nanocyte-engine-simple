@@ -1,6 +1,6 @@
 {
   "name": "@octoblu/nanocyte-engine-simple",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Simple engine for nanocytes",
   "main": "src/models/router.coffee",
   "engines": {
@@ -66,6 +66,8 @@
     "istanbul": "^0.3.21",
     "mocha": "^2.3.3",
     "mocha-istanbul": "^0.2.0",
+    "nanocyte-configuration-generator": "^1.22.0",
+    "nanocyte-configuration-saver-redis": "^1.6.1",
     "proxyquire": "^1.7.3",
     "redis-mock": "^0.5.0",
     "semver": "^5.0.3",

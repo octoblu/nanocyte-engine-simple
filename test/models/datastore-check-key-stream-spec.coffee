@@ -32,7 +32,10 @@ describe 'DatastoreCheckKeyStream', ->
       @sut = new DatastoreCheckKeyStream metadata, datastore: @datastore
 
       @sut.on 'data', (@result) => done()
-      @sut.write dont: 'lose me', done
+      @sut.on 'end', done
+      
+      @sut.write dont: 'lose me'
+
 
     it 'should not get some data', ->
       expect(@result).to.not.exist

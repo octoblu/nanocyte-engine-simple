@@ -12,7 +12,7 @@ class EngineOutput extends Transform
   _transform: ({config, message}, enc, done) =>
     meshbluHttp = new @MeshbluHttp config
     meshbluHttp.message message
-    @push null    
+    @push null
     done()
 
 module.exports = EngineOutput
