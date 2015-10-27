@@ -50,10 +50,7 @@ class NanocyteEngineInAVat
       message: message
 
     router = @setupRouter outputStream, (error, router) => router.message(envelope)
-    router.on 'finish', =>
-      console.log 'routers done'
-      outputStream.write null
-
+    router.on 'finish', => outputStream.end()
     outputStream
 
   setupRouter: (outputStream, callback) =>

@@ -10,7 +10,7 @@
       "resourceType": "flow-node",
       "payloadType": "date",
       "once": false,
-      "name": "High  Five",
+      "name": "High Five",
       "class": "trigger",
       "helpText": "Send a static message. Can also be triggered from other flows",
       "category": "operation",
