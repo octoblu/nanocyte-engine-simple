@@ -17,7 +17,7 @@ class LockManager
       @activeLocks[transactionGroupId].count += 1
 
       debug "locked: #{transactionGroupId}. count: #{@activeLocks[transactionGroupId].count}"
-      return callback()
+      return callback null, transactionId
 
     @_waitForLock transactionGroupId, transactionId, (error, lock) =>
       transactionId = @_generateTransactionId()
