@@ -12,6 +12,9 @@ ConfigurationSaver = require 'nanocyte-configuration-saver-redis'
 getVatNodeAssembler = require './get-vat-node-assembler'
 AddNodeInfoStream = require './add-node-info-stream'
 
+class VatChannelConfig
+  fetch: (callback) => callback null, {}
+
 class NanocyteEngineInAVat
   constructor: (options) ->
     {@flowName, @flowData} = options
@@ -21,10 +24,11 @@ class NanocyteEngineInAVat
     client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
     client.unref()
 
-    @configurationGenerator = new ConfigurationGenerator {}
+    @configurationGenerator = new ConfigurationGenerator {}, channelConfig: new VatChannelConfig
     @configurationSaver = new ConfigurationSaver client
 
   initialize: (callback=->) =>
+    debug 'initializing'
     @configurationGenerator.configure flowData: @flowData, userData: {}, (error, configuration) =>
       return console.error "config generator had an error!", error if error?
       debug 'configured'
