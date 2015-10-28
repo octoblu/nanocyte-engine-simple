@@ -4,7 +4,7 @@ mergeStream = require 'merge-stream'
 debug = require('debug')('nanocyte-engine-simple:router')
 debugStream = require('debug-stream')('nanocyte-engine-simple:router:nanocyte-stream')
 
-MAX_MESSAGES = 300
+MAX_MESSAGES = 1000
 class Router extends Transform
 
   constructor: (@flowId, @instanceId, dependencies={})->

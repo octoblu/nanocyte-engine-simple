@@ -3,7 +3,7 @@
   "token": "9dd5897b4e892f913be748e2290e1af53bbf1d59",
   "name": "Function Figure 8",
   "description": null,
-  "hash": "dc0e05ef",
+  "hash": "b58a659f",
   "nodes": [
     {
       "id": "e061b550-7cdb-11e5-84ad-bdcd4ac63aaa",
@@ -36,86 +36,84 @@
       "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
       "inputLocations": [],
       "outputLocations": [],
-      "x": 751.205322265625,
-      "y": 848.58349609375,
+      "x": 707.6807861328125,
+      "y": 822.46826171875,
       "needsConfiguration": false,
       "needsSetup": false,
       "payload": "{{msg}}"
     },
     {
-      "id": "eaf190d0-7cdb-11e5-84ad-bdcd4ac63aaa",
+      "id": "8e2f79d0-7dca-11e5-8506-e32ad997f9a9",
       "resourceType": "flow-node",
-      "output": 1,
-      "func": "count = msg.count || 0\nreturn {\n    comment: \"This is amazing!\",\n    count: count++\n};",
-      "name": "Wheee",
-      "class": "function",
-      "helpText": "Sends a custom message using javascript",
+      "value": 0,
+      "name": "Equal",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
       "category": "operation",
-      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
-      "type": "operation:function",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
       "defaults": {
-        "output": 1,
-        "func": "\nreturn msg;"
+        "value": 0
       },
       "input": 1,
-      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
       "nanocyte": {
-        "name": "nanocyte-node-function"
+        "name": "nanocyte-node-equal"
       },
-      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
       "inputLocations": [],
       "outputLocations": [],
-      "x": 935.323974609375,
-      "y": 775.7686767578125,
-      "needsConfiguration": false,
-      "needsSetup": false
+      "x": 872.8861694335938,
+      "y": 898.96728515625,
+      "left": "0",
+      "right": "0"
     },
     {
-      "id": "fa3c8360-7cdb-11e5-84ad-bdcd4ac63aaa",
+      "id": "8ff67e30-7dca-11e5-8506-e32ad997f9a9",
       "resourceType": "flow-node",
-      "output": 1,
-      "func": "count = msg.count || 0\nreturn {\n    comment: \"This is amazing!\",\n    count: count++\n};",
-      "name": "This is funnnn",
-      "class": "function",
-      "helpText": "Sends a custom message using javascript",
+      "value": 0,
+      "name": "Equal",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
       "category": "operation",
-      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
-      "type": "operation:function",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
       "defaults": {
-        "output": 1,
-        "func": "\nreturn msg;"
+        "value": 0
       },
       "input": 1,
-      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
       "nanocyte": {
-        "name": "nanocyte-node-function"
+        "name": "nanocyte-node-equal"
       },
-      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
       "inputLocations": [],
       "outputLocations": [],
-      "x": 945.9954833984375,
-      "y": 927.6480102539062,
-      "needsConfiguration": false,
-      "needsSetup": false
+      "x": 873.699951171875,
+      "y": 754.107421875,
+      "left": "1",
+      "right": "1"
     }
   ],
   "links": [
     {
       "from": "e061b550-7cdb-11e5-84ad-bdcd4ac63aaa",
       "fromPort": 0,
-      "to": "fa3c8360-7cdb-11e5-84ad-bdcd4ac63aaa",
+      "to": "8e2f79d0-7dca-11e5-8506-e32ad997f9a9",
       "toPort": 0
     },
     {
-      "from": "eaf190d0-7cdb-11e5-84ad-bdcd4ac63aaa",
+      "from": "8e2f79d0-7dca-11e5-8506-e32ad997f9a9",
       "fromPort": 0,
-      "to": "fa3c8360-7cdb-11e5-84ad-bdcd4ac63aaa",
+      "to": "8ff67e30-7dca-11e5-8506-e32ad997f9a9",
       "toPort": 0
     },
     {
-      "from": "fa3c8360-7cdb-11e5-84ad-bdcd4ac63aaa",
+      "from": "8ff67e30-7dca-11e5-8506-e32ad997f9a9",
       "fromPort": 0,
-      "to": "eaf190d0-7cdb-11e5-84ad-bdcd4ac63aaa",
+      "to": "8e2f79d0-7dca-11e5-8506-e32ad997f9a9",
       "toPort": 0
     }
   ],

@@ -2,14 +2,14 @@ _ = require 'lodash'
 debug = require('debug')('function-to-function-loop')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-describe 'EngineInAVat', ->
+describe 'EqualsFigure8', ->
   @timeout 18000
   describe 'when instantiated with a flow', ->
 
-    describe 'when we send half of the object the compose node needs', ->
+    describe 'When instantiated with a flow', ->
       before (done)->
-        flow = require './flows/function-to-function-loop.json'
-        @sut = new EngineInAVat flowName: 'compose-race-condition', flowData: flow
+        flow = require './flows/equals-figure-8.json'
+        @sut = new EngineInAVat flowName: 'equals-figure-8', flowData: flow
         @sut.initialize done
 
       it 'should exist', ->
@@ -24,5 +24,5 @@ describe 'EngineInAVat', ->
 
         @responseStream.on 'finish', done
 
-      it "Shouldn't send a message to engine-debug basically", ->
-        expect(@messages.length).to.equal 300
+      it "Should kill the flow after 1000 messages", ->
+        expect(@messages.length).to.equal 1000

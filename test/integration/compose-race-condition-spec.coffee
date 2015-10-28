@@ -1,8 +1,8 @@
 _ = require 'lodash'
-debug = require('debug')('compose-node-race-condition-spec')
+debug = require('debug')('compose-race-condition-spec')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-describe 'EngineInAVat', ->
+describe 'ComposeRaceCondition', ->
   @timeout 5000
   describe 'when instantiated with a flow', ->
 
