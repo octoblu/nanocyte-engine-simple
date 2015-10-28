@@ -4,6 +4,7 @@ mergeStream = require 'merge-stream'
 debug = require('debug')('nanocyte-engine-simple:router')
 debugStream = require('debug-stream')('nanocyte-engine-simple:router:nanocyte-stream')
 
+MAX_MESSAGES = 300
 class Router extends Transform
 
   constructor: (@flowId, @instanceId, dependencies={})->
@@ -17,11 +18,9 @@ class Router extends Transform
     @nodeAssembler = new NodeAssembler()
     @nanocyteStreams = mergeStream()
 
-    @message = _.before @_unlimited_message, 1000
-
   initialize: (callback=->) =>
     @nodes = @nodeAssembler.assembleNodes()
-
+    @messageCount = 0
     @datastore.hget @flowId, "#{@instanceId}/router/config", (error, @config) =>
       return callback(error) if error?
       return callback @_logError "config was not defined" unless @config?
@@ -38,7 +37,9 @@ class Router extends Transform
 
       callback()
 
-  _unlimited_message: (envelope) =>
+  message: (envelope) =>
+    return @ if ++@messageCount > MAX_MESSAGES
+
     unless @config?
       @_logError "no configuration"
       return @

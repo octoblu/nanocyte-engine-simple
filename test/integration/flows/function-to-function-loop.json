@@ -3,12 +3,12 @@
   "token": "9dd5897b4e892f913be748e2290e1af53bbf1d59",
   "name": "Function Figure 8",
   "description": null,
-  "hash": "f428e8a4",
+  "hash": "dc0e05ef",
   "nodes": [
     {
       "id": "e061b550-7cdb-11e5-84ad-bdcd4ac63aaa",
       "resourceType": "flow-node",
-      "payloadType": "date",
+      "payloadType": "string",
       "once": false,
       "name": "Trigger",
       "class": "trigger",
@@ -39,13 +39,14 @@
       "x": 751.205322265625,
       "y": 848.58349609375,
       "needsConfiguration": false,
-      "needsSetup": false
+      "needsSetup": false,
+      "payload": "{{msg}}"
     },
     {
       "id": "eaf190d0-7cdb-11e5-84ad-bdcd4ac63aaa",
       "resourceType": "flow-node",
       "output": 1,
-      "func": "return {\n    status: \"having a blast!\"\n};",
+      "func": "count = msg.count || 0\nreturn {\n    comment: \"This is amazing!\",\n    count: count++\n};",
       "name": "Wheee",
       "class": "function",
       "helpText": "Sends a custom message using javascript",
@@ -64,8 +65,8 @@
       "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
       "inputLocations": [],
       "outputLocations": [],
-      "x": 945.1121215820312,
-      "y": 774.8194580078125,
+      "x": 935.323974609375,
+      "y": 775.7686767578125,
       "needsConfiguration": false,
       "needsSetup": false
     },
@@ -73,7 +74,7 @@
       "id": "fa3c8360-7cdb-11e5-84ad-bdcd4ac63aaa",
       "resourceType": "flow-node",
       "output": 1,
-      "func": "return {\n    comment: \"This is amazing!\"\n};",
+      "func": "count = msg.count || 0\nreturn {\n    comment: \"This is amazing!\",\n    count: count++\n};",
       "name": "This is funnnn",
       "class": "function",
       "helpText": "Sends a custom message using javascript",
@@ -106,12 +107,6 @@
       "toPort": 0
     },
     {
-      "from": "e061b550-7cdb-11e5-84ad-bdcd4ac63aaa",
-      "fromPort": 0,
-      "to": "eaf190d0-7cdb-11e5-84ad-bdcd4ac63aaa",
-      "toPort": 0
-    },
-    {
       "from": "eaf190d0-7cdb-11e5-84ad-bdcd4ac63aaa",
       "fromPort": 0,
       "to": "fa3c8360-7cdb-11e5-84ad-bdcd4ac63aaa",
@@ -124,42 +119,8 @@
       "toPort": 0
     }
   ],
+  "nanocyteBeta": true,
   "deployed": false,
   "selectedLink": null,
-  "selectedFlowNode": {
-    "id": "e061b550-7cdb-11e5-84ad-bdcd4ac63aaa",
-    "resourceType": "flow-node",
-    "payloadType": "date",
-    "once": false,
-    "name": "Trigger",
-    "class": "trigger",
-    "helpText": "Send a static message. Can also be triggered from other flows",
-    "category": "operation",
-    "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
-    "type": "operation:trigger",
-    "defaults": {
-      "payloadType": "date",
-      "once": false
-    },
-    "input": 0,
-    "output": 1,
-    "formTemplatePath": "/pages/node_forms/button_form.html",
-    "nanocyte": {
-      "name": "nanocyte-node-trigger",
-      "composedOf": {
-        "trigger-node": {
-          "type": "nanocyte-node-trigger",
-          "linkedToNext": true,
-          "linkedToInput": true
-        }
-      }
-    },
-    "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
-    "inputLocations": [],
-    "outputLocations": [],
-    "x": 751.205322265625,
-    "y": 848.58349609375,
-    "needsConfiguration": false,
-    "needsSetup": false
-  }
+  "selectedFlowNode": null
 }
