@@ -25,4 +25,4 @@ describe 'EngineInAVat', ->
       it "Should send a message to engine-debug", ->
         engineDebugs = _.filter @messages, (message) =>
           message.metadata.toNodeId == 'engine-debug'
-        expect(engineDebugs.length).to.equal 1
+        expect(engineDebugs.length).to.equal 2
