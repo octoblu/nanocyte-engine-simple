@@ -1,0 +1,696 @@
+{
+  "flowId": "3d4697a8-7710-4cca-9474-2785d7a3e7cd",
+  "token": "466897808260d58175c32f6a0904f7ae86e0b142",
+  "name": "17 Equals in a row and then a debug",
+  "description": null,
+  "hash": "cf3c1b6f",
+  "nodes": [
+    {
+      "id": "e4a39630-7d06-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "once": false,
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger",
+        "composedOf": {
+          "trigger-node": {
+            "type": "nanocyte-node-trigger",
+            "linkedToNext": true,
+            "linkedToInput": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 272.7499694824219,
+      "y": 421.3042297363281,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "f2004d50-7d06-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E1",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 245.78756713867188,
+      "y": 262.5066223144531,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "19373640-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E3",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 560.45166015625,
+      "y": 263.2704772949219,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "197f14b0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E2",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 442.08489990234375,
+      "y": 264.9144592285156,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "1cfa0aa0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E4",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 684.39453125,
+      "y": 262.93548583984375,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "28990c30-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E5",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 806.4070434570312,
+      "y": 262.93548583984375,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "2a3d9470-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E6",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 928.4195556640625,
+      "y": 262.93548583984375,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "2c2196b0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E7",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 1050.4320068359375,
+      "y": 264.0152282714844,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "4522f4b0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E8",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 1183.2421875,
+      "y": 274.81280517578125,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "4b4e3d90-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E9",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 1320.3712158203125,
+      "y": 272.6532897949219,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "4e7bd6d0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E10",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 1502.85009765625,
+      "y": 264.0152282714844,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "502911a0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E11",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 1645.3780517578125,
+      "y": 264.0152282714844,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "82125230-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E12",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 1809.5009765625,
+      "y": 213.2666778564453,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "8549d680-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E15",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 2269.8984375,
+      "y": 76.18965911865234,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "85842060-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E14",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 2091.317626953125,
+      "y": 136.60394287109375,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "85c40f90-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E13",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 1937.9920654296875,
+      "y": 187.35250854492188,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "9f46ab80-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "name": "Debug",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-debug",
+        "composedOf": {
+          "debug-node": {
+            "type": "nanocyte-node-debug",
+            "linkedToPrev": true,
+            "linkedToPulse": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 2921.666259765625,
+      "y": -514.7982788085938,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "a06980a0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E17",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 2663.0283203125,
+      "y": -250.9874725341797,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "a10c7760-7d07-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E16",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 2445.772216796875,
+      "y": -69.94084167480469,
+      "needsConfiguration": false,
+      "needsSetup": false
+    }
+  ],
+  "links": [
+    {
+      "from": "e4a39630-7d06-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "f2004d50-7d06-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "f2004d50-7d06-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "197f14b0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "197f14b0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "19373640-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "19373640-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "1cfa0aa0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "1cfa0aa0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "28990c30-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "28990c30-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "2a3d9470-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "2a3d9470-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "2c2196b0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "2c2196b0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "4522f4b0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "4522f4b0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "4b4e3d90-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "4b4e3d90-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "4e7bd6d0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "4e7bd6d0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "502911a0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "502911a0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "82125230-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "82125230-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "85c40f90-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "85c40f90-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "85842060-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "85842060-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "8549d680-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "8549d680-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "a10c7760-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "a10c7760-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "a06980a0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "a06980a0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "9f46ab80-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "e4a39630-7d06-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "197f14b0-7d07-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    }
+  ],
+  "nanocyteBeta": true,
+  "deployed": true
+}

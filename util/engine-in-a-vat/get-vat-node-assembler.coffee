@@ -10,6 +10,7 @@ getVatNodeAssembler = (outputStream) ->
       nodes = _.mapValues super, getVatNode
       nodes['engine-output'] = nodes['nanocyte-component-pass-through']
 
+      # nodes = _.mapValues nodes, => nodes['nanocyte-component-pass-through']
       nodes
 
   getVatNode = (EngineNode, nanocyteType)->

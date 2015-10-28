@@ -1,4 +1,5 @@
 fs = require 'fs'
+colors = require 'colors'
 {PassThrough} = require 'stream'
 _ = require 'lodash'
 
@@ -15,7 +16,7 @@ AddNodeInfoStream = require './add-node-info-stream'
 class VatChannelConfig
   fetch: (callback) => callback null, {}
 
-class NanocyteEngineInAVat
+class EngineInAVat
   constructor: (options) ->
     {@flowName, @flowData} = options
     @instanceId = 'engine-in-a-vat'
@@ -55,6 +56,8 @@ class NanocyteEngineInAVat
 
     router = @setupRouter outputStream, (error, router) => router.message(envelope)
     router.on 'finish', => outputStream.end()
+    outputStream.on 'data', (envelope) =>
+      debug EngineInAVat.printMessage(envelope)
     outputStream
 
   setupRouter: (outputStream, callback) =>
@@ -65,8 +68,21 @@ class NanocyteEngineInAVat
 
     router
 
+  @printMessage: (envelope) ->
+    {debugInfo, metadata, message} = envelope
+    messageString = JSON.stringify message
+    lastTime = debugInfo.timestamp unless lastTime?
+    timeDiff = debugInfo.timestamp - lastTime
+    lastTime = debugInfo.timestamp
+
+    "[#{colors.yellow metadata.transactionId}] " +
+    "#{debugInfo.fromNode.config.name || metadata.fromNodeId} #{colors.green debugInfo.nanocyteType} #{colors.gray debugInfo.fromNode.config.type} : " +
+    "--> " +
+    "#{debugInfo.toNode.config.name || metadata.toNodeId} (#{debugInfo.toNode.config.type})" +
+    " #{colors.green messageString}"
+
   findTriggers: =>
     _.indexBy _.filter(@flowData.nodes, type: 'operation:trigger'), 'name'
 
 
-module.exports = NanocyteEngineInAVat
+module.exports = EngineInAVat
