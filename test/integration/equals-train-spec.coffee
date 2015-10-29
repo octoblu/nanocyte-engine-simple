@@ -4,7 +4,7 @@ debug = require('debug')('equals-train-spec')
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
 describe 'EqualsTrain', ->
-  @timeout 5000
+  @timeout 30000
   describe 'when instantiated with a flow', ->
 
     describe 'When we instantiate the engine with a flow with 17 equals nodes and a trigger', ->
@@ -27,11 +27,11 @@ describe 'EqualsTrain', ->
           if @engineDebugs.length != 6
             @failure = true
             return done()
-          @times++
           return done() if @times == @MAX_TIMES
           testIt()
 
         testIt = =>
+          @times++
           @messages = []
           @responseStream = @sut.triggerByName name: 'Trigger', message: 1
           @responseStream.on 'data', (msg) => @messages.push msg
