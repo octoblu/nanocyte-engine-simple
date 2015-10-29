@@ -25,4 +25,4 @@ describe 'EqualsTrain', ->
       it "Should send 2 messages to engine-debug", ->
         engineDebugs = _.filter @messages, (message) =>
           message.metadata.toNodeId == 'engine-debug'
-        expect(engineDebugs.length).to.equal 2
+        expect(engineDebugs.length).to.equal 6
