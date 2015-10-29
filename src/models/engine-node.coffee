@@ -13,7 +13,8 @@ class EngineNode extends Readable
       @envelopes.push newEnvelope
       @readIfAvailable() if @reading
 
-    envelopeStream.write envelope.message
+    envelopeStream.write envelope.message    
+    @
 
   _getEnvelopeStream: =>
     throw new Error '_getEnvelopeStream is not implemented'
