@@ -2,7 +2,7 @@ debugStream = require('debug-stream')('nanocyte-engine-simple:engine-data-node')
 combine = require 'stream-combiner2'
 EngineNode = require './engine-node'
 
-class EngineDataNode
+class EngineDataNode extends EngineNode
   constructor: (dependencies={}) ->
     super
     {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineData} = dependencies

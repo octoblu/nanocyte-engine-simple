@@ -55,7 +55,9 @@ class EngineInAVat
       message: message
 
     router = @setupRouter outputStream, (error, router) => router.message(envelope)
-    router.on 'finish', => outputStream.end()
+    router.on 'finish', =>
+      outputStream.end()
+      outputStream.ended = true
     outputStream.on 'data', (envelope) =>
       debug EngineInAVat.printMessage(envelope)
     outputStream

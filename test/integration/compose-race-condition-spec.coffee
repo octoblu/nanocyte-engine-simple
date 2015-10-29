@@ -34,6 +34,7 @@ describe 'ComposeRaceCondition', ->
           @responseStream.on 'finish', done
 
         it "Should send one message to engine-debug basically", ->
+          console.log "messages:", @messages
           engineDebugs = _.filter @messages, (message) =>
             message.metadata.toNodeId == 'engine-debug'
           expect(engineDebugs.length).to.equal 1

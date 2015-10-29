@@ -13,7 +13,6 @@ class EngineOutputNode extends EngineNode
     @EngineThrottle ?= require './engine-throttle'
 
   _getEnvelopeStream: ({metadata, message}) =>
-    console.log 'hi'
     combine.obj(
       debugStream 'in'
       new @EngineToNanocyteStream metadata

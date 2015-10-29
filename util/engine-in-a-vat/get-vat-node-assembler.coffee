@@ -9,6 +9,9 @@ getVatNodeAssembler = (outputStream) ->
     assembleNodes: =>
       nodes = _.mapValues super, getVatNode
       nodes['engine-output'] = nodes['nanocyte-component-pass-through']
+      # nodes['engine-debug'] = nodes['nanocyte-component-pass-through']
+      # nodes['engine-data'] = nodes['nanocyte-component-pass-through']
+      # nodes['engine-pulse'] = nodes['nanocyte-component-pass-through']
 
       # nodes = _.mapValues nodes, => nodes['nanocyte-component-pass-through']
       nodes
@@ -19,7 +22,7 @@ getVatNodeAssembler = (outputStream) ->
         super
       _getEnvelopeStream: (envelope) =>
         envelope.metadata.nanocyteType = nanocyteType
-        outputStream.write envelope
+        outputStream.write envelope if envelope? and !outputStream.ended
         super
 
   VatNodeAssembler

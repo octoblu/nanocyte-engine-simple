@@ -9,9 +9,9 @@ class EngineNode extends Readable
     envelopeStream = @_getEnvelopeStream(envelope)
 
     envelopeStream.on 'readable', =>
-      envelope = envelopeStream.read()
-      return @envelopes.push envelope unless @reading
-      @reading = @push envelope
+      newEnvelope = envelopeStream.read()
+      @envelopes.push newEnvelope
+      @readIfAvailable() if @reading
 
     envelopeStream.write envelope.message
 
@@ -19,9 +19,12 @@ class EngineNode extends Readable
     throw new Error '_getEnvelopeStream is not implemented'
 
   _read: =>
-    return @reading = true unless @envelopes.length > 0
-    while (envelope = @envelopes.pop())
-      console.log "pushing envelope"
-      return unless @push envelope
+    @reading = true
+    @readIfAvailable()
+
+  readIfAvailable: =>
+    while (@reading && @envelopes.length)
+      envelope = @envelopes.pop()
+      @reading = @push envelope
 
 module.exports = EngineNode
