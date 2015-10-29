@@ -24,7 +24,7 @@ class RouterRunner
   done: (callback) =>
     configKeys = _.keys @config
     unsetKey = (key, done) =>
-      data = JSON.stringify @config[key]    
+      data = JSON.stringify @config[key]
       redisHandler.hdel @flowId, key, data, done
 
   triggerByName: (triggerName, message, callback) =>
@@ -32,10 +32,10 @@ class RouterRunner
     return callback new Error "Can't find a trigger named '#{triggerName}'" unless triggerId?
     @messageRouter triggerId, message, callback
 
-  messageRouter: (nodeId, message, callback) =>
+  messageRouter: (toNodeId, message, callback) =>
     envelope =
       metadata:
-        fromNodeId: nodeId
+        fromNodeId: toNodeId
         flowId: @flowId
         instanceId: @instanceId
       message: message

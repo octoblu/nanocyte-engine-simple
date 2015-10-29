@@ -45,13 +45,15 @@ class EngineInput
 
 
   _getFromNodeIds: (message, callback) =>
+    debug '_getFromNodeIds', message
     fromNodeId = message.payload?.from
     return callback null, [fromNodeId] if fromNodeId?
 
     {flowId,instanceId,fromUuid} = message
     @datastore.hget flowId, "#{instanceId}/engine-input/config", (error, config) =>
+      debug 'engine-input config', JSON.stringify(config, null, 2)
       return callback error if error?
       return callback null unless config?
-      callback null, _.pluck config[fromUuid], 'toNodeId'
+      callback null, _.pluck config[fromUuid], 'nodeId'
 
 module.exports = EngineInput
