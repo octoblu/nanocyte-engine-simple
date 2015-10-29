@@ -1,32 +1,28 @@
 debugStream = require('debug-stream')('nanocyte-engine-simple:nanocyte-node-wrapper')
+combine = require 'stream-combiner2'
 
+EngineNode = require './engine-node'
 class NanocyteNodeWrapper
 
   @wrap: (NanocyteClass) ->
     throw new Error 'NanocyteClass is undefined' unless NanocyteClass?
 
-    class WrappedNanocyteClass
+    class WrappedNanocyteClass extends EngineNode
       constructor: (dependencies={}) ->
+        super
         {@EngineToNanocyteStream, @NanocyteToEngineStream,@ChristacheioStream} = dependencies
-
         @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
         @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
         @ChristacheioStream ?= require './christacheio-stream'
 
-      message: ({metadata, message}) =>
-        inputStream = debugStream 'in'
-        outputStream = debugStream 'out'
-
-        inputStream
-          .pipe new @EngineToNanocyteStream metadata
-          .pipe new @ChristacheioStream metadata
-          .pipe new NanocyteClass metadata
-          .pipe new @NanocyteToEngineStream metadata
-          .pipe outputStream
-
-        inputStream.write message
-
-        outputStream
-
+      _getEnvelopeStream: ({metadata, message}) =>
+        combine.obj(
+          debugStream 'in'
+          new @EngineToNanocyteStream metadata
+          new @ChristacheioStream metadata
+          new NanocyteClass metadata
+          new @NanocyteToEngineStream metadata
+          debugStream 'out'
+        )
 
 module.exports = NanocyteNodeWrapper

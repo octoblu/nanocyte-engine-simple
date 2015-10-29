@@ -62,15 +62,11 @@ class Router extends Transform
       @_sendMessage toNodeId, envelope
 
   _sendMessage: (toNodeId, {metadata, message}) =>
-    stream = new PassThrough objectMode: true
-
     toNodeConfig = @config[toNodeId]
     return @_logError "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
 
     ToNodeClass = @nodes[toNodeConfig.type]
     return @_logError "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
-    toNode = new ToNodeClass
-
     @lockManager.lock toNodeConfig.transactionGroupId, metadata.transactionId, (error, transactionId) =>
       return @_logError "lockManager unable to lock for node #{toNodeId}, with error: #{error}" if error?
 
@@ -81,15 +77,15 @@ class Router extends Transform
           transactionId: transactionId
         message: message
 
-      responseStream = toNode.message envelope
 
-      responseStream.on 'end', =>
-        debug "responseStream finished for #{toNodeId}"
+      toNode = new ToNodeClass
+
+      toNode.on 'finish', =>
+        debug "#{toNodeId} finished"
         @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
 
-      responseStream.pipe stream
-
-    @nanocyteStreams.add stream
+      @nanocyteStreams.add toNode
+      toNode.message envelope
 
   _transform: (envelope, enc, next) =>
     @message envelope

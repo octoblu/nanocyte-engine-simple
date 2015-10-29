@@ -13,9 +13,11 @@ getVatNodeAssembler = (outputStream) ->
       # nodes = _.mapValues nodes, => nodes['nanocyte-component-pass-through']
       nodes
 
-  getVatNode = (EngineNode, nanocyteType)->
-    class VatNode extends EngineNode
-      message: (envelope, enc, next) =>
+  getVatNode = (RealNode, nanocyteType)->
+    class VatNode extends RealNode
+      constructor: ->
+        super
+      _getEnvelopeStream: (envelope) =>
         envelope.metadata.nanocyteType = nanocyteType
         outputStream.write envelope
         super
