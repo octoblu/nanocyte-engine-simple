@@ -33,3 +33,4 @@ nanocyte-node-registry.json
 *.swp
 public-key.json
 channels.json
+tmp/

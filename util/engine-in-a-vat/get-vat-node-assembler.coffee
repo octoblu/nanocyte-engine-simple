@@ -1,8 +1,8 @@
 {Transform} = require 'stream'
 _ = require 'lodash'
+debug = require('debug')('engine-in-a-vat:node-assembler')
 
 NodeAssembler = require('../../src/models/node-assembler')
-EngineOutputNode = require('../../src/models/engine-output-node')
 
 getVatNodeAssembler = (outputStream) ->
   class VatNodeAssembler extends NodeAssembler
@@ -22,6 +22,8 @@ getVatNodeAssembler = (outputStream) ->
         super
       _getEnvelopeStream: (envelope) =>
         envelope.metadata.nanocyteType = nanocyteType
+        unless nanocyteType == "engine-pulse" or envelope.metadata.fromNodeId == "engine-pulse" or envelope.metadata.toNodeId == "engine-debug"
+          debug "got a message from #{envelope.metadata.fromNodeId} to #{envelope.metadata.toNodeId}[#{nanocyteType}] "
         outputStream.write envelope if envelope? and !outputStream.ended
         super
 

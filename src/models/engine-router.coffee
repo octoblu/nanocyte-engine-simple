@@ -6,12 +6,8 @@ mergeStream = require 'merge-stream'
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
     super objectMode: true
-    {NodeAssembler, @EngineRouterNode} = dependencies
-
-    NodeAssembler ?= require './node-assembler'
+    {@EngineRouterNode, @nodes} = dependencies
     @EngineRouterNode ?= require './engine-router-node'
-
-    @nodes = new NodeAssembler().assembleNodes()
 
   _transform: ({config, data, message}, enc, next) =>
     config = @_setupEngineNodeRoutes config
@@ -21,13 +17,14 @@ class EngineRouter extends Transform
       @push null
       return next()
 
-    debug "I'm a router about to route stuff"
+    debug "Incoming message from: #{@metadata.fromNodeId}, to: #{toNodeIds}"
+
     messageStreams = @_sendMessages toNodeIds, message, config
 
     messageStreams.on 'readable', =>
       envelope = messageStreams.read()
       return @push null unless envelope?
-      router = new @EngineRouterNode
+      router = new @EngineRouterNode nodes: @nodes
 
       newEnvelope =
         metadata: _.extend {}, envelope.metadata,
@@ -40,11 +37,15 @@ class EngineRouter extends Transform
     messageStreams.on 'finish', => @end()
 
   _sendMessages: (toNodeIds, message, config) =>
+    streamsToAdd = []
     messageStreams = mergeStream()
 
     _.each toNodeIds, (toNodeId) =>
       messageStream = @_sendMessage(toNodeId, message, config)
-      messageStreams.add messageStream if messageStream?
+      streamsToAdd.push messageStream if messageStream?
+
+    _.each streamsToAdd, (stream) =>
+      messageStreams.add stream
 
     messageStreams
 
@@ -63,7 +64,6 @@ class EngineRouter extends Transform
         transactionId: 0
       message: message
 
-    debug "router is sending message:", envelope
     new ToNodeClass().message envelope
 
   _setupEngineNodeRoutes: (config)=>
