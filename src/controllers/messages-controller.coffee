@@ -1,10 +1,10 @@
 debug = require('debug')('nanocyte-engine-simple:messages-controller')
-EngineInput = require '../models/engine-input'
+EngineInputNode = require '../models/engine-input-node'
 
 class MessagesController
   constructor: (options={}) ->
-    {@EngineInput} = options
-    @EngineInput ?= EngineInput
+    {@EngineInputNode} = options
+    @EngineInputNode ?= EngineInputNode
 
   create: (req, res) =>
     debug 'meshbluAuth', req.meshbluAuth

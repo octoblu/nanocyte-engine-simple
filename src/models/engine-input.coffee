@@ -21,7 +21,10 @@ class EngineInput extends Transform
     debug "fromNodeIds", fromNodeIds
     return console.error 'engineInput could not infer fromNodeId' if _.isEmpty fromNodeIds
     messageStreams = mergeStream()
-    messageStreams.on 'finish', @end
+
+    messageStreams.on 'readable', =>
+      envelope = messageStreams.read()
+      @push envelope
 
     _.each fromNodeIds, (fromNodeId) =>
       envelope = @_getEngineEnvelope message, fromNodeId, @instanceId

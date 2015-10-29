@@ -14,6 +14,7 @@ class EngineRouter extends Transform
     @nodes = new NodeAssembler().assembleNodes()
 
   _transform: ({config, data, message}, enc, next) =>
+    config = @_setupEngineNodeRoutes config
     toNodeIds = config[@metadata.fromNodeId]?.linkedTo || []
 
     if toNodeIds.length == 0
@@ -33,8 +34,10 @@ class EngineRouter extends Transform
           toNodeId: 'router'
           transactionId: 0
         message: message
-        
-      messageStreams.add router.message newEnvelope
+      
+      messageStreams.add router.message(newEnvelope)
+
+    messageStreams.on 'finish', => @end()
 
   _sendMessages: (toNodeIds, message, config) =>
     messageStreams = mergeStream()
@@ -63,5 +66,13 @@ class EngineRouter extends Transform
     debug "router is sending message:", envelope
     new ToNodeClass().message envelope
 
+  _setupEngineNodeRoutes: (config)=>
+    nodesToWireToOutput = _.filter config, (node) =>
+      return node.type == 'engine-debug' || node.type == 'engine-pulse'
+
+    _.each nodesToWireToOutput, (nodeToWireToOutput) =>
+      nodeToWireToOutput.linkedTo.push 'engine-output'
+
+    config
 
 module.exports = EngineRouter
