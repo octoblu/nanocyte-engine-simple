@@ -17,12 +17,30 @@ describe 'EqualsTrain', ->
         expect(@sut).to.exist
 
       before (done) ->
-        @messages = []
-        @responseStream = @sut.triggerByName name: 'Trigger', message: 1
-        @responseStream.on 'data', (msg) => @messages.push msg
-        @responseStream.on 'finish', done
+        @times = 0
+        @failure = false
+        @MAX_TIMES = 100
 
-      it "Should send 2 messages to engine-debug", ->
-        engineDebugs = _.filter @messages, (message) =>
-          message.metadata.toNodeId == 'engine-debug'
-        expect(engineDebugs.length).to.equal 6
+        maybeFinish = =>
+          @engineDebugs = _.filter @messages, (message) =>
+            message.metadata.toNodeId == 'engine-debug'
+          if @engineDebugs.length != 6
+            @failure = true
+            return done()
+          @times++
+          return done() if @times == @MAX_TIMES
+          testIt()
+
+        testIt = =>
+          @messages = []
+          @responseStream = @sut.triggerByName name: 'Trigger', message: 1
+          @responseStream.on 'data', (msg) => @messages.push msg
+          @responseStream.on 'finish', maybeFinish
+
+        testIt()
+
+      it "Should have passed #{@MAX_TIMES} times", ->
+        expect(@times).to.equal @MAX_TIMES
+
+      it "Should send 6 messages to engine-debug", ->
+        expect(@engineDebugs.length).to.equal 6
