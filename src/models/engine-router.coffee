@@ -33,8 +33,8 @@ class EngineRouter extends Transform
         metadata: _.extend {}, envelope.metadata,
           toNodeId: 'router'
           transactionId: 0
-        message: message
-      
+        message: envelope.message
+
       messageStreams.add router.message(newEnvelope)
 
     messageStreams.on 'finish', => @end()

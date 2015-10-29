@@ -14,7 +14,8 @@ class EngineInput extends Transform
 
   _transform: ({config, data, message}, enc, next) =>
     if message.topic == 'subscribe:pulse'
-      @pulseSubscriber.subscribe message.flowId
+      @pulseSubscriber.subscribe message.fromUuid
+      console.log config, data, message
       return next()
 
     fromNodeIds = @_getFromNodeIds message, config
