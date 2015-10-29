@@ -13,10 +13,14 @@ class MessagesController
         return res.status(403).end()
     res.status(201).end()
 
-    engineInput = new @EngineInput
-    req.body.flowId     = req.params.flowId
-    req.body.instanceId = req.params.instanceId
+    engineInput = new @EngineInputNode
 
-    return engineInput.message req.body
+    inputStream = engineInput.message
+      metadata:
+        flowId: req.params.flowId
+        instanceId: req.params.instanceId
+      message: req.body
+
+    inputStream.on 'finish', => console.log "router is done!"
 
 module.exports = MessagesController
