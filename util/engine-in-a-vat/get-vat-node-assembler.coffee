@@ -22,8 +22,6 @@ getVatNodeAssembler = (outputStream) ->
         super
       _getEnvelopeStream: (envelope) =>
         envelope.metadata.nanocyteType = nanocyteType
-        unless nanocyteType == "engine-pulse" or envelope.metadata.fromNodeId == "engine-pulse" or envelope.metadata.toNodeId == "engine-debug"
-          debug "got a message from #{envelope.metadata.fromNodeId} to #{envelope.metadata.toNodeId}[#{nanocyteType}] "
         outputStream.write envelope if envelope? and !outputStream.ended
         super
 

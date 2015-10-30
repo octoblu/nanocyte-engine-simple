@@ -8,6 +8,8 @@ class EngineNode extends Readable
   message: (envelope) =>
     envelopeStream = @_getEnvelopeStream(envelope)
 
+    envelopeStream.on 'error', => console.log "I just saved your ass"
+
     envelopeStream.on 'readable', =>
       newEnvelope = envelopeStream.read()
       @envelopes.push newEnvelope
