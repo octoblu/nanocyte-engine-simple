@@ -4,16 +4,16 @@ debug = require('debug')('equals-train-spec')
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
 MAX_TIMES = 25
-DEBUG_MESSAGES = 8
+DEBUG_MESSAGES = 1
 
-describe 'OCTO-FLOWER', ->
+describe 'single-equal-to-debug', ->
   @timeout 60000
 
   describe 'when instantiated with a flow', ->
 
-    describe 'When we instantiate the OCTO-FLOWER', ->
+    describe 'When we instantiate the single-equal-to-debug', ->
       before (done) ->
-        flow = require './flows/octo-flow.json'
+        flow = require './flows/single-equal-to-debug.json'
         @sut = new EngineInAVat flowName: 'equals-train', flowData: flow
         @sut.initialize done
 

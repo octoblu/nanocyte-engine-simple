@@ -10,8 +10,8 @@ describe 'EngineOutputNode', ->
     @engineOutputStream = new TestStream
     @EngineOutput = sinon.stub().returns @engineOutputStream
 
-    @engineThrottle = new TestStream
-    @EngineThrottle = sinon.stub().returns @engineThrottle
+    @engineOutputThrottle = new TestStream
+    @EngineOutputThrottle = sinon.stub().returns @engineOutputThrottle
 
     @nanocyteToEngineStream = new TestStream
     @NanocyteToEngineStream = sinon.stub().returns @nanocyteToEngineStream
@@ -19,7 +19,7 @@ describe 'EngineOutputNode', ->
     @dependencies =
       EngineToNanocyteStream: @EngineToNanocyteStream
       EngineOutput: @EngineOutput
-      EngineThrottle: @EngineThrottle
+      EngineOutputThrottle: @EngineOutputThrottle
       NanocyteToEngineStream: @NanocyteToEngineStream
 
   it 'should exist', ->
@@ -50,12 +50,12 @@ describe 'EngineOutputNode', ->
       @engineOutputStream.onWrite = (envelope, callback) =>
         callback null, @engineOutputMessage
 
-      @engineThrottleMessage =
+      @engineOutputThrottleMessage =
         a: 'batch'
         of: 'cookies'
 
-      @engineThrottle.onWrite = (envelope, callback) =>
-        callback null, @engineThrottleMessage
+      @engineOutputThrottle.onWrite = (envelope, callback) =>
+        callback null, @engineOutputThrottleMessage
 
       @nanocyteToEngineStreamMessage =
         swarm: true
@@ -73,19 +73,19 @@ describe 'EngineOutputNode', ->
 
     describe 'when the EngineToNanocyteStream emits a nanocyte envelope', ->
       it 'should construct the EngineOutput with the flow-id and instance-id', ->
-        expect(@EngineThrottle).to.have.been.calledWithNew
-        expect(@EngineThrottle).to.have.been.calledWith @envelope.metadata
+        expect(@EngineOutputThrottle).to.have.been.calledWithNew
+        expect(@EngineOutputThrottle).to.have.been.calledWith @envelope.metadata
 
-      it 'should send the envelope to EngineThrottle', ->
-        expect(@engineThrottle.onRead).to.have.been.calledWith @engineToNanocyteMessage
+      it 'should send the envelope to EngineOutputThrottle', ->
+        expect(@engineOutputThrottle.onRead).to.have.been.calledWith @engineToNanocyteMessage
 
-    describe 'when the EngineThrottle emits an envelope', ->
-      it 'should construct the EngineThrottle with the flow-id and instance-id', ->
+    describe 'when the EngineOutputThrottle emits an envelope', ->
+      it 'should construct the EngineOutputThrottle with the flow-id and instance-id', ->
         expect(@EngineOutput).to.have.been.calledWithNew
         expect(@EngineOutput).to.have.been.calledWith @envelope.metadata
 
       it 'should send the envelope to EngineOutput', ->
-        expect(@engineOutputStream.onRead).to.have.been.calledWith @engineThrottleMessage
+        expect(@engineOutputStream.onRead).to.have.been.calledWith @engineOutputThrottleMessage
 
     describe 'when the EngineOutput emits an envelope', ->
       it 'should construct the NanocyteToEngineStream with the flow-id and instance-id', ->

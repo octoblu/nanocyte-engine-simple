@@ -8,6 +8,9 @@ class EngineRouter extends Transform
     super objectMode: true
     {@EngineRouterNode, @nodes} = dependencies
     @EngineRouterNode ?= require './engine-router-node'
+    unless @nodes?
+      NodeAssembler = require './node-assembler'
+      @nodes = new NodeAssembler().assembleNodes()
 
   _transform: ({config, data, message}, enc, next) =>
     config = @_setupEngineNodeRoutes config
@@ -37,15 +40,11 @@ class EngineRouter extends Transform
     messageStreams.on 'finish', => @end()
 
   _sendMessages: (toNodeIds, message, config) =>
-    streamsToAdd = []
     messageStreams = mergeStream()
 
     _.each toNodeIds, (toNodeId) =>
       messageStream = @_sendMessage(toNodeId, message, config)
-      streamsToAdd.push messageStream if messageStream?
-
-    _.each streamsToAdd, (stream) =>
-      messageStreams.add stream
+      messageStreams.add messageStream if messageStream?
 
     messageStreams
 

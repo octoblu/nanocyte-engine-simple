@@ -1,14 +1,14 @@
-EngineThrottle = require '../../src/models/engine-throttle'
+EngineOutputThrottle = require '../../src/models/engine-output-throttle'
 _ = require 'lodash'
 
-describe 'EngineThrottle', ->
+describe 'EngineOutputThrottle', ->
   describe 'when a message is written to it', ->
     beforeEach ->
       @datastore = getAndIncrementCount: sinon.stub()
 
       @moment = => unix: => 12345
 
-      @sut = new EngineThrottle {}, datastore: @datastore, moment: @moment
+      @sut = new EngineOutputThrottle {}, datastore: @datastore, moment: @moment
 
       envelope =
         config:

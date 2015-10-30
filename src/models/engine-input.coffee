@@ -33,15 +33,15 @@ class EngineInput extends Transform
       messageStreams.add router.message envelope
 
   _getEngineEnvelope: (message, fromNodeId) =>
-      delete message.payload?.from
-      message = _.omit message, 'devices', 'flowId', 'instanceId'
+    delete message.payload?.from
+    message = _.omit message, 'devices', 'flowId', 'instanceId'
 
-      metadata:
-        toNodeId: 'router'
-        flowId: @flowId
-        instanceId: @instanceId
-        fromNodeId: fromNodeId
-      message: message
+    metadata:
+      toNodeId: 'router'
+      flowId: @flowId
+      instanceId: @instanceId
+      fromNodeId: fromNodeId
+    message: message
 
   _getFromNodeIds: (message, config) =>
     debug '_getFromNodeIds', message, config
