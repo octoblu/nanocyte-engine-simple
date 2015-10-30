@@ -1,4 +1,6 @@
 {Readable} = require 'stream'
+_ = require 'lodash'
+
 class EngineNode extends Readable
   constructor: ->
     super objectMode: true
@@ -8,12 +10,26 @@ class EngineNode extends Readable
   message: (envelope) =>
     envelopeStream = @_getEnvelopeStream(envelope)
 
-    envelopeStream.on 'error', => console.log "I just saved your ass"
+    envelopeStream.on 'error', (error) =>
+      errorMetadata =
+        fromNodeId: envelope.metadata.fromNodeId
+        toNodeId: 'engine-output'
+        msgType: 'error'
+
+      errorEnvelope =
+        metadata: _.extend {}, envelope.metadata, errorMetadata
+        message:
+          message: error.message
+          msgType: 'error'
+                
+      @envelopes.push errorEnvelope
+      @readIfAvailable() if @reading
 
     envelopeStream.on 'readable', =>
       newEnvelope = envelopeStream.read()
       @envelopes.push newEnvelope
       @readIfAvailable() if @reading
+
 
     envelopeStream.write envelope.message
     @

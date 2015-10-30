@@ -2,8 +2,8 @@
 debug = require('debug')('nanocyte-engine-simple:engine-debug')
 
 class EngineDebug extends Transform
-  constructor: (options)->
-    {@fromNodeId} = options
+  constructor: (metadata)->
+    {@fromNodeId, @msgType} = metadata
     super objectMode: true
 
   _transform: ({config, data, message}, enc, next) =>
@@ -14,6 +14,7 @@ class EngineDebug extends Transform
       payload:
         msg: message
         node: nodeId
+        msgType: @msgType
 
     @push null
     next()

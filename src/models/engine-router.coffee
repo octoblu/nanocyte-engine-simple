@@ -35,7 +35,6 @@ class EngineRouter extends Transform
       envelope = messageStreams.read()
       return @push null unless envelope?
       router = new @EngineRouterNode nodes: @nodes
-      # {@messageCount} = envelope.metadata if envelope.metadata.messageCount > @messageCount
 
       newEnvelope =
         metadata: _.extend {}, envelope.metadata, toNodeId: 'router', messageCount: @messageCount
