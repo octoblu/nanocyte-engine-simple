@@ -6,8 +6,11 @@ mergeStream = require 'merge-stream'
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
     super objectMode: true
-    {@EngineRouterNode, @nodes} = dependencies
+    {@EngineRouterNode, @nodes, @lockManager} = dependencies
+
+    @lockManager ?= new (require './lock-manager')
     @EngineRouterNode ?= require './engine-router-node'
+
     unless @nodes?
       NodeAssembler = require './node-assembler'
       @nodes = new NodeAssembler().assembleNodes()
@@ -55,15 +58,20 @@ class EngineRouter extends Transform
     ToNodeClass = @nodes[toNodeConfig.type]
 
     return console.error "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
+    toNode = new ToNodeClass()
 
-    envelope =
-      metadata: _.extend {}, @metadata,
-        toNodeId: toNodeId
-        fromNodeId: @metadata.fromNodeId
-        transactionId: 0
-      message: message
+    @lockManager.lock toNodeConfig.transactionGroupId, @metadata.transactionId, (error, transactionId) =>
+      envelope =
+        metadata: _.extend {}, @metadata,
+          toNodeId: toNodeId
+          fromNodeId: @metadata.fromNodeId
+          transactionId: transactionId
+        message: message
 
-    new ToNodeClass().message envelope
+      toNode.message envelope
+      toNode.on 'end', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
+
+    toNode
 
   _setupEngineNodeRoutes: (config)=>
     nodesToWireToOutput = _.filter config, (node) =>
