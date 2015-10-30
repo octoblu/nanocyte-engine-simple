@@ -1,10 +1,10 @@
 {Transform} = require 'stream'
-debug       = require('debug')('nanocyte-engine-simple:engine-throttle')
+debug       = require('debug')('nanocyte-engine-simple:engine-output-throttle')
 _           = require 'lodash'
 moment      = require 'moment'
 Datastore   = require './datastore'
 
-class EngineThrottle extends Transform
+class EngineOutputThrottle extends Transform
   constructor: (options, dependencies={})->
     super objectMode: true
     {@datastore, @moment} = dependencies
@@ -36,4 +36,4 @@ class EngineThrottle extends Transform
 
       @push envelope
 
-module.exports = EngineThrottle
+module.exports = EngineOutputThrottle

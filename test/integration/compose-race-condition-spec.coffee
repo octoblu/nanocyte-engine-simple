@@ -69,3 +69,23 @@ describe 'ComposeRaceCondition', ->
           engineDebugs = _.filter @messages, (message) =>
             message.metadata.toNodeId == 'engine-debug'
           expect(engineDebugs.length).to.equal 1
+
+    describe 'when we hit the both trigger', ->
+      before (done)->
+        flow = require './flows/compose-race-condition.json'
+        @sut = new EngineInAVat flowName: 'compose-race-condition', flowData: flow
+        @sut.initialize done
+
+      it 'should exist', ->
+        expect(@sut).to.exist
+
+      before (done) ->
+        @messages = []
+        @responseStream = @sut.triggerByName name: 'Both', message: 1
+        @responseStream.on 'data', (msg) => @messages.push msg
+        @responseStream.on 'finish', done
+
+      it "Should send a message to engine-debug basically", ->
+        engineDebugs = _.filter @messages, (message) =>
+          message.metadata.toNodeId == 'engine-debug'
+        expect(engineDebugs.length).to.equal 1

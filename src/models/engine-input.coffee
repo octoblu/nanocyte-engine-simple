@@ -1,59 +1,54 @@
+{Transform} = require 'stream'
 _         = require 'lodash'
-Datastore = require './datastore'
-PulseSubscriber = require './pulse-subscriber'
 debug = require('debug')('nanocyte-engine-simple:engine-input')
-{PassThrough} = require 'stream'
+PulseSubscriber = require './pulse-subscriber'
+mergeStream = require 'merge-stream'
 
-class EngineInput
+class EngineInput extends Transform
   constructor: (options, dependencies={}) ->
-    {@datastore,@Router,@pulseSubscriber} = dependencies
-    @datastore ?= new Datastore
+    super objectMode: true
+    {@flowId, @instanceId, @toNodeId, @fromNodeId} = options
+    {@Router,@pulseSubscriber} = dependencies
     @pulseSubscriber ?= new PulseSubscriber
-    @Router ?= require './router'
+    @EngineRouterNode ?= require './engine-router-node'
+    @messageCount = 0
 
-  message: (message) =>
-    stream = new PassThrough objectMode: true
-    debug 'message:', fromUuid: message.fromUuid
-
+  _transform: ({config, data, message}, enc, next) =>
     if message.topic == 'subscribe:pulse'
-      @pulseSubscriber.subscribe message.flowId
-      return stream
+      @pulseSubscriber.subscribe @flowId
+      return next()
 
-    {flowId, instanceId} = message
-    @_getFromNodeIds message, (error, fromNodeIds) =>
-      return console.error error.stack if error?
-      return console.error 'engineInput could not infer fromNodeId' if _.isEmpty fromNodeIds
+    fromNodeIds = @_getFromNodeIds message, config
+    debug "fromNodeIds", fromNodeIds
+    return console.error 'engineInput could not infer fromNodeId' if _.isEmpty fromNodeIds
+    messageStreams = mergeStream()
 
-      router = new @Router flowId, instanceId
-      router.initialize (error) =>
-        return console.error "Error initializing router:", error.message if error?
-        delete message.payload?.from
+    messageStreams.on 'readable', =>
+      envelope = messageStreams.read()
+      @push envelope
 
-        message = _.omit message, 'devices', 'flowId', 'instanceId'
+    _.each fromNodeIds, (fromNodeId) =>
+      envelope = @_getEngineEnvelope message, fromNodeId, @instanceId
+      debug "creating a new router and sending this message", envelope
+      router = new @EngineRouterNode
+      messageStreams.add router.message envelope
 
-        _.each fromNodeIds, (fromNodeId) =>
-          router.message
-            metadata:
-              flowId: flowId
-              instanceId: instanceId
-              fromNodeId: fromNodeId
-            message: message
+  _getEngineEnvelope: (message, fromNodeId) =>
+    delete message.payload?.from
+    message = _.omit message, 'devices', 'flowId', 'instanceId'
 
-        router.pipe stream
+    metadata:
+      toNodeId: 'router'
+      flowId: @flowId
+      instanceId: @instanceId
+      fromNodeId: fromNodeId
+      messageCount: ++@messageCount
+    message: message
 
-    return stream
-
-
-  _getFromNodeIds: (message, callback) =>
-    debug '_getFromNodeIds', message
+  _getFromNodeIds: (message, config) =>
+    debug '_getFromNodeIds', message, config
     fromNodeId = message.payload?.from
-    return callback null, [fromNodeId] if fromNodeId?
-
-    {flowId,instanceId,fromUuid} = message
-    @datastore.hget flowId, "#{instanceId}/engine-input/config", (error, config) =>
-      debug 'engine-input config', JSON.stringify(config, null, 2)
-      return callback error if error?
-      return callback null unless config?
-      callback null, _.pluck config[fromUuid], 'nodeId'
+    return [fromNodeId] if fromNodeId?
+    _.pluck config[message.fromUuid], 'nodeId'
 
 module.exports = EngineInput

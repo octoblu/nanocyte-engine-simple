@@ -1,25 +1,25 @@
 debugStream = require('debug-stream')('nanocyte-engine-simple:engine-output-node')
-class EngineOutputNode
+combine = require 'stream-combiner2'
+EngineNode = require './engine-node'
+
+class EngineOutputNode extends EngineNode
   constructor: (dependencies={}) ->
-    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineOutput, @EngineThrottle} = dependencies
+    super
+    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineOutput, @EngineOutputThrottle} = dependencies
 
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
     @EngineOutput ?= require './engine-output'
-    @EngineThrottle ?= require './engine-throttle'
+    @EngineOutputThrottle ?= require './engine-output-throttle'
 
-  message: ({metadata, message}) =>
-    inputStream = debugStream 'in'
-    outputStream = debugStream 'out'
-
-    inputStream
-      .pipe new @EngineToNanocyteStream metadata
-      .pipe new @EngineThrottle metadata
-      .pipe new @EngineOutput metadata
-      .pipe new @NanocyteToEngineStream metadata
-      .pipe outputStream
-
-    inputStream.write message
-    outputStream
+  _getEnvelopeStream: ({metadata, message}) =>
+    combine.obj(
+      debugStream 'in'
+      new @EngineToNanocyteStream metadata
+      new @EngineOutputThrottle metadata
+      new @EngineOutput metadata
+      new @NanocyteToEngineStream metadata
+      debugStream 'out'
+    )
 
 module.exports = EngineOutputNode

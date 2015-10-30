@@ -1,8 +1,7 @@
 _ = require 'lodash'
 {Transform, PassThrough} = require 'stream'
-mergeStream = require 'merge-stream'
+
 debug = require('debug')('nanocyte-engine-simple:router')
-debugStream = require('debug-stream')('nanocyte-engine-simple:router:nanocyte-stream')
 
 MAX_MESSAGES = 1000
 class Router extends Transform
@@ -16,33 +15,28 @@ class Router extends Transform
     @lockManager ?= new (require './lock-manager')
 
     @nodeAssembler = new NodeAssembler()
-    @nanocyteStreams = mergeStream()
 
   initialize: (callback=->) =>
+    @liveNanocytes = 0
     @nodes = @nodeAssembler.assembleNodes()
-    @messageCount = 0
     @datastore.hget @flowId, "#{@instanceId}/router/config", (error, @config) =>
       return callback(error) if error?
       return callback @_logError "config was not defined" unless @config?
 
       @_setupEngineNodeRoutes()
 
-      @nanocyteStreams.on 'readable', =>
-        envelope = @nanocyteStreams.read()
-        return @end() unless envelope?
-        @message envelope
-        @push envelope
-
       @on 'end', => debug "Router finished!"
-
+      @message = _.before @_unlimited_message, MAX_MESSAGES + 1
       callback()
 
-  message: (envelope) =>
-    return @ if ++@messageCount > MAX_MESSAGES
+  _unlimited_message: (envelope) =>
+    return if @alreadyEnded
 
     unless @config?
       @_logError "no configuration"
       return @
+
+    @push envelope
 
     toNodeIds = @_getToNodeIds envelope.metadata.fromNodeId
     @_sendMessages toNodeIds, envelope
@@ -62,17 +56,14 @@ class Router extends Transform
       @_sendMessage toNodeId, envelope
 
   _sendMessage: (toNodeId, {metadata, message}) =>
-    stream = new PassThrough objectMode: true
-
     toNodeConfig = @config[toNodeId]
     return @_logError "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
 
     ToNodeClass = @nodes[toNodeConfig.type]
     return @_logError "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
-    toNode = new ToNodeClass
-
     @lockManager.lock toNodeConfig.transactionGroupId, metadata.transactionId, (error, transactionId) =>
       return @_logError "lockManager unable to lock for node #{toNodeId}, with error: #{error}" if error?
+      @liveNanocytes++
 
       envelope =
         metadata: _.extend {}, metadata,
@@ -81,15 +72,21 @@ class Router extends Transform
           transactionId: transactionId
         message: message
 
-      responseStream = toNode.message envelope
 
-      responseStream.on 'end', =>
-        debug "responseStream finished for #{toNodeId}"
+      toNode = new ToNodeClass
+
+      toNode.on 'readable', =>
+        envelope = toNode.read()
+        return @message envelope if envelope?
+        @liveNanocytes--
+        debug "#{toNodeId} finished. #{@liveNanocytes} remaining"
         @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
+        _.defer =>
+          if @liveNanocytes == 0
+            debug "Router is FINISHED. FINISHED, I TELL YOU"
+            @closeRouter()
 
-      responseStream.pipe stream
-
-    @nanocyteStreams.add stream
+      toNode.message envelope
 
   _transform: (envelope, enc, next) =>
     @message envelope
@@ -112,5 +109,11 @@ class Router extends Transform
     logErrorString = "router.coffee: #{errorString} in flow: #{@flowId}, instance: #{@instanceId}"
     console.error logErrorString
     new Error logErrorString
+
+  closeRouter: =>
+    debug "trying to close router"
+    @end() unless @alreadyEnded
+    @alreadyEnded = true
+
 
 module.exports = Router

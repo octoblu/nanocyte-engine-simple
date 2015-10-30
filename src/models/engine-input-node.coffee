@@ -1,22 +1,22 @@
-debugStream = require('debug-stream')('nanocyte-engine-simple:engine-data-node')
+debugStream = require('debug-stream')('nanocyte-engine-simple:engine-input-node')
 combine = require 'stream-combiner2'
 EngineNode = require './engine-node'
 
-class EngineDataNode extends EngineNode
+class EngineInputNode extends EngineNode
   constructor: (dependencies={}) ->
     super
-    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineData} = dependencies
+    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineInput, @DatastoreCheckKeyStream, @EngineBatch} = dependencies
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
-    @EngineData ?= require './engine-data'
+    @EngineInput ?= require './engine-input'
 
   _getEnvelopeStream: ({metadata, message}) =>
     combine.obj(
       debugStream 'in'
       new @EngineToNanocyteStream metadata
-      new @EngineData metadata
+      new @EngineInput metadata
       new @NanocyteToEngineStream metadata
       debugStream 'out'
     )
 
-module.exports = EngineDataNode
+module.exports = EngineInputNode

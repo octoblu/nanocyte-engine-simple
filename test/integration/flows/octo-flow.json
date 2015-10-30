@@ -1,0 +1,393 @@
+{
+  "flowId": "617356ac-fe63-494a-b8ac-43a2a0f518a5",
+  "token": "ee4b4459ef90011131efd3e05099370e4f1f568b",
+  "name": "Function Train",
+  "description": "",
+  "hash": "f5a7a0b7",
+  "nodes": [
+    {
+      "id": "67bb6460-7d09-11e5-bf9d-8dd4921ab204",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "once": false,
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger",
+        "composedOf": {
+          "trigger-node": {
+            "type": "nanocyte-node-trigger",
+            "linkedToNext": true,
+            "linkedToInput": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 455.1051940917969,
+      "y": 605.1118774414062,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "22b52510-7e92-11e5-a8d4-a11a29552e92",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "return msg;",
+      "name": "Function1",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 690.3076782226562,
+      "y": 812.043701171875
+    },
+    {
+      "id": "2c0be450-7e92-11e5-a8d4-a11a29552e92",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "return msg;",
+      "name": "Function2",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 755.5927124023438,
+      "y": 654.0700073242188
+    },
+    {
+      "id": "2cb96260-7e92-11e5-a8d4-a11a29552e92",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "return msg;",
+      "name": "Function3",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 745.1148681640625,
+      "y": 532.36572265625
+    },
+    {
+      "id": "2e9156b0-7e92-11e5-a8d4-a11a29552e92",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "return msg;",
+      "name": "Function4",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 598.4249877929688,
+      "y": 413.07940673828125
+    },
+    {
+      "id": "2f5c20c0-7e92-11e5-a8d4-a11a29552e92",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "return msg;",
+      "name": "Function5",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 417.0775451660156,
+      "y": 392.9296875
+    },
+    {
+      "id": "3bc3a270-7e92-11e5-a8d4-a11a29552e92",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "return msg;",
+      "name": "Function6",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 300.209228515625,
+      "y": 502.54412841796875
+    },
+    {
+      "id": "425f1240-7e92-11e5-a8d4-a11a29552e92",
+      "resourceType": "flow-node",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "name": "Debug",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-debug",
+        "composedOf": {
+          "debug-node": {
+            "type": "nanocyte-node-debug",
+            "linkedToPrev": true,
+            "linkedToPulse": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 569.4093627929688,
+      "y": 832.9994506835938
+    },
+    {
+      "id": "46e6e450-7e92-11e5-a8d4-a11a29552e92",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "return msg;",
+      "name": "Function7",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 286.5074157714844,
+      "y": 736.2808227539062
+    },
+    {
+      "id": "47832450-7e92-11e5-a8d4-a11a29552e92",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "return msg;",
+      "name": "Function8",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 426.7494201660156,
+      "y": 808.8197631835938
+    }
+  ],
+  "links": [
+    {
+      "from": "22b52510-7e92-11e5-a8d4-a11a29552e92",
+      "fromPort": 0,
+      "to": "2c0be450-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "2c0be450-7e92-11e5-a8d4-a11a29552e92",
+      "fromPort": 0,
+      "to": "2cb96260-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "2cb96260-7e92-11e5-a8d4-a11a29552e92",
+      "fromPort": 0,
+      "to": "2e9156b0-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "2e9156b0-7e92-11e5-a8d4-a11a29552e92",
+      "fromPort": 0,
+      "to": "2f5c20c0-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "2f5c20c0-7e92-11e5-a8d4-a11a29552e92",
+      "fromPort": 0,
+      "to": "3bc3a270-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "3bc3a270-7e92-11e5-a8d4-a11a29552e92",
+      "fromPort": 0,
+      "to": "46e6e450-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "46e6e450-7e92-11e5-a8d4-a11a29552e92",
+      "fromPort": 0,
+      "to": "47832450-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "47832450-7e92-11e5-a8d4-a11a29552e92",
+      "fromPort": 0,
+      "to": "425f1240-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "67bb6460-7d09-11e5-bf9d-8dd4921ab204",
+      "fromPort": 0,
+      "to": "22b52510-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "67bb6460-7d09-11e5-bf9d-8dd4921ab204",
+      "fromPort": 0,
+      "to": "2c0be450-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "67bb6460-7d09-11e5-bf9d-8dd4921ab204",
+      "fromPort": 0,
+      "to": "2cb96260-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "67bb6460-7d09-11e5-bf9d-8dd4921ab204",
+      "fromPort": 0,
+      "to": "2e9156b0-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "67bb6460-7d09-11e5-bf9d-8dd4921ab204",
+      "fromPort": 0,
+      "to": "2f5c20c0-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "67bb6460-7d09-11e5-bf9d-8dd4921ab204",
+      "fromPort": 0,
+      "to": "3bc3a270-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "67bb6460-7d09-11e5-bf9d-8dd4921ab204",
+      "fromPort": 0,
+      "to": "46e6e450-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    },
+    {
+      "from": "67bb6460-7d09-11e5-bf9d-8dd4921ab204",
+      "fromPort": 0,
+      "to": "47832450-7e92-11e5-a8d4-a11a29552e92",
+      "toPort": 0
+    }
+  ],
+  "nanocyteBeta": true,
+  "deployed": true,
+  "selectedLink": null,
+  "selectedFlowNode": null
+}

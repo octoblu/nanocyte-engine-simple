@@ -5,7 +5,7 @@ redis = require 'redis'
 _ = require 'lodash'
 debug = require('debug')('nanoparticle')
 
-describe 'a flow with one trigger connected to a debug', ->
+xdescribe 'a flow with one trigger connected to a debug', ->
   beforeEach ->
     @client = redis.createClient()
 
@@ -206,24 +206,24 @@ describe 'a flow with one trigger connected to a debug', ->
       routerStream.on 'end', done
 
     it 'should call cause engine-debug to emit a message', ->
-        expect(@messages).to.containSubset [{
-          metadata:
-            fromNodeId: 'engine-debug'
-          message:
-            devices: [ '*' ]
-            topic: 'message-batch'
-            payload:
-              messages: [
-                {
-                  devices: [
-                    "*"
-                  ]
-                  payload:
-                    msg:
-                      payload:
-                        params:
-                          foo: "bar"
-                    node: "original-debug-uuid"
-                }
-              ]
-        }]
+      expect(@messages).to.containSubset [{
+        metadata:
+          fromNodeId: 'engine-debug'
+        message:
+          devices: [ '*' ]
+          topic: 'message-batch'
+          payload:
+            messages: [
+              {
+                devices: [
+                  "*"
+                ]
+                payload:
+                  msg:
+                    payload:
+                      params:
+                        foo: "bar"
+                  node: "original-debug-uuid"
+              }
+            ]
+      }]
