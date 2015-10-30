@@ -11,17 +11,12 @@ class EngineNode extends Readable
     envelopeStream = @_getEnvelopeStream(envelope)
 
     envelopeStream.on 'error', (error) =>
-      errorMetadata =
-        fromNodeId: envelope.metadata.fromNodeId
-        toNodeId: 'engine-output'
-        msgType: 'error'
-
       errorEnvelope =
-        metadata: _.extend {}, envelope.metadata, errorMetadata
+        metadata: _.extend msgType: 'error', envelope.metadata
         message:
           message: error.message
           msgType: 'error'
-                
+
       @envelopes.push errorEnvelope
       @readIfAvailable() if @reading
 
