@@ -5,7 +5,7 @@ redis = require 'redis'
 _ = require 'lodash'
 debug = require('debug')('nanoparticle')
 
-describe 'a flow with one trigger connected to a debug', ->
+xdescribe 'a flow with one trigger connected to a debug', ->
   beforeEach ->
     @client = redis.createClient()
 
