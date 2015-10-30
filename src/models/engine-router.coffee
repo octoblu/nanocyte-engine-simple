@@ -2,10 +2,13 @@
 _ = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
 mergeStream = require 'merge-stream'
+MAX_MESSAGE_COUNT = 1000
 
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
     super objectMode: true
+    {@messageCount} = @metadata
+    @messageCount ?= 0
     {@EngineRouterNode, @nodes, @lockManager} = dependencies
 
     @lockManager ?= new (require './lock-manager')
@@ -16,6 +19,7 @@ class EngineRouter extends Transform
       @nodes = new NodeAssembler().assembleNodes()
 
   _transform: ({config, data, message}, enc, next) =>
+    return @push null if @messageCount > MAX_MESSAGE_COUNT
     config = @_setupEngineNodeRoutes config
     toNodeIds = config[@metadata.fromNodeId]?.linkedTo || []
 
@@ -31,11 +35,10 @@ class EngineRouter extends Transform
       envelope = messageStreams.read()
       return @push null unless envelope?
       router = new @EngineRouterNode nodes: @nodes
+      # {@messageCount} = envelope.metadata if envelope.metadata.messageCount > @messageCount
 
       newEnvelope =
-        metadata: _.extend {}, envelope.metadata,
-          toNodeId: 'router'
-          transactionId: 0
+        metadata: _.extend {}, envelope.metadata, toNodeId: 'router', messageCount: @messageCount
         message: envelope.message
 
       messageStreams.add router.message(newEnvelope)
@@ -66,8 +69,10 @@ class EngineRouter extends Transform
           toNodeId: toNodeId
           fromNodeId: @metadata.fromNodeId
           transactionId: transactionId
+          messageCount: ++@messageCount
         message: message
 
+      debug "messageCount: #{@messageCount}"
       toNode.message envelope
       toNode.on 'end', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
 

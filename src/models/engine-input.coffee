@@ -11,6 +11,7 @@ class EngineInput extends Transform
     {@Router,@pulseSubscriber} = dependencies
     @pulseSubscriber ?= new PulseSubscriber
     @EngineRouterNode ?= require './engine-router-node'
+    @messageCount = 0
 
   _transform: ({config, data, message}, enc, next) =>
     if message.topic == 'subscribe:pulse'
@@ -41,6 +42,7 @@ class EngineInput extends Transform
       flowId: @flowId
       instanceId: @instanceId
       fromNodeId: fromNodeId
+      messageCount: ++@messageCount
     message: message
 
   _getFromNodeIds: (message, config) =>
