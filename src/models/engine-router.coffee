@@ -44,22 +44,26 @@ class EngineRouter extends Transform
       messageStreams.add router.message(newEnvelope)
 
     messageStreams.on 'finish', => @end()
-
+    
   _sendMessages: (toNodeIds, message, config) =>
     messageStreams = mergeStream()
 
     _.each toNodeIds, (toNodeId) =>
-      messageStream = @_sendMessage(toNodeId, message, config)
+      messageStream = @_sendMessage toNodeId, message, config
       messageStreams.add messageStream if messageStream?
 
     messageStreams
 
-  _sendError: (envelope, config) =>
-    console.log envelope
-    @_sendMessage 'engine-debug', envelope.message, config, msgType: 'error', fromNodeId: envelope.metadata.toNodeId
+  _sendError: (toNodeId, error, config) =>
+    metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: toNodeId
+    message =
+      message: error.message
+      msgType: 'error'
+
+    @_sendMessage 'engine-debug', message, config, metadata
 
   _sendMessage: (toNodeId, message, config, metadata={}) =>
-
+    debug 'sending message', JSON.stringify(message,null,2)
     toNodeConfig = config[toNodeId]
 
     return console.error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
@@ -81,9 +85,10 @@ class EngineRouter extends Transform
         message: message
 
       debug "messageCount: #{@messageCount}"
-      toNode.message envelope
       toNode.on 'end', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
+      toNode.on 'error', (error) => @_sendError toNodeId, error, config
 
+      toNode.message envelope
     toNode
 
   _setupEngineNodeRoutes: (config)=>

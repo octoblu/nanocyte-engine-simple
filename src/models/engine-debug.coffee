@@ -7,7 +7,10 @@ class EngineDebug extends Transform
     super objectMode: true
 
   _transform: ({config, data, message}, enc, next) =>
+    debug "incoming message:", config, data, message
     {nodeId} = config[@fromNodeId]
+    debug "nodeId", nodeId
+    
     @push
       devices: ['*']
       topic: 'debug'
