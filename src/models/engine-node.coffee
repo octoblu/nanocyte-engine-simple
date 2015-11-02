@@ -1,6 +1,5 @@
 {Readable} = require 'stream'
 _ = require 'lodash'
-Domain       = require 'domain'
 
 class EngineNode extends Readable
   constructor: ->
@@ -19,12 +18,7 @@ class EngineNode extends Readable
       @envelopes.push newEnvelope
       @readIfAvailable() if @reading
 
-    domain = Domain.create()
-
-    domain.on 'error', (error) => @push null
-
-    domain.run =>
-      envelopeStream.write envelope.message
+    envelopeStream.write envelope.message
 
     return envelopeStream
 
