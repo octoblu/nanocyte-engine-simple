@@ -24,7 +24,6 @@ class EngineNode extends Readable
     domain.on 'error', (error) => @push null
 
     domain.run =>
-      @envelopes.push null
       envelopeStream.write envelope.message
 
     return envelopeStream
