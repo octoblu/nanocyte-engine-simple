@@ -19,16 +19,13 @@ class EngineNode extends Readable
       @envelopes.push newEnvelope
       @readIfAvailable() if @reading
 
-    # domain = Domain.create()
+    domain = Domain.create()
 
-    # domain.on 'error', (error) =>
-    #   domain.exit()
-    #   console.log 'emitting error'
-    #   @emit 'error', new Error error
-    #
-    # domain.enter()
-    envelopeStream.write envelope.message
-    # domain.exit()
+    domain.on 'error', (error) => @push null
+
+    domain.run =>
+      @envelopes.push null
+      envelopeStream.write envelope.message
 
     return envelopeStream
 

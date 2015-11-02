@@ -26,5 +26,5 @@ describe 'EngineInputNode', ->
       @responseStream.on 'data', (message) => @messages.push message
       @responseStream.on 'end', done
 
-    it 'should hit engine-debug exactly 6 times', ->
+    xit 'should hit engine-debug exactly 6 times', ->
       console.log  JSON.stringify @messages, null, 2
