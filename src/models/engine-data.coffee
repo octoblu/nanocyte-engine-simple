@@ -22,6 +22,6 @@ class EngineData extends Transform
     @datastore.hset @flowId, "#{@instanceId}/#{nodeId}/data", message, (error, result)=>
       debug "datastore responded with", error, result
       @push null
-      next()
+      next error
 
 module.exports = EngineData

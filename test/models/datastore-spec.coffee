@@ -1,3 +1,4 @@
+_ = require 'lodash'
 Datastore = require '../../src/models/datastore'
 
 describe 'Datastore', ->
@@ -82,6 +83,19 @@ describe 'Datastore', ->
 
       it 'should stringify the json and pass to the client', ->
         expect(@client.hset).to.have.been.calledWith 'test', 'other-path', '{"best":"foods"}'
+
+    describe 'when given a huge message', ->
+      beforeEach (done) ->
+        @client = hset: sinon.stub().yields null
+        @sut = new Datastore {}, client: @client
+        messageSize = 1024 * 1024 * 10 # 10MB (probably)
+        largeMessage = ""
+        _.times messageSize, => largeMessage += 'a'
+        @sut.hset 'test', 'other-path', largeMessage, (@error, @result) => done()
+
+      it 'should set the data to null', ->
+        expect(@client.hset).to.have.been.calledWith 'test', 'other-path', 'null'
+        expect(=> throw @error).to.throw 'Message was too large'
 
   describe '->getAndIncrementCount', ->
     describe 'when called', ->

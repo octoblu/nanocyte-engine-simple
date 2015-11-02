@@ -20,9 +20,13 @@ class Datastore
 
   hset: (key, field, value, callback) =>
     benchmark = new Benchmark label: 'datastore.hset'
-    @client.hset key, field, JSON.stringify(value), (error) =>
+    valueStr = JSON.stringify(value)
+    if valueStr.length >= 1024 * 1024 * 10
+      messageTooLargeError = new Error('Message was too large')
+      valueStr = JSON.stringify null
+    @client.hset key, field, valueStr, (error) =>
       debug benchmark.toString()
-      callback error
+      callback error ? messageTooLargeError
 
   setex: (key, timeout, value, callback) =>
     @client.setex key, timeout, value, callback
