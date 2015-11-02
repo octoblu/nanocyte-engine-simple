@@ -16,13 +16,19 @@ class EngineInput extends Transform
   _transform: ({config, data, message}, enc, next) =>
     if message.topic == 'subscribe:pulse'
       @pulseSubscriber.subscribe @flowId
+      @push null
       return next()
 
     fromNodeIds = @_getFromNodeIds message, config
     debug "fromNodeIds", fromNodeIds
-    return console.error 'engineInput could not infer fromNodeId' if _.isEmpty fromNodeIds
+
+    if _.isEmpty fromNodeIds
+      @push null
+      return console.error 'engineInput could not infer fromNodeId'
+
     messageStreams = mergeStream()
 
+    messageStreams.on 'finish', => @push null
     messageStreams.on 'readable', =>
       envelope = messageStreams.read()
       @push envelope

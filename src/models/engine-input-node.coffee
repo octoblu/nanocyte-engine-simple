@@ -5,7 +5,7 @@ EngineNode = require './engine-node'
 class EngineInputNode extends EngineNode
   constructor: (dependencies={}) ->
     super
-    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineInput, @DatastoreCheckKeyStream, @EngineBatch} = dependencies
+    {@EngineToNanocyteStream,@NanocyteToEngineStream,@EngineInput,@DatastoreCheckKeyStream,@EngineBatch} = dependencies
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
     @EngineInput ?= require './engine-input'

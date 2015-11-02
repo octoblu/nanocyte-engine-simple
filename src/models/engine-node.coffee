@@ -30,7 +30,7 @@ class EngineNode extends Readable
     envelopeStream.write envelope.message
     # domain.exit()
 
-    return @
+    return envelopeStream
 
   _getEnvelopeStream: =>
     throw new Error '_getEnvelopeStream is not implemented'

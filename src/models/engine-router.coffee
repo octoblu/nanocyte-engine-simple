@@ -35,7 +35,10 @@ class EngineRouter extends Transform
       envelope = messageStreams.read()
       return @push null unless envelope?
       router = new @EngineRouterNode nodes: @nodes
-      return @_sendError envelope, config if envelope.metadata.msgType == 'error'
+      if envelope.metadata.msgType == 'error'
+        @_sendError envelope, config
+        @push null
+        return
 
       newEnvelope =
         metadata: _.extend {}, envelope.metadata, toNodeId: 'router', messageCount: @messageCount
@@ -44,7 +47,7 @@ class EngineRouter extends Transform
       messageStreams.add router.message(newEnvelope)
 
     messageStreams.on 'finish', => @end()
-    
+
   _sendMessages: (toNodeIds, message, config) =>
     messageStreams = mergeStream()
 
