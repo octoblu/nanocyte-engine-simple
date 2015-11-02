@@ -12,9 +12,6 @@ describe 'ComposeRaceCondition', ->
         @sut = new EngineInAVat flowName: 'compose-race-condition', flowData: flow
         @sut.initialize done
 
-      it 'should exist', ->
-        expect(@sut).to.exist
-
       before (done) ->
         @messages = []
         @responseStream = @sut.triggerByName name: 'Handshake', message: 1

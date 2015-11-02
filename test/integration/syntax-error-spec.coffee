@@ -14,9 +14,6 @@ describe 'syntax-error', ->
         @sut = new EngineInAVat flowName: 'syntax-error', flowData: flow
         @sut.initialize done
 
-      it 'should exist', ->
-        expect(@sut).to.exist
-
       before (done) ->
         @messages = []
         @responseStream = @sut.triggerByName name: 'Trigger', message: 1
@@ -24,4 +21,4 @@ describe 'syntax-error', ->
         @responseStream.on 'finish', done
 
       it "Should not crash", ->
-        expect(@msg).to.exist
+        expect(@messages.length).to.equal 5

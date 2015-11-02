@@ -1,17 +1,17 @@
 _ = require 'lodash'
-debug = require('debug')('error-async-spec')
+debug = require('debug')('demultiplex-spec')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
-describe 'error-async', ->
+describe 'demultiplex', ->
   @timeout 60000
 
   describe 'when instantiated with a flow', ->
 
-    describe 'When we instantiate the error-async', ->
+    describe 'When we instantiate the demultiplex', ->
       before (done) ->
-        flow = require './flows/error-async.json'
-        @sut = new EngineInAVat flowName: 'error-async', flowData: flow
+        flow = require './flows/demultiplex.json'
+        @sut = new EngineInAVat flowName: 'demultiplex', flowData: flow
         @sut.initialize done
 
       before (done) ->
@@ -20,8 +20,5 @@ describe 'error-async', ->
           @responseStream.on 'data', (msg) => @messages.push msg
           @responseStream.on 'finish', done
 
-      it "Should exist", ->
-        expect(true).to.equal true
-
-      xit "Should send messages to engine-debug", ->
-        expect(@engineDebugs.length).to.equal DEBUG_MESSAGES
+      it "Should send messages to engine-debug", ->
+        expect(@messages.length).to.equal 18

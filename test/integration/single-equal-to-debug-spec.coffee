@@ -17,9 +17,6 @@ describe 'single-equal-to-debug', ->
         @sut = new EngineInAVat flowName: 'equals-train', flowData: flow
         @sut.initialize done
 
-      it 'should exist', ->
-        expect(@sut).to.exist
-
       before (done) ->
         @times = 0
         @failure = false

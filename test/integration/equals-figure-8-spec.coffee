@@ -12,9 +12,6 @@ describe 'EqualsFigure8', ->
         @sut = new EngineInAVat flowName: 'equals-figure-8', flowData: flow
         @sut.initialize done
 
-      it 'should exist', ->
-        expect(@sut).to.exist
-
       before (done) ->
         @messages = []
         @responseStream = @sut.triggerByName name: 'Trigger', message: count: 1
