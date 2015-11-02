@@ -1,18 +1,18 @@
-{Writable} = require 'stream'
+_ = require 'lodash'
+{Transform} = require 'stream'
 debug = require('debug')('nanocyte-engine-simple:engine-output')
 
-class EngineOutput extends Writable
+class EngineOutput extends Transform
   constructor: (options={}, dependencies={})->
     super objectMode: true
 
     {@MeshbluHttp} = dependencies
     @MeshbluHttp ?= require 'meshblu-http'
 
-  _write: (envelope, enc, next) =>
-    debug '_write', envelope
-    {config,message} = envelope
+  _transform: ({config, message}, enc, done) =>
     meshbluHttp = new @MeshbluHttp config
     meshbluHttp.message message
-    next()
+    @push null
+    done()
 
 module.exports = EngineOutput

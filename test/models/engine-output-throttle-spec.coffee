@@ -1,17 +1,14 @@
-EngineThrottle = require '../../src/models/engine-throttle'
+EngineOutputThrottle = require '../../src/models/engine-output-throttle'
 _ = require 'lodash'
 
-describe 'EngineThrottle', ->
-  it 'should exist', ->
-    new EngineThrottle
-
+describe 'EngineOutputThrottle', ->
   describe 'when a message is written to it', ->
     beforeEach ->
       @datastore = getAndIncrementCount: sinon.stub()
 
       @moment = => unix: => 12345
 
-      @sut = new EngineThrottle {}, datastore: @datastore, moment: @moment
+      @sut = new EngineOutputThrottle {}, datastore: @datastore, moment: @moment
 
       envelope =
         config:
@@ -28,12 +25,13 @@ describe 'EngineThrottle', ->
       expect(@datastore.getAndIncrementCount).to.have.been.calledWith "user-uuid:12345"
 
     describe 'when datastore.getAndIncrementCount yields nothing', ->
-      beforeEach () ->
+      beforeEach (done) ->
         @things = []
 
         @sut.on 'readable', =>
           while thing = @sut.read()
             @things.push thing
+          done()
 
         @datastore.getAndIncrementCount.yield()
 
@@ -49,12 +47,13 @@ describe 'EngineThrottle', ->
               node: 'some-node-uuid'
 
     describe 'when datastore.getAndIncrementCount yields 10', ->
-      beforeEach () ->
+      beforeEach (done) ->
         @things = []
 
         @sut.on 'readable', =>
           while thing = @sut.read()
             @things.push thing
+          done()
 
         @datastore.getAndIncrementCount.yield null, 10
 

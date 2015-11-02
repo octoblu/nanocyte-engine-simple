@@ -11,10 +11,13 @@ class LockManager
     @activeLocks = {}
 
   lock: (transactionGroupId, transactionId, callback) =>
-    return callback new Error('Missing transactionGroupId') unless transactionGroupId?
+    debug 'locking', transactionGroupId
+    return callback() unless transactionGroupId?
     if @activeLocks[transactionGroupId]? && @activeLocks[transactionGroupId].transactionId == transactionId
       @activeLocks[transactionGroupId].count += 1
-      return callback()
+
+      debug "locked: #{transactionGroupId}. count: #{@activeLocks[transactionGroupId].count}"
+      return callback null, transactionId
 
     @_waitForLock transactionGroupId, transactionId, (error, lock) =>
       transactionId = @_generateTransactionId()
@@ -22,21 +25,26 @@ class LockManager
         lockObject: lock
         transactionId: transactionId
         count: 1
+
+      debug "locked: #{transactionGroupId}. count: #{@activeLocks[transactionGroupId].count}"
       callback error, transactionId
 
   unlock: (transactionGroupId) =>
     return unless transactionGroupId?
-    debug 'unlock', transactionGroupId
     @activeLocks[transactionGroupId]?.count -= 1
-    return if @activeLocks[transactionGroupId].count != 0
+    debug "unlocking: #{transactionGroupId}. #{@activeLocks[transactionGroupId]?.count} locks remaining"
 
+    return if @activeLocks[transactionGroupId].count != 0
     @activeLocks[transactionGroupId]?.lockObject?.unlock()
     delete @activeLocks[transactionGroupId]
 
+    debug "unlocked: #{transactionGroupId}"
+
   _waitForLock: (transactionGroupId, transactionId, callback) =>
     @redlock.lock "locks:#{transactionGroupId}", 6000, (error, lock) =>
-      debug 'lock', transactionGroupId
+      debug 'waitForLock end', transactionGroupId
       if error?
+        debug "error locking #{transactionGroupId}:", error
         _.delay @_waitForLock, 50, transactionGroupId, transactionId, callback
         return
       callback null, lock

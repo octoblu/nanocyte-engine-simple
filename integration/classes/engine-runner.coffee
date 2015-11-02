@@ -15,26 +15,4 @@ class EngineRunner
   after: (done=->) =>
     _.defer done
 
-  fakeOutComponent: (packageName, onWrite) =>
-    class FakeNode extends stream.Transform
-      constructor: ->
-        super objectMode: true
-
-      _transform: (envelope, encoding, next=->) =>
-        onWrite envelope, (error, newEnvelope) =>
-          @push newEnvelope
-          @push null
-
-        next()
-
-    require packageName
-
-    theModule = require.cache[path.join(__dirname, '../../node_modules', packageName, 'index.js')]
-    theModule.exports = FakeNode
-    theModule.original = theModule.exports.prototype
-
-  restoreComponent: (packageName) =>
-    theModule = require.cache[path.join(__dirname, '../../node_modules', packageName, 'index.js')]
-    theModule.exports = theModule.original
-
 module.exports = EngineRunner

@@ -1,81 +1,119 @@
 _ = require 'lodash'
-async = require 'async'
+{Transform, PassThrough} = require 'stream'
+
 debug = require('debug')('nanocyte-engine-simple:router')
-Benchmark = require './benchmark'
-LockManager = require './lock-manager'
-ProcessCountManager = require './process-count-manager'
 
-class Router
-  constructor: (dependencies={}) ->
+MAX_MESSAGES = 1000
+class Router extends Transform
+
+  constructor: (@flowId, @instanceId, dependencies={})->
+    super objectMode: true
     {NodeAssembler, @datastore, @lockManager} = dependencies
-    @lockManager ?= new LockManager
+
     @datastore ?= new (require './datastore')
-
     NodeAssembler ?= require './node-assembler'
-    nodeAssembler = new NodeAssembler()
-    @nodes = nodeAssembler.assembleNodes()
+    @lockManager ?= new (require './lock-manager')
 
-    @sendEnvelope = _.before 1000, @_unlimited_sendEnvelope
+    @nodeAssembler = new NodeAssembler()
 
-  onEnvelope: (envelope, endCallback=->) =>
-    @processCountManager = new ProcessCountManager endCallback, class: 'router'
-    @processCountManager.up()
-    @_onEnvelope envelope, =>
-      @processCountManager.down()
-      @processCountManager.checkZero()
+  initialize: (callback=->) =>
+    @liveNanocytes = 0
+    @nodes = @nodeAssembler.assembleNodes()
+    @datastore.hget @flowId, "#{@instanceId}/router/config", (error, @config) =>
+      return callback(error) if error?
+      return callback @_logError "config was not defined" unless @config?
 
-  _onEnvelope: (envelope, callback) =>
-    @processCountManager.up()
-    {flowId,instanceId,toNodeId,fromNodeId,message} = envelope
-    @datastore.hget flowId, "#{instanceId}/router/config", (error, routerConfig) =>
-      return console.error 'router.coffee: routerConfig was not defined' unless routerConfig?
-      senderNodeConfig = routerConfig[fromNodeId]
-      return console.error 'router.coffee: senderNodeConfig was not defined' unless senderNodeConfig?
+      @_setupEngineNodeRoutes()
 
-      eachCallback = (uuid, next) =>
-        @sendEnvelope uuid, envelope, routerConfig, (error) =>
-          next error
+      @on 'end', => debug "Router finished!"
+      @message = _.before @_unlimited_message, MAX_MESSAGES + 1
+      callback()
 
-      endEachCallback = (error) =>
-        console.error error if error?
-        @processCountManager.down()
-        @processCountManager.checkZero()
-        callback null
+  _unlimited_message: (envelope) =>
+    return if @alreadyEnded
 
-      async.each senderNodeConfig.linkedTo, eachCallback, endEachCallback
+    unless @config?
+      @_logError "no configuration"
+      return @
 
-  _unlimited_sendEnvelope: (uuid, envelope, routerConfig, next) =>
-    {flowId,instanceId,toNodeId,fromNodeId,transactionId,message} = envelope
+    @push envelope
 
-    receiverNodeConfig = routerConfig[uuid]
-    return next 'router.coffee: receiverNodeConfig was not defined' unless receiverNodeConfig?
+    toNodeIds = @_getToNodeIds envelope.metadata.fromNodeId
+    @_sendMessages toNodeIds, envelope
+    return @
 
-    receiverNode = @nodes[receiverNodeConfig.type]
-    return next "router.coffee: No registered type for '#{receiverNodeConfig.type}'" unless receiverNode?
+  _getToNodeIds: (fromNodeId) =>
+    senderNodeConfig = @config[fromNodeId]
+    unless senderNodeConfig?
+      @_logError "senderNodeConfig was not defined for node: #{fromNodeId}"
+      return []
 
-    transactionGroupId = receiverNodeConfig.transactionGroupId
+    return senderNodeConfig.linkedTo || []
 
-    @processCountManager.up()
-    @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
-      debug 'onEnvelope', envelope
+  _sendMessages: (toNodeIds, envelope) =>
+    debug "sending a message to", toNodeIds
+    _.each toNodeIds, (toNodeId) =>
+      @_sendMessage toNodeId, envelope
 
-      benchmark = new Benchmark label: receiverNodeConfig.type
-      _.defer receiverNode.onEnvelope,
-        flowId:      flowId
-        instanceId:  instanceId
-        message:     message
-        toNodeId:    uuid
-        fromNodeId:  fromNodeId
-        transactionId: transactionId
-      , (error, envelope) =>
-        return unless envelope?
-        debug benchmark.toString()
-        _.defer @_onEnvelope, envelope, =>
-      , (error, envelope) =>
+  _sendMessage: (toNodeId, {metadata, message}) =>
+    toNodeConfig = @config[toNodeId]
+    return @_logError "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
+
+    ToNodeClass = @nodes[toNodeConfig.type]
+    return @_logError "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
+    @lockManager.lock toNodeConfig.transactionGroupId, metadata.transactionId, (error, transactionId) =>
+      return @_logError "lockManager unable to lock for node #{toNodeId}, with error: #{error}" if error?
+      @liveNanocytes++
+
+      envelope =
+        metadata: _.extend {}, metadata,
+          toNodeId: toNodeId
+          fromNodeId: metadata.fromNodeId
+          transactionId: transactionId
+        message: message
+
+
+      toNode = new ToNodeClass
+
+      toNode.on 'readable', =>
+        envelope = toNode.read()
+        return @message envelope if envelope?
+        @liveNanocytes--
+        debug "#{toNodeId} finished. #{@liveNanocytes} remaining"
+        @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
         _.defer =>
-          {transactionId} = envelope
-          @processCountManager.down()
-          @lockManager.unlock transactionGroupId, transactionId
-          next()
+          if @liveNanocytes == 0
+            debug "Router is FINISHED. FINISHED, I TELL YOU"
+            @closeRouter()
+
+      toNode.message envelope
+
+  _transform: (envelope, enc, next) =>
+    @message envelope
+    @push envelope
+    next()
+
+  _setupEngineNodeRoutes: =>
+    outputNodeId = _.findKey @config, type: 'engine-output'
+    return unless outputNodeId?
+
+    nodesToWireToOutput = _.filter @config, (node) =>
+      return node.type == 'engine-debug' || node.type == 'engine-pulse'
+
+    _.each nodesToWireToOutput, (nodeToWireToOutput) =>
+      nodeToWireToOutput.linkedTo.push outputNodeId unless _.contains nodeToWireToOutput.linkedTo,outputNodeId
+
+    debug "config is now:", @config
+
+  _logError: (errorString) =>
+    logErrorString = "router.coffee: #{errorString} in flow: #{@flowId}, instance: #{@instanceId}"
+    console.error logErrorString
+    new Error logErrorString
+
+  closeRouter: =>
+    debug "trying to close router"
+    @end() unless @alreadyEnded
+    @alreadyEnded = true
+
 
 module.exports = Router

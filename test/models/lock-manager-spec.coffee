@@ -4,20 +4,13 @@ LockManager = require '../../src/models/lock-manager'
 describe 'LockManager', ->
   beforeEach ->
     @redlock = lock: sinon.stub(), unlock: sinon.spy()
-    @sut = new LockManager {}, redlock: @redlock
+    @sut = new LockManager {}, redlock: @redlock, client: true
     @sut._generateTransactionId = sinon.stub()
 
   it 'should exist', ->
     expect(@sut).to.exist
 
-  describe '-> lock', ->
-    describe 'when called without a transactionGroupId', ->
-      beforeEach (done) ->
-        @sut.lock null, null, (@error) => done()
-
-      it 'should yield an error', ->
-        expect(@error).to.exist
-
+  describe '-> lock', ->    
     describe 'when locking a node', ->
       beforeEach ->
         @sut.lock 'some-node-uuid', null, (@error, @transactionId) =>

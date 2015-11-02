@@ -3,17 +3,20 @@ EngineInput = require '../../src/models/engine-input'
 describe 'EngineInput', ->
   beforeEach ->
     @router    =
-      onEnvelope: sinon.spy()
+      message: sinon.spy()
+      initialize: sinon.stub().yields()
+      pipe: sinon.spy()
 
+    @Router = sinon.stub().returns @router
     @datastore = hget: sinon.stub()
     @pulseSubscriber = subscribe: sinon.stub()
 
-    @sut = new EngineInput {}, router: @router, datastore: @datastore, pulseSubscriber: @pulseSubscriber
+    @sut = new EngineInput {}, Router: @Router, datastore: @datastore, pulseSubscriber: @pulseSubscriber
 
-  describe 'onMessage', ->
+  describe 'message', ->
     describe 'with a meshblu message', ->
       beforeEach ->
-        @sut.onMessage
+        @sut.message
           topic: 'button'
           devices: ['some-flow-uuid']
           flowId: 'some-flow-uuid'
@@ -24,10 +27,11 @@ describe 'EngineInput', ->
               foo: 'bar'
 
       it 'should send a converted message to the router', ->
-        expect(@router.onEnvelope).to.have.been.calledWith
-          flowId: 'some-flow-uuid'
-          instanceId: 'some-instance-uuid'
-          fromNodeId: 'some-trigger-uuid'
+        expect(@router.message).to.have.been.calledWith
+          metadata:
+            flowId: 'some-flow-uuid'
+            instanceId: 'some-instance-uuid'
+            fromNodeId: 'some-trigger-uuid'
           message:
             topic: 'button'
             payload:
@@ -36,7 +40,7 @@ describe 'EngineInput', ->
 
     describe 'with a topic of subscribe:pulse', ->
       beforeEach ->
-        @sut.onMessage
+        @sut.message
           topic: 'subscribe:pulse'
           devices: ['some-flow-uuid']
           flowId: 'some-flow-uuid'
@@ -46,7 +50,7 @@ describe 'EngineInput', ->
 
     describe 'with a different meshblu message', ->
       beforeEach ->
-        @sut.onMessage
+        @sut.message
           topic: 'button'
           devices: ['some-flow-uuid']
           flowId: 'some-flow-uuid'
@@ -56,10 +60,11 @@ describe 'EngineInput', ->
             pep: 'step'
 
       it 'should send a converted message to router', ->
-        expect(@router.onEnvelope).to.have.been.calledWith
-          flowId: 'some-flow-uuid'
-          instanceId: 'some-other-instance-uuid'
-          fromNodeId: 'some-other-trigger-uuid'
+        expect(@router.message).to.have.been.calledWith
+          metadata:
+            flowId: 'some-flow-uuid'
+            instanceId: 'some-other-instance-uuid'
+            fromNodeId: 'some-other-trigger-uuid'
           message:
             topic: 'button'
             payload:
@@ -67,7 +72,7 @@ describe 'EngineInput', ->
 
     describe 'with a meshblu message thats missing a payload', ->
       beforeEach ->
-        @sut.onMessage
+        @sut.message
           topic: 'button'
           devices: ['some-flow-uuid']
           flowId: 'some-flow-uuid'
@@ -84,10 +89,11 @@ describe 'EngineInput', ->
               [{nodeId: 'some-internal-node-uuid'}]
 
         it 'should use the fromUuid as the nodeId', ->
-          expect(@router.onEnvelope).to.have.been.calledWith
-            flowId: 'some-flow-uuid'
-            instanceId: 'some-other-instance-uuid'
-            fromNodeId: 'some-internal-node-uuid'
+          expect(@router.message).to.have.been.calledWith
+            metadata:
+              flowId: 'some-flow-uuid'
+              instanceId: 'some-other-instance-uuid'
+              fromNodeId: 'some-internal-node-uuid'
             message:
               topic: 'button'
               fromUuid: 'some-device-uuid'
@@ -102,18 +108,20 @@ describe 'EngineInput', ->
               ]
 
         it 'should use the fromUuid as the nodeId', ->
-          expect(@router.onEnvelope).to.have.been.calledTwice
-          expect(@router.onEnvelope).to.have.been.calledWith
-            flowId: 'some-flow-uuid'
-            instanceId: 'some-other-instance-uuid'
-            fromNodeId: 'some-internal-node-uuid'
+          expect(@router.message).to.have.been.calledTwice
+          expect(@router.message).to.have.been.calledWith
+            metadata:
+              flowId: 'some-flow-uuid'
+              instanceId: 'some-other-instance-uuid'
+              fromNodeId: 'some-internal-node-uuid'
             message:
               topic: 'button'
               fromUuid: 'some-device-uuid'
-          expect(@router.onEnvelope).to.have.been.calledWith
-            flowId: 'some-flow-uuid'
-            instanceId: 'some-other-instance-uuid'
-            fromNodeId: 'some-other-internal-node-uuid'
+          expect(@router.message).to.have.been.calledWith
+            metadata:
+              flowId: 'some-flow-uuid'
+              instanceId: 'some-other-instance-uuid'
+              fromNodeId: 'some-other-internal-node-uuid'
             message:
               topic: 'button'
               fromUuid: 'some-device-uuid'
@@ -122,27 +130,27 @@ describe 'EngineInput', ->
         beforeEach ->
           @datastore.hget.yield null, {}
 
-        it 'should not call router.onEnvelope', ->
-          expect(@router.onEnvelope).not.to.have.been.called
+        it 'should not call router.message', ->
+          expect(@router.message).not.to.have.been.called
 
       describe 'when the engine-input config yields an error', ->
         beforeEach ->
           @datastore.hget.yield new Error 'DB went on vacation'
 
-        it 'should not call router.onEnvelope', ->
-          expect(@router.onEnvelope).not.to.have.been.called
+        it 'should not call router.message', ->
+          expect(@router.message).not.to.have.been.called
 
       describe 'when the engine-input config yields nulls', ->
         beforeEach ->
           @datastore.hget.yield null, null
 
-        it 'should not call router.onEnvelope', ->
-          expect(@router.onEnvelope).not.to.have.been.called
+        it 'should not call router.message', ->
+          expect(@router.message).not.to.have.been.called
 
     describe 'with a meshblu message thats missing a from', ->
       beforeEach ->
         try
-          @sut.onMessage
+          @sut.message
             topic: 'button'
             devices: ['some-flow-uuid']
             flowId: 'some-flow-uuid'
@@ -156,7 +164,7 @@ describe 'EngineInput', ->
         expect(@error).not.to.exist
 
       it 'should not throw an exception', ->
-        expect(@router.onEnvelope).not.to.have.been.called
+        expect(@router.message).not.to.have.been.called
 
     describe 'with a meshblu message that has a string payload', ->
       beforeEach ->
@@ -164,7 +172,7 @@ describe 'EngineInput', ->
           'some-device-uuid':
             [{nodeId: 'some-internal-node-uuid'}]
 
-        @sut.onMessage
+        @sut.message
           topic: 'button'
           devices: ['some-flow-uuid']
           flowId: 'some-flow-uuid'
@@ -173,10 +181,11 @@ describe 'EngineInput', ->
           payload: 'foo'
 
       it 'should not break apart the payload', ->
-        expect(@router.onEnvelope).to.have.been.calledWith
-          flowId: 'some-flow-uuid'
-          instanceId: 'some-other-instance-uuid'
-          fromNodeId: 'some-internal-node-uuid'
+        expect(@router.message).to.have.been.calledWith
+          metadata:
+            flowId: 'some-flow-uuid'
+            instanceId: 'some-other-instance-uuid'
+            fromNodeId: 'some-internal-node-uuid'
           message:
             topic: 'button'
             fromUuid: 'some-device-uuid'

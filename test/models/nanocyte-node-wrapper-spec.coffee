@@ -1,205 +1,114 @@
 NanocyteNodeWrapper = require '../../src/models/nanocyte-node-wrapper'
-stream = require 'stream'
-_ = require 'lodash'
+TestStream = require '../helpers/test-stream'
 
 describe 'NanocyteNodeWrapper', ->
-  describe 'on write', ->
-    beforeEach ->
-      @mahNodeOnWrite = mahNodeOnWrite = sinon.stub().yields()
-      class MahNode extends stream.Writable
-        constructor: ->
-          super objectMode: true
+  beforeEach ->
 
-        write: mahNodeOnWrite
+    @engineToNanocyteStream = new TestStream
+    @EngineToNanocyteStream = sinon.stub().returns @engineToNanocyteStream
 
-      @sut = new NanocyteNodeWrapper nodeClass: MahNode
-      @sut.initialize()
+    @christacheioStream = new TestStream
+    @ChristacheioStream = sinon.stub().returns @christacheioStream
 
-    describe 'when an envelope is written to it', ->
-      beforeEach (done) ->
-        @sut.write flowId: 5, config: {contains: 'config'}, data: {is: 'data'}, message: {foo: 'bar'}, done
+    @nanocyteStream = new TestStream
+    @NanocyteClass = sinon.stub().returns @nanocyteStream
 
-      it 'should call onMessage on MahNode', ->
-        expect(@mahNodeOnWrite).to.have.been.calledWith
-          config: {contains: 'config'}
-          data: {is: 'data'}
-          message: {foo: 'bar'}
+    @nanocyteToEngineStream = new TestStream
+    @NanocyteToEngineStream = sinon.stub().returns @nanocyteToEngineStream
 
-    describe 'when an envelope with templating is written to it', ->
-      beforeEach (done) ->
-        @sut.write flowId: 5, config: {foo: "{{bar}}"}, data: {}, message: {bar: 'duck'}, done
+    @dependencies =
+      EngineToNanocyteStream: @EngineToNanocyteStream
+      ChristacheioStream: @ChristacheioStream
+      NanocyteToEngineStream: @NanocyteToEngineStream
 
-      it 'should call onMessage on MahNode after running through christacheio', ->
-        expect(@mahNodeOnWrite).to.have.been.calledWith
-          config: {foo: 'duck'}
-          data: {}
-          message: {bar: 'duck'}
+    @sut = NanocyteNodeWrapper
 
-    describe 'I think this is why we double pass', ->
-      beforeEach (done) ->
-        envelope =
-          config: {duckGoes: "{{bar}}"}
-          data: {}
-          message: {bar: '{{sound}}', sound: 'quack'}
+  it 'should exist', ->
+    expect(NanocyteNodeWrapper).to.exist
 
-        @sut.write envelope, done
+  it 'should have a wrap function', ->
+    expect(NanocyteNodeWrapper.wrap).to.be.a 'function'
 
-      it 'should call onMessage on MahNode after running through christacheio twice', ->
-        expect(@mahNodeOnWrite).to.have.been.calledWith
-          config: {duckGoes: 'quack'}
-          data: {}
-          message: {bar: '{{sound}}', sound: 'quack'}
-
-    describe 'when a non-string is passed in', ->
-      beforeEach (done) ->
-        envelope =
-          config: {duckCounts: "{{foo}}"}
-          data: {}
-          message: {foo: [1,2,3]}
-
-        @sut.write envelope, done
-
-      it 'should call onMessage on MahNode with the array', ->
-        expect(@mahNodeOnWrite).to.have.been.calledWith
-          config: {duckCounts: [1,2,3]}
-          data: {}
-          message: {foo: [1,2,3]}
-
-    describe 'when nesting the key under msg', ->
-      beforeEach (done) ->
-        envelope =
-          config: {duckCounts: "{{msg.foo}}"}
-          data: {}
-          message: {foo: [1,2,3]}
-
-        @sut.write envelope, done
-
-      it 'should call onMessage on MahNode with the array', ->
-        expect(@mahNodeOnWrite).to.have.been.calledWith
-          config: {duckCounts: [1,2,3]}
-          data: {}
-          message: {foo: [1,2,3]}
-
-  describe 'on read', ->
-    describe 'when mah node only emits one message', ->
+  describe '->wrap', ->
+    describe 'when called with a nanocyte class', ->
       beforeEach ->
-        class MahNode extends stream.Duplex
-          constructor: ->
-            super objectMode: true
+        @WrappedNanocyteClass = @sut.wrap @NanocyteClass
 
-          _write: (a, b, next)=>
-            @push 5
-            next()
+      it 'should return a class', ->
+        expect(@WrappedNanocyteClass).to.be.a 'function'
 
-          _read: () =>
-            5
+      describe 'when the WrappedNanocyteClass is instantiated', ->
+        beforeEach ->
+          @wrappedNanocyte = new @WrappedNanocyteClass @dependencies
 
-        @sut = new NanocyteNodeWrapper nodeClass: MahNode
-        @sut.initialize()
+        describe 'when messaged to with a nanocyte envelope', ->
+          beforeEach ->
+            @envelope =
+              metadata:
+                toNodeId: 'node-id'
+                flowId: 'flow-id'
+                instanceId: 'instanceId'
+              message:
+                hi: true
 
-      describe 'when an envelope is written to it', ->
-        beforeEach (done) ->
-          @sut.on 'data', (result) =>
-            @result = result
-            done()
+            @engineToNanocyteMessage =
+              config: a: 'config'
+              data: some: 'data'
+              message: its: 'a message'
 
-          @sut.write flowId: 555, toNodeId: 7, config: {}, message: {}
+            @engineToNanocyteStream.onWrite = (envelope, callback) =>
+              callback null, @engineToNanocyteMessage
 
-        it 'should emit an envelope', ->
-          expect(@result).to.deep.equal
-            flowId: 555
-            fromNodeId: 7
-            message: 5
 
-    describe 'when mah node emits two messages', ->
-      beforeEach ->
-        class TwoMessageNode extends stream.Transform
-          constructor: ->
-            super objectMode: true
+            @christacheioMessage = mustaches: 'are-evil'
+            @christacheioStream.onWrite = (envelope, callback) =>
+              callback null, @christacheioMessage
 
-          _transform: (a, b, next) =>
-            @push 1
-            @push 2
-            @push null
-            next()
 
-        @sut = new NanocyteNodeWrapper nodeClass: TwoMessageNode
-        @sut.initialize()
+            @nanocyteMessage = omg: 'a-message'
+            @nanocyteStream.onWrite = (envelope, callback) =>
+              callback null, @nanocyteMessage
 
-      describe 'when an envelope is written to it', ->
-        beforeEach (done) ->
-          @results = []
+            @nanocyteToEngineStreamMessage = swarm: true
+            @nanocyteToEngineStream.onWrite = (envelope, callback) =>
+              callback null, @nanocyteToEngineStreamMessage
 
-          @sut.write flowId: 555, toNodeId: 3, config: {}, message: {}
-          @sut.on 'data', (result) => @results.push result
-          @sut.on 'end', done
+            @result = @wrappedNanocyte.message @envelope
 
-        it 'should emit the first message', ->
-          expect(@results).to.deep.contain
-            flowId: 555
-            fromNodeId: 3
-            message: 1
+          it 'should construct the EngineToNanocyteStream with the flow-id and instance-id', ->
+            expect(@EngineToNanocyteStream).to.have.been.calledWithNew
+            expect(@EngineToNanocyteStream).to.have.been.calledWith @envelope.metadata
 
-        it 'should emit the second message', ->
-          expect(@results).to.deep.contain
-            flowId: 555
-            fromNodeId: 3
-            message: 2
+          it 'should write the envelope to the engineToNanocyteStream', ->
+            expect(@engineToNanocyteStream.onRead).to.have.been.calledWith @envelope.message
 
-  describe 'on explode', ->
-    beforeEach ->
-      class WaffleIron extends stream.Writable
-        constructor: ->
-          super objectMode: true
+          describe 'when the EngineToNanocyteStream emits a nanocyte envelope', ->
+            it 'should construct Christacheio with the flow-id and instance-id', ->
+              expect(@ChristacheioStream).to.have.been.calledWithNew
+              expect(@ChristacheioStream).to.have.been.calledWith @envelope.metadata
 
-        write: =>
-          _.defer =>
-            throw new Error 'Batter up!'
+            it 'should send the envelope to the nanocyte', ->
+              expect(@christacheioStream.onRead).to.have.been.calledWith @engineToNanocyteMessage
 
-      @sut = new NanocyteNodeWrapper nodeClass: WaffleIron
-      @sut.initialize()
+          describe 'when ChristacheioStream emits a nanocyte envelope', ->
+            it 'should construct the nanocyte with the flow-id and instance-id', ->
+              expect(@NanocyteClass).to.have.been.calledWithNew
+              expect(@NanocyteClass).to.have.been.calledWith @envelope.metadata
 
-    describe 'when written to', ->
-      beforeEach (done) ->
-        @callback = (@error) => done()
-        @sut.on 'error', @callback
-        @sut.write
-          message: 'hi'
-          config: {}
+            it 'should send the envelope to the nanocyte', ->
+              expect(@nanocyteStream.onRead).to.have.been.calledWith @christacheioMessage
 
-      it 'should have emitted the error', ->
-        expect(=> throw @error).to.throw 'Batter up!'
+          describe 'when the the nanocyte emits an envelope', ->
+            it 'should construct the NanocyteToEngineStream with the flow-id and instance-id', ->
+              expect(@NanocyteToEngineStream).to.have.been.calledWithNew
+              expect(@NanocyteToEngineStream).to.have.been.calledWith @envelope.metadata
 
-  describe 'on a smaller explosion', ->
-    beforeEach ->
-      class Timber extends stream.Transform
-        constructor: ->
-          super objectMode: true
+            it 'should send the envelope to EngineBatch', ->
+              expect(@nanocyteToEngineStream.onRead).to.have.been.calledWith @nanocyteMessage
 
-        _transform: =>
-          _.defer => throw new Error 'You WOOD die this way.'
+          describe 'when nanocyteToEngineStream emits a message', ->
+            beforeEach (done) ->
+              @result.on 'data', (@data) => done()
 
-      @sut = new NanocyteNodeWrapper nodeClass: Timber
-      @sut.initialize()
-
-    describe 'when written to', ->
-      beforeEach (done) ->
-        @sut.on 'data', =>
-        @sut.on 'error', (@error) => done()
-        @sut.write message: 'hi', config: {}
-
-      it 'should have emitted the error', ->
-        expect(=> throw @error).to.throw 'You WOOD die this way.'
-
-  describe 'on a node constructor explosion', ->
-    beforeEach (done) ->
-      class ChoppedToBits
-        constructor: ->
-          throw new Error 'Look at the bright side -- you avoided being ground into dust!'
-
-      @sut = new NanocyteNodeWrapper nodeClass: ChoppedToBits
-      @sut.on 'error', (@error) => done()
-      @sut.initialize()
-
-    it 'should have emitted the error', ->
-      expect(=> throw @error).to.throw 'Look at the bright side -- you avoided being ground into dust!'
+            it 'should emit the message on the returned stream', ->
+              expect(@data).to.deep.equal @nanocyteToEngineStreamMessage

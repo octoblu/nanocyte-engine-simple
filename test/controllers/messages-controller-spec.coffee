@@ -3,11 +3,11 @@ MessagesController = require '../../src/controllers/messages-controller'
 describe '/messages', ->
   beforeEach ->
     engineInput = @engineInput =
-      onMessage: sinon.spy()
+      message: sinon.spy()
 
     class EngineInput
       constructor: ->
-      onMessage: engineInput.onMessage
+      message: engineInput.message
 
     @response =
       status: sinon.spy => @response
@@ -18,18 +18,17 @@ describe '/messages', ->
   describe 'when /messages receives an authorized message', ->
     beforeEach ->
       request =
+        header: sinon.stub().returns 'some-flow-uuid'
         params:
           flowId: 'some-flow-uuid'
-          instanceId: 'some-instance-uuid'
-        meshbluAuth:
-          uuid: 'some-flow-uuid'
+          instanceId: 'some-instance-uuid'        
         body:
           foo: 'bar'
 
       @sut.create request, @response
 
-    it 'should call onMessage on the appropriate node', ->
-      expect(@engineInput.onMessage).to.have.been.calledWith
+    it 'should call message on the appropriate node', ->
+      expect(@engineInput.message).to.have.been.calledWith
         foo: 'bar'
         flowId: 'some-flow-uuid'
         instanceId: 'some-instance-uuid'
@@ -41,18 +40,17 @@ describe '/messages', ->
   describe 'when /messages receives a different authorized message', ->
     beforeEach ->
       request =
+        header: sinon.stub().returns 'some-other-flow-uuid'
         params:
           flowId:     'some-other-flow-uuid'
           instanceId: 'some-instance-uuid'
-        meshbluAuth:
-          uuid: 'some-other-flow-uuid'
         body:
           shoe: 'spar'
 
       @sut.create request, @response
 
-    it 'should call onMessage on the appropriate node', ->
-      expect(@engineInput.onMessage).to.have.been.calledWith
+    it 'should call message on the appropriate node', ->
+      expect(@engineInput.message).to.have.been.calledWith
         shoe: 'spar'
         flowId: 'some-other-flow-uuid'
         instanceId: 'some-instance-uuid'
@@ -60,18 +58,17 @@ describe '/messages', ->
   describe 'when /messages receives a different authorized message from the wrong uuid', ->
     beforeEach ->
       request =
+        header: sinon.stub().returns 'wrong-uuid'
         params:
           flowId:     'some-other-flow-uuid'
           instanceId: 'some-instance-uuid'
-        meshbluAuth:
-          uuid: 'wrong-uuid'
         body:
           shoe: 'spar'
 
       @sut.create request, @response
 
-    it 'should not call onMessage', ->
-      expect(@engineInput.onMessage).not.to.have.been.called
+    it 'should not call message', ->
+      expect(@engineInput.message).not.to.have.been.called
 
     it 'should call response.status with a 403 and send', ->
       expect(@response.status).to.have.been.calledWith 403

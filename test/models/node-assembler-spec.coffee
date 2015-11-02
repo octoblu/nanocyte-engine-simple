@@ -1,392 +1,58 @@
 _ = require 'lodash'
-NodeAssembler = require '../../src/models/node-assembler'
-stream  = require 'stream'
+{Transform, PassThrough, Writable, Readable} = require 'stream'
 debug = require('debug')('nanocyte-engine-simple:node-assembler-spec')
+TestStream = require '../helpers/test-stream'
+
+NodeAssembler = require '../../src/models/node-assembler'
 
 describe 'NodeAssembler', ->
   describe '->assembleNodes', ->
     beforeEach ->
-      @datastoreGetStreamOnWrite1 = sinon.stub()
-      @datastoreGetStreamOnWrite2 = sinon.stub()
-      @datastoreCheckKeyStreamOnWrite = sinon.stub()
-      datastoreCheckKeyStreamOnWrite = @datastoreCheckKeyStreamOnWrite
-      datastoreGetStreamOnWrites = [@datastoreGetStreamOnWrite1, @datastoreGetStreamOnWrite2]
+      @EngineDataNodeClass = sinon.stub()
+      @EngineDebugNodeClass = sinon.stub()
+      @EngineOutputNodeClass = sinon.stub()
+      @EnginePulseNodeClass = sinon.stub()
 
-      class DatastoreCheckKeyStream extends stream.Transform
-        constructor: ->
-          super objectMode: true
-          @datastoreCheckKeyStreamOnWrite = datastoreCheckKeyStreamOnWrite
+      @NanocyteNodeWrapper =
+        wrap: sinon.stub()
 
-        _transform: (envelope, enc, next)=>
-          debug '_transform'
-          @datastoreCheckKeyStreamOnWrite envelope, (error, newEnvelope) =>
-            @push newEnvelope
+      @WrappedPassThrough = sinon.stub()
+      @NanocyteNodeWrapper.wrap.withArgs(PassThrough).returns @WrappedPassThrough
 
-      class DatastoreGetStream extends stream.Transform
-        constructor: ->
-          super objectMode: true
-          @datastoreGetStreamOnWrite = datastoreGetStreamOnWrites.shift()
+      @SelectiveCollect = SelectiveCollect = sinon.stub()
+      @WrappedSelectiveCollect = sinon.stub()
+      @NanocyteNodeWrapper.wrap.withArgs(@SelectiveCollect).returns @WrappedSelectiveCollect
 
-        _transform: (envelope, enc, next)=>
-          debug '_transform'
-          @datastoreGetStreamOnWrite envelope, (error, newEnvelope) =>
-            @push newEnvelope
+      @Trigger = Trigger = sinon.stub()
+      @WrappedTrigger = sinon.stub()
+      @NanocyteNodeWrapper.wrap.withArgs(@Trigger).returns @WrappedTrigger
 
-      @nanocyteOnWriteMessage = nanocyteOnWriteMessage = sinon.stub()
-
-      class NanocyteNodeWrapper extends stream.Transform
-        constructor: ->
-          super objectMode: true
-
-        initialize: =>
-
-        _transform: (envelope, enc, next) =>
-          nanocyteOnWriteMessage envelope, (error, nextEnvelope) =>
-            @push nextEnvelope
-
-      @NanocyteNodeWrapper = sinon.spy NanocyteNodeWrapper
-
-      @engineDebugOnWrite = engineDebugOnWrite = sinon.stub()
-      class EngineDebug extends stream.Transform
-        constructor: ->
-          super objectMode: true
-
-        _transform: (envelope, enc, next) =>
-          engineDebugOnWrite envelope, (error, nextEnvelope) =>
-            @push nextEnvelope
-            @push null
-
-      @enginePulseOnWrite = enginePulseOnWrite = sinon.stub()
-      class EnginePulse extends stream.Transform
-        constructor: ->
-          super objectMode: true
-
-        _transform: (envelope, enc, next) =>
-          enginePulseOnWrite envelope, (error, nextEnvelope) =>
-            @push nextEnvelope
-            @push null
-
-      @engineOutput = new stream.PassThrough objectMode: true
-      EngineOutput = => @engineOutput
-
-      @engineData = new stream.PassThrough objectMode: true
-      EngineData = => @engineData
-
-      @engineThrottle = new stream.PassThrough objectMode: true
-      EngineThrottle = => @engineThrottle
-
-      @engineBatch = new stream.PassThrough objectMode: true
-      EngineBatch = => @engineBatch
-
-      @PassThrough = PassThrough = sinon.spy()
-      @SelectiveCollect = SelectiveCollect = sinon.spy()
-      @TriggerNode = TriggerNode = sinon.spy()
 
       class ComponentLoader
         getComponentMap: =>
           {
             'nanocyte-component-pass-through': PassThrough
             'nanocyte-component-selective-collect': SelectiveCollect
-            'nanocyte-component-trigger': TriggerNode
+            'nanocyte-component-trigger': Trigger
           }
 
       @sut = new NodeAssembler {},
-        DatastoreCheckKeyStream: DatastoreCheckKeyStream
-        DatastoreGetStream: DatastoreGetStream
-        NanocyteNodeWrapper: @NanocyteNodeWrapper
         ComponentLoader: ComponentLoader
-        EngineData: EngineData
-        EngineDebug: EngineDebug
-        EngineOutput: EngineOutput
-        EnginePulse: EnginePulse
-        EngineThrottle: EngineThrottle
-        EngineBatch: EngineBatch
+        EngineDataNode: @EngineDataNodeClass
+        EngineDebugNode: @EngineDebugNodeClass
+        EngineOutputNode: @EngineOutputNodeClass
+        EnginePulseNode: @EnginePulseNodeClass
+        NanocyteNodeWrapper: @NanocyteNodeWrapper
+
 
       @nodes = @sut.assembleNodes()
 
-    it 'should return something', ->
-      expect(@nodes).not.to.be.empty
+    it 'should return a map with the correct classes', ->
+      expect(@nodes['engine-data']).to.equal @EngineDataNodeClass
+      expect(@nodes['engine-debug']).to.equal @EngineDebugNodeClass
+      expect(@nodes['engine-output']).to.equal @EngineOutputNodeClass
+      expect(@nodes['engine-pulse']).to.equal @EnginePulseNodeClass
 
-    it 'should return an object with keys for each node', ->
-      expect(@nodes).to.have.all.keys [
-        'engine-data'
-        'engine-debug'
-        'engine-output'
-        'engine-pulse'
-        'nanocyte-component-pass-through'
-        'nanocyte-component-selective-collect'
-        'nanocyte-component-trigger'
-      ]
-
-    describe 'engine-data', ->
-      beforeEach ->
-        @engineDataNode = @nodes['engine-data']
-
-      it 'should have an onEnvelope function', ->
-        expect(@engineDataNode.onEnvelope).to.be.a 'function'
-
-      describe 'when onEnvelope is called', ->
-        beforeEach ->
-          @engineDataNode.onEnvelope
-            flowId: 'flow-id'
-            instanceId: 'instance-id'
-            toNodeId: 'engine-output'
-
-        it 'should pass the envelope on to datastoreGetStream1', ->
-          expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith
-            flowId: 'flow-id'
-            instanceId: 'instance-id'
-            toNodeId: 'engine-output'
-
-        describe 'when datastoreGetStream1 emits an envelope', ->
-          beforeEach (done) ->
-            @engineData.on 'readable', done
-            @datastoreGetStreamOnWrite1.yield null,
-              config: 'some-config'
-              data: 'some-data'
-
-          it 'should write the data to the EngineData instance', ->
-            expect(@engineData.read()).to.deep.equal
-              config: 'some-config'
-              data: 'some-data'
-
-    describe 'engine-debug', ->
-      beforeEach ->
-        @PassThrough = @nodes['engine-debug']
-
-      it 'should have an onEnvelope function', ->
-        expect(@PassThrough.onEnvelope).to.be.a 'function'
-
-      describe 'when onEnvelope is called', ->
-        beforeEach ->
-          @PassThrough.onEnvelope
-            flowId: 'flow-id'
-            instanceId: 'instance-id'
-            toNodeId: 'engine-debug'
-
-        it 'should pass the envelope on to datastoreGetStream', ->
-          expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith
-            flowId: 'flow-id'
-            instanceId: 'instance-id'
-            toNodeId: 'engine-debug'
-
-        describe 'when datastoreGetStream1 emits an envelope', ->
-          beforeEach ->
-            @datastoreGetStreamOnWrite1.yield null,
-              flowId: 'flow-id'
-              instanceId: 'instance-id'
-              toNodeId: 'engine-debug'
-
-          it 'should pass the envelope on to datastoreCheckKeyStream1', ->
-            expect(@datastoreCheckKeyStreamOnWrite).to.have.been.calledWith
-              flowId: 'flow-id'
-              instanceId: 'instance-id'
-              toNodeId: 'engine-debug'
-
-          describe 'when datastoreCheckKeyStream1 emits an envelope', ->
-            beforeEach ->
-              @datastoreCheckKeyStreamOnWrite.yield null,
-                config: 'some-config'
-                data: 'some-data'
-
-            it 'should write the data to the EngineDebug instance', ->
-              expect(@engineDebugOnWrite).to.have.been.calledWith
-                config: 'some-config'
-                data: 'some-data'
-
-            describe 'when engineDebug emits an envelope', ->
-              beforeEach ->
-                @engineDebugOnWrite.yield null,
-                  flowId: 'flow-id'
-                  instanceId: 'instance-id'
-                  toNodeId: 'engine-output'
-                  message:
-                    devices: ['*']
-                    topic: 'pulse'
-                    payload: 'some-data'
-
-              it 'should pass the envelope on to datastoreGetStream2', ->
-                expect(@datastoreGetStreamOnWrite2).to.have.been.calledWith
-                  flowId: 'flow-id'
-                  instanceId: 'instance-id'
-                  toNodeId: 'engine-output'
-                  message:
-                    devices: ['*']
-                    topic: 'pulse'
-                    payload: 'some-data'
-
-              describe 'when datastoreGetStream2 emits an envelope', ->
-                beforeEach ->
-                  @datastoreGetStreamOnWrite2.yield null,
-                    config: 'output-config'
-                    message:
-                      devices: ['*']
-                      topic: 'pulse'
-                      payload: 'some-data'
-
-                it 'should write the data to the EngineOutput instance', ->
-                  expect(@engineOutput.read()).to.deep.equal
-                    config: 'output-config'
-                    message:
-                      devices: ['*']
-                      topic: 'pulse'
-                      payload: 'some-data'
-
-    describe 'engine-output', ->
-      beforeEach ->
-        @engineOutputNode = @nodes['engine-output']
-
-      it 'should have an onEnvelope function', ->
-        expect(@engineOutputNode.onEnvelope).to.be.a 'function'
-
-      describe 'when onEnvelope is called', ->
-        beforeEach ->
-          @engineOutputNode.onEnvelope
-            flowId: 'flow-id'
-            instanceId: 'instance-id'
-            toNodeId: 'engine-output'
-
-        it 'should pass the envelope on to datastoreGetStream1', ->
-          expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith
-            flowId: 'flow-id'
-            instanceId: 'instance-id'
-            toNodeId: 'engine-output'
-
-        describe 'when datastoreGetStream1 emits an envelope', ->
-          beforeEach (done) ->
-            @engineOutput.on 'readable', done
-            @datastoreGetStreamOnWrite1.yield null,
-              config: 'some-config'
-              data: 'some-data'
-
-          it 'should write the data to the EngineOutput instance', ->
-            expect(@engineOutput.read()).to.deep.equal
-              config: 'some-config'
-              data: 'some-data'
-
-    describe 'engine-pulse', ->
-      beforeEach ->
-        @enginePulseNode = @nodes['engine-pulse']
-
-      it 'should have an onEnvelope function', ->
-        expect(@enginePulseNode.onEnvelope).to.be.a 'function'
-
-      describe 'when onEnvelope is called', ->
-        beforeEach ->
-          @enginePulseNode.onEnvelope
-            flowId: 'flow-id'
-            instanceId: 'instance-id'
-            toNodeId: 'engine-output'
-
-        it 'should pass the envelope on to datastoreGetStreamOnWrite1', ->
-          expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith
-            flowId: 'flow-id'
-            instanceId: 'instance-id'
-            toNodeId: 'engine-output'
-
-        describe 'when datastoreGetStream1 emits an envelope', ->
-          beforeEach ->
-            @datastoreGetStreamOnWrite1.yield null,
-              flowId: 'flow-id'
-              instanceId: 'instance-id'
-              toNodeId: 'engine-output'
-
-          it 'should pass the envelope on to datastoreCheckKeyStream1', ->
-            expect(@datastoreCheckKeyStreamOnWrite).to.have.been.calledWith
-              flowId: 'flow-id'
-              instanceId: 'instance-id'
-              toNodeId: 'engine-output'
-
-          describe 'when datastoreCheckKeyStream1 emits an envelope', ->
-            beforeEach ->
-              @datastoreCheckKeyStreamOnWrite.yield null,
-                config: 'some-config'
-                data: 'some-data'
-
-            it 'should write the data to the EnginePulse instance', ->
-              expect(@enginePulseOnWrite).to.have.been.calledWith
-                config: 'some-config'
-                data: 'some-data'
-
-            describe 'when enginePulse emits an envelope', ->
-              beforeEach ->
-                @enginePulseOnWrite.yield null,
-                  flowId: 'flow-id'
-                  instanceId: 'instance-id'
-                  toNodeId: 'engine-output'
-                  message:
-                    devices: ['*']
-                    topic: 'pulse'
-                    payload: 'some-data'
-
-              it 'should pass the envelope on to datastoreGetStream2', ->
-                expect(@datastoreGetStreamOnWrite2).to.have.been.calledWith
-                  flowId: 'flow-id'
-                  instanceId: 'instance-id'
-                  toNodeId: 'engine-output'
-                  message:
-                    devices: ['*']
-                    topic: 'pulse'
-                    payload: 'some-data'
-
-              describe 'when datastoreGetStream2 emits an envelope', ->
-                beforeEach ->
-                  @datastoreGetStreamOnWrite2.yield null,
-                    config: 'output-config'
-                    message:
-                      devices: ['*']
-                      topic: 'pulse'
-                      payload: 'some-data'
-
-                it 'should write the data to the EngineOutput instance', ->
-                  expect(@engineOutput.read()).to.deep.equal
-                    config: 'output-config'
-                    message:
-                      devices: ['*']
-                      topic: 'pulse'
-                      payload: 'some-data'
-
-    describe 'nanocyte-component-pass-through', ->
-      describe "when the DatastoreGetStream yields an object with a config", ->
-        beforeEach ->
-          @datastoreGetStreamOnWrite1.yields null, config: 5
-          @nanocyteOnWriteMessage.yields null, something: 'yielded'
-
-        describe "nanocyte-component-pass-through's onEnvelope is called", ->
-          beforeEach (done) ->
-            envelope   = message: 'in a bottle'
-            @passThrough = @nodes['nanocyte-component-pass-through']
-            @passThrough.onEnvelope envelope, (@error, @result) => done()
-
-          it 'should construct an NanocyteNodeWrapper with an PassThrough class', ->
-            expect(@NanocyteNodeWrapper).to.have.been.calledWithNew
-            expect(@NanocyteNodeWrapper).to.have.been.calledWith nodeClass: @PassThrough
-
-          it 'should write the envelope to a DatastoreGetStream', ->
-            expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith message: 'in a bottle'
-
-          it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->
-            expect(@nanocyteOnWriteMessage).to.have.been.calledWith config: 5
-
-          it "should have called the callback with whatever debug yielded", ->
-            expect(@result).to.deep.equal something: 'yielded'
-
-      describe "when the DatastoreGetStream yields an object with a different config", ->
-        beforeEach ->
-          @datastoreGetStreamOnWrite1.yields null, config: 'tree'
-          @nanocyteOnWriteMessage.yields null, somethingElse: 'still-yielded'
-
-        describe "nanocyte-component-pass-through's onEnvelope is called with an envelope", ->
-          beforeEach (done) ->
-            envelope   = message: 'message'
-            @passThrough = @nodes['nanocyte-component-pass-through']
-            @passThrough.onEnvelope envelope, (@error, @result) => done()
-
-          it 'should call DatastoreGetStream.onEnvelope with the envelope', ->
-            expect(@datastoreGetStreamOnWrite1).to.have.been.calledWith message: 'message'
-
-          it "should call NanocyteNodeWrapper.onEnvelope with the config of the debug node", ->
-            expect(@nanocyteOnWriteMessage).to.have.been.calledWith config: 'tree'
-
-          it "should have called the callback with whatever debug yielded", ->
-            expect(@result).to.deep.equal somethingElse: 'still-yielded'
+      expect(@nodes['nanocyte-component-pass-through']).to.equal @WrappedPassThrough
+      expect(@nodes['nanocyte-component-selective-collect']).to.equal @WrappedSelectiveCollect
+      expect(@nodes['nanocyte-component-trigger']).to.equal @WrappedTrigger

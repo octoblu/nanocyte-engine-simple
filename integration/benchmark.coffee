@@ -41,12 +41,14 @@ class BenchmarkRunner
           return done error if error?
           debug 'about to run'
           benchmark = new Benchmark label: unit.label
-          unit.run (error) =>
+          unit.run (error, messages) =>
             testResults = elapsed: benchmark.elapsed(), set: count, label: unit.label
             @tests.push testResults
             timeTook = colors.green "#{testResults.elapsed}ms"
             debug 'ran test'
             console.log "#{colors.cyan(":>")} finished test for #{forUnit} #{timeTook}"
+            if messages?
+              @printMessageTrace messages
             return done error if error?
             unit.after (error) =>
               debug 'finished after'
@@ -98,6 +100,22 @@ class BenchmarkRunner
     totalTime = "#{@benchmarkRunnerBenchmark.elapsed()}ms"
     console.log "Total Time: #{colors.green totalTime}"
     console.log '========================='
+
+  printMessageTrace: (messages) =>
+    console.log '\nMessage Trace:'
+    bookend = "#{colors.rainbow '~*~*~*~*~*~*~~*~*~*~*~*~*~'}"
+    console.log bookend
+    lastTime = null
+    _.each messages, (message) =>
+      elapsed = message.timestamp - lastTime if lastTime?
+      console.log "#{@getMessageString message, elapsed}"
+      lastTime = message.timestamp
+    console.log bookend, '\n'
+
+  getMessageString: (message, elapsed) =>
+    timeString = "[first]"
+    timeString = "[#{elapsed}ms later]" if elapsed?
+    "from #{message.metadata.fromNodeId} #{colors.yellow timeString}"
 
   nthPercentile: (percentile, array) =>
     array = _.sortBy array

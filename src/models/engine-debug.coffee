@@ -2,25 +2,24 @@
 debug = require('debug')('nanocyte-engine-simple:engine-debug')
 
 class EngineDebug extends Transform
-  constructor: ->
+  constructor: (metadata)->
+    {@fromNodeId, @msgType} = metadata
     super objectMode: true
 
-  _transform: (envelope, enc, next) =>
-    debug '_transform', envelope
-    {nodeId} = envelope.config[envelope.fromNodeId]
-
+  _transform: ({config, data, message}, enc, next) =>
+    debug "incoming message:", config, data, message
+    {nodeId} = config[@fromNodeId]
+    debug "nodeId", nodeId
+    
     @push
-      flowId: envelope.flowId
-      instanceId: envelope.instanceId
-      toNodeId: 'engine-output'
-      message:
-        devices: ['*']
-        topic: 'debug'
-        payload:
-          msgType: envelope.msgType
-          msg: envelope.message
-          node: nodeId
+      devices: ['*']
+      topic: 'debug'
+      payload:
+        msg: message
+        node: nodeId
+        msgType: @msgType
 
+    @push null
     next()
 
 module.exports = EngineDebug

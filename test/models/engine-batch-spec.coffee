@@ -7,90 +7,72 @@ describe 'EngineBatch', ->
 
   describe 'when we write to it', ->
     beforeEach ->
-      @sut = new EngineBatch
-      @sut.write
+      metadata =
         flowId: 'flow-id'
         instanceId: 'instance-id'
-        fromNodeId: 'from-node-id'
         toNodeId: 'to-node-id'
-        message:
-          complications: 'its complicated'
+
+      @sut = new EngineBatch metadata
+      @sut.write complications: 'its complicated'
 
     describe 'when the stream ends', ->
       beforeEach (done) ->
-        @sut.on 'data', (@envelope) =>
-        @sut.on 'end', done
+        @sut.on 'data', (@envelope) => done()
 
       it 'should emit an envelope containing the 1 envelope(s) it recieved', ->
         expect(@envelope).to.deep.equal
-          flowId: 'flow-id'
-          instanceId: 'instance-id'
-          toNodeId: 'engine-output'
-          message:
-            topic: 'message-batch'
-            devices: ['*']
-            payload:
-              messages: [{ complications: 'its complicated' }]
+          topic: 'message-batch'
+          devices: ['*']
+          payload:
+            messages: [{ complications: 'its complicated' }]
 
       describe 'when we write to a new EngineBatch', ->
-        beforeEach (done) ->
-          @sut = new EngineBatch
-          @sut.write
+        beforeEach ->
+          metadata =
             flowId: 'flow-id'
             instanceId: 'instance-id'
-            fromNodeId: 'from-node-id'
             toNodeId: 'to-node-id'
-            message:
-              roller: 'coaster'
-          , done
+
+          @sut = new EngineBatch metadata
+          @sut.write roller: 'coaster'
 
         describe 'when the stream ends', ->
           beforeEach (done) ->
-            @sut.on 'data', (@envelope) =>
-            @sut.on 'end', done
+            @sut.on 'data', (@envelope) => done()
 
           it 'should emit an envelope containing the 1 envelope(s) it recieved', ->
             expect(@envelope).to.deep.equal
-              flowId: 'flow-id'
-              instanceId: 'instance-id'
-              toNodeId: 'engine-output'
-              message:
-                topic: 'message-batch'
-                devices: ['*']
-                payload:
-                  messages: [{ roller: 'coaster' }]
-
-    describe 'when we write a second time', ->
-      beforeEach (done) ->
-        engine2 = new EngineBatch
-        engine2.on 'data', (@engine2Data) =>
-        engine2.on 'end', done
-        engine2.write
-          flowId: 'flow-id'
-          instanceId: 'instance-id'
-          fromNodeId: 'from-node-id'
-          toNodeId: 'to-node-id'
-          message:
-            sabotage: "Why aren't you all listening - it's sabotage!"
-
-      describe 'when the stream ends', ->
-        beforeEach (done) ->
-          @sut.on 'data', (@envelope) =>
-          @sut.on 'end', done
-
-        it 'should not emit anything from engine2', ->
-          expect(@engine2Data).not.to.exist
-
-        it 'should emit an envelope containing the 1 envelope(s) it recieved', ->
-          expect(@envelope).to.deep.equal
-            flowId: 'flow-id'
-            instanceId: 'instance-id'
-            toNodeId: 'engine-output'
-            message:
               topic: 'message-batch'
               devices: ['*']
               payload:
-                messages: [
-                  { complications: 'its complicated' }
-                  {sabotage: "Why aren't you all listening - it's sabotage!"}
-                ]
+                messages: [{ roller: 'coaster' }]
+
+        describe 'when we write a second time', ->
+          beforeEach ->
+            metadata =
+              flowId: 'flow-id'
+              instanceId: 'instance-id'
+              toNodeId: 'to-node-id'
+
+            engine2 = new EngineBatch metadata
+            engine2.write sabotage: "Why aren't you all listening - it's sabotage!"
+            engine2.write null
+
+            @sut.write null
+
+          describe 'when the stream ends', ->
+            beforeEach (done) ->
+              @sut.on 'data', (@envelope) => done()
+
+            it 'should not emit anything from engine2', ->
+              expect(@engine2Data).not.to.exist
+
+            it 'should emit an envelope containing the 1 envelope(s) it recieved', ->
+              expect(@envelope).to.deep.equal
+                topic: 'message-batch'
+                devices: ['*']
+                payload:
+                  messages: [
+                    { roller: 'coaster' }
+                    {sabotage: "Why aren't you all listening - it's sabotage!"}
+                  ]

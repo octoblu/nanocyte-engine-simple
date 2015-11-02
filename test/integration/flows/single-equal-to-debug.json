@@ -1,0 +1,171 @@
+{
+  "flowId": "3d4697a8-7710-4cca-9474-2785d7a3e7cd",
+  "token": "466897808260d58175c32f6a0904f7ae86e0b142",
+  "name": "17 Equals in a row and then a debug",
+  "description": null,
+  "hash": "71cd2fec",
+  "nodes": [
+    {
+      "id": "e4a39630-7d06-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "once": false,
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger",
+        "composedOf": {
+          "trigger-node": {
+            "type": "nanocyte-node-trigger",
+            "linkedToNext": true,
+            "linkedToInput": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 634.7094116210938,
+      "y": 671.476318359375,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "f2004d50-7d06-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "value": 0,
+      "name": "E1",
+      "class": "equal",
+      "helpText": "Filter out messages that do not pass an equality test. Reference incoming messages using {{msg.values}}  \n  \nSupported inputs include: arrays, date, objects, numbers, and strings",
+      "category": "operation",
+      "uuid": "2bebd428-4818-48ea-b1f5-88a32199f17b",
+      "type": "operation:equal",
+      "defaults": {
+        "value": 0
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/equal_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-equal"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/equal.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "left": "1",
+      "right": "1",
+      "x": 846.0515747070312,
+      "y": 578.5786743164062,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "ac71ce60-7e93-11e5-a5f0-630ba8cd1e4b",
+      "resourceType": "flow-node",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "name": "Debug",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-debug",
+        "composedOf": {
+          "debug-node": {
+            "type": "nanocyte-node-debug",
+            "linkedToPrev": true,
+            "linkedToPulse": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 1048.9600830078125,
+      "y": 653.2334594726562,
+      "needsConfiguration": false,
+      "needsSetup": false
+    }
+  ],
+  "links": [
+    {
+      "from": "e4a39630-7d06-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "f2004d50-7d06-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    },
+    {
+      "from": "f2004d50-7d06-11e5-a5f0-630ba8cd1e4b",
+      "fromPort": 0,
+      "to": "ac71ce60-7e93-11e5-a5f0-630ba8cd1e4b",
+      "toPort": 0
+    }
+  ],
+  "nanocyteBeta": true,
+  "deployed": true,
+  "selectedLink": null,
+  "selectedFlowNode": {
+    "id": "ac71ce60-7e93-11e5-a5f0-630ba8cd1e4b",
+    "resourceType": "flow-node",
+    "active": true,
+    "debug": true,
+    "complete": false,
+    "name": "Debug",
+    "class": "debug",
+    "helpText": "Display the contents of the messages it receives in the debug panel",
+    "category": "operation",
+    "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+    "type": "operation:debug",
+    "defaults": {
+      "active": true,
+      "debug": true,
+      "complete": false
+    },
+    "color": "#87a980",
+    "input": 1,
+    "output": 0,
+    "align": "right",
+    "formTemplatePath": "/pages/node_forms/debug_form.html",
+    "nanocyte": {
+      "name": "nanocyte-node-debug",
+      "composedOf": {
+        "debug-node": {
+          "type": "nanocyte-node-debug",
+          "linkedToPrev": true,
+          "linkedToPulse": true
+        }
+      }
+    },
+    "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
+    "inputLocations": [],
+    "outputLocations": [],
+    "x": 1048.9600830078125,
+    "y": 653.2334594726562,
+    "needsConfiguration": false,
+    "needsSetup": false
+  }
+}

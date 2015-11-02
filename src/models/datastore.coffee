@@ -6,6 +6,7 @@ debug = require('debug')('nanocyte-engine-simple:datastore')
 class Datastore
   constructor: (options, dependencies={})->
     {@client} = dependencies
+
     @client ?= require '../handlers/redis-handler'
 
   exists: (key, callback) =>

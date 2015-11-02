@@ -3,37 +3,32 @@ debug = require('debug')('nanocyte-engine-simple:engine-batch')
 _ = require 'lodash'
 
 class EngineBatch extends Transform
-  constructor: ->
-    super objectMode: true, allowHalfOpen: true
-
-  _transform: (envelope, enc, next) =>
+  constructor: (options) ->
+    super objectMode: true
+    {@flowId, instanceId} = options
     EngineBatch.batches ?= {}
 
-    if EngineBatch.batches[envelope.flowId]?
-      EngineBatch.addToBatch envelope.flowId, envelope.message
-      @push null
-      next()
-      return
+  _transform: (message, enc, next) =>
+    if EngineBatch.batches[@flowId]?
+      debug 'batching', message
+      EngineBatch.addToBatch @flowId, message
+      return next()
 
-    EngineBatch.batches[envelope.flowId] =
-      flowId:     envelope.flowId
-      instanceId: envelope.instanceId
-      toNodeId:   'engine-output'
-      message:
-        devices: ['*']
-        topic: 'message-batch'
-        payload:
-          messages: [envelope.message]
+
+    EngineBatch.batches[@flowId] =
+      devices: ['*']
+      topic: 'message-batch'
+      payload:
+        messages: [message]
 
     setTimeout =>
-      debug 'emitting', EngineBatch.batches[envelope.flowId]
-      @push EngineBatch.batches[envelope.flowId]
-      delete EngineBatch.batches[envelope.flowId]
-      @push null
+      debug 'emitting', EngineBatch.batches[@flowId]
+      @push EngineBatch.batches[@flowId]
+      delete EngineBatch.batches[@flowId]
       next()
     , 100
 
   @addToBatch: (flowId, message) ->
-    EngineBatch.batches[flowId].message.payload.messages.push message
+    EngineBatch.batches[flowId].payload.messages.push message
 
 module.exports = EngineBatch
