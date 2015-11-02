@@ -55,15 +55,7 @@ class EngineRouter extends Transform
       messageStream = @_sendMessage toNodeId, message, config
       messageStreams.add messageStream if messageStream?
 
-    messageStreams
-
-  _sendError: (toNodeId, error, config) =>
-    metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: toNodeId
-    message =
-      message: error.message
-      msgType: 'error'
-
-    @_sendMessage 'engine-debug', message, config, metadata
+    return messageStreams
 
   _sendMessage: (toNodeId, message, config, metadata={}) =>
     debug 'sending message', JSON.stringify(message,null,2)
@@ -91,8 +83,12 @@ class EngineRouter extends Transform
       toNode.on 'end', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
       toNode.on 'error', (error) => @_sendError toNodeId, error, config
 
-      toNode.message envelope
-    toNode
+      @_protect =>
+        toNode.message envelope
+      , (error) =>
+        @_sendError toNodeId, error, config
+
+    return toNode
 
   _setupEngineNodeRoutes: (config)=>
     nodesToWireToOutput = _.filter config, (node) =>
@@ -101,6 +97,16 @@ class EngineRouter extends Transform
     _.each nodesToWireToOutput, (nodeToWireToOutput) =>
       nodeToWireToOutput.linkedTo.push 'engine-output'
 
-    config
+    return config
+
+  _protect: (run, onError) ->
+    domain = require('domain').create()
+    domain.on 'error', onError
+    domain.run run
+    return
+
+  _sendError: (toNodeId, error, config) =>
+    metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: toNodeId, toNodeId: 'engine-debug'
+    @_sendMessage 'engine-debug', {message: error.message}, config, metadata
 
 module.exports = EngineRouter
