@@ -7,11 +7,11 @@ class EngineDebug extends Transform
     super objectMode: true
 
   _transform: ({config, data, message}, enc, next) =>
-    debug "incoming message:", config, data, message
+    debug "incoming message:", @fromNodeId, config, data, message
     {nodeId} = config[@fromNodeId]
     debug "nodeId", nodeId
-    
-    @push
+
+    message =
       devices: ['*']
       topic: 'debug'
       payload:
@@ -19,6 +19,7 @@ class EngineDebug extends Transform
         node: nodeId
         msgType: @msgType
 
+    @push message
     @push null
     next()
 

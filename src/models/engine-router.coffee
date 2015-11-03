@@ -109,7 +109,9 @@ class EngineRouter extends Transform
     return
 
   _sendError: (toNodeId, error, config) =>
-    console.error error.stack if error?
+    if _.startsWith toNodeId, 'engine-'
+      toNodeId = @metadata.fromNodeId
+
     metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: toNodeId, toNodeId: 'engine-debug'
     @_sendMessage 'engine-debug', {message: error.message}, config, metadata
 
