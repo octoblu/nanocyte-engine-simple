@@ -81,12 +81,15 @@ class EngineRouter extends Transform
 
       debug "messageCount: #{@messageCount}"
       toNode.on 'end', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
-      toNode.on 'error', (error) => @_sendError toNodeId, error, config
+      toNode.on 'error', (error) =>
+        @_sendError toNodeId, error, config
+        @push null
 
       @_protect =>
         toNode.message envelope
       , (error) =>
         @_sendError toNodeId, error, config
+        @push null
 
     return toNode
 
@@ -106,6 +109,7 @@ class EngineRouter extends Transform
     return
 
   _sendError: (toNodeId, error, config) =>
+    console.error error.stack if error?
     metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: toNodeId, toNodeId: 'engine-debug'
     @_sendMessage 'engine-debug', {message: error.message}, config, metadata
 

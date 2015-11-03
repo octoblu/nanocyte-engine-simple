@@ -55,6 +55,7 @@ class EngineInput extends Transform
     debug '_getFromNodeIds', message, config
     fromNodeId = message.payload?.from
     return [fromNodeId] if fromNodeId?
+    return [] unless config?
     _.pluck config[message.fromUuid], 'nodeId'
 
 module.exports = EngineInput
