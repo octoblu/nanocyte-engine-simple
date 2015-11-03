@@ -15,13 +15,31 @@ describe 'error-async', ->
         @sut.initialize done
 
       before (done) ->
+        @messages = []
+        @times = 0
+        @failure = false
+        @MAX_TIMES = 100
+
+        maybeFinish = =>
+          @engineErrors = _.filter @messages, (message) =>
+            message.metadata.msgType == 'error'
+          if @engineErrors.length != 1
+            @failure = true
+            return done()
+          return done() if @times == @MAX_TIMES
+          testIt()
+
+        testIt = =>
+          @times++
           @messages = []
           @responseStream = @sut.triggerByName name: 'Trigger', message: 1
           @responseStream.on 'data', (msg) => @messages.push msg
-          @responseStream.on 'finish', done
+          @responseStream.on 'finish', maybeFinish
 
-      it "Should exist", ->
-        expect(true).to.equal true
+        testIt()
 
-      xit "Should send messages to engine-debug", ->
-        expect(@engineDebugs.length).to.equal DEBUG_MESSAGES
+      it "Should have passed #{@MAX_TIMES} times", ->
+        expect(@times).to.equal @MAX_TIMES
+
+      it "Should send 1 error message to engine-debug", ->
+        expect(@engineErrors.length).to.equal 1

@@ -1,4 +1,4 @@
-{Transform} = require 'stream'
+{Transform, PassThrough} = require 'stream'
 _ = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
 mergeStream = require 'merge-stream'
@@ -13,6 +13,8 @@ class EngineRouter extends Transform
 
     @lockManager ?= new (require './lock-manager')
     @EngineRouterNode ?= require './engine-router-node'
+
+    @messageStreams = mergeStream()
 
     unless @nodes?
       NodeAssembler = require './node-assembler'
@@ -34,6 +36,7 @@ class EngineRouter extends Transform
     messageStreams.on 'readable', =>
       envelope = messageStreams.read()
       return @push null unless envelope?
+
       router = new @EngineRouterNode nodes: @nodes
       if envelope.metadata.msgType == 'error'
         @_sendError envelope, config
@@ -49,15 +52,14 @@ class EngineRouter extends Transform
     messageStreams.on 'finish', => @end()
 
   _sendMessages: (toNodeIds, message, config) =>
-    messageStreams = mergeStream()
-
     _.each toNodeIds, (toNodeId) =>
       messageStream = @_sendMessage toNodeId, message, config
-      messageStreams.add messageStream if messageStream?
+      @messageStreams.add messageStream if messageStream?
 
-    return messageStreams
+    return @messageStreams
 
   _sendMessage: (toNodeId, message, config, metadata={}) =>
+    sendMessageStream = new PassThrough objectMode: true
     debug 'sending message', JSON.stringify(message,null,2)
     toNodeConfig = config[toNodeId]
 
@@ -80,18 +82,17 @@ class EngineRouter extends Transform
         message: message
 
       debug "messageCount: #{@messageCount}"
-      toNode.on 'end', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
-      toNode.on 'error', (error) =>
-        @_sendError toNodeId, error, config
-        @push null
+
+      sendMessageStream.on 'end', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
 
       @_protect =>
-        toNode.message envelope
+        messageStream = toNode.message envelope
+        messageStream.pipe sendMessageStream
       , (error) =>
         @_sendError toNodeId, error, config
-        @push null
+        sendMessageStream.push null
 
-    return toNode
+    return sendMessageStream
 
   _setupEngineNodeRoutes: (config)=>
     nodesToWireToOutput = _.filter config, (node) =>
@@ -109,8 +110,8 @@ class EngineRouter extends Transform
     return
 
   _sendError: (toNodeId, error, config) =>
-    console.error error.stack if error?
     metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: toNodeId, toNodeId: 'engine-debug'
-    @_sendMessage 'engine-debug', {message: error.message}, config, metadata
+    messageStream = @_sendMessage 'engine-debug', {message: error.message}, config, metadata
+    @messageStreams.add messageStream
 
 module.exports = EngineRouter

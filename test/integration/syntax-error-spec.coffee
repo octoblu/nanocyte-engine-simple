@@ -16,9 +16,30 @@ describe 'syntax-error', ->
 
       before (done) ->
         @messages = []
-        @responseStream = @sut.triggerByName name: 'Trigger', message: 1
-        @responseStream.on 'data', (msg) => @messages.push msg
-        @responseStream.on 'finish', done
+        @times = 0
+        @failure = false
+        @MAX_TIMES = 100
 
-      it "Should not crash", ->
-        expect(@messages.length).to.equal 5
+        maybeFinish = =>
+          @engineErrors = _.filter @messages, (message) =>
+            message.metadata.msgType == 'error'
+          if @engineErrors.length != 1
+            @failure = true
+            return done()
+          return done() if @times == @MAX_TIMES
+          testIt()
+
+        testIt = =>
+          @times++
+          @messages = []
+          @responseStream = @sut.triggerByName name: 'Trigger', message: 1
+          @responseStream.on 'data', (msg) => @messages.push msg
+          @responseStream.on 'finish', maybeFinish
+
+        testIt()
+
+      it "Should have passed #{@MAX_TIMES} times", ->
+        expect(@times).to.equal @MAX_TIMES
+
+      it "Should send 1 error message to engine-debug", ->
+        expect(@engineErrors.length).to.equal 1

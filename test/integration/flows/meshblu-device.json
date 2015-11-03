@@ -1,0 +1,325 @@
+{
+  "flowId": "64464b29-1644-4af9-a110-646e57a424d1",
+  "token": "11101ce25badc610c123aa695e6cc6da431d2d30",
+  "name": "Halloween Lights",
+  "description": "",
+  "hash": "92c71198",
+  "nodes": [
+    {
+      "id": "67171660-7dbf-11e5-9f76-7736e7f8d505",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "once": false,
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger",
+        "composedOf": {
+          "trigger-node": {
+            "type": "nanocyte-node-trigger",
+            "linkedToNext": true,
+            "linkedToInput": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 105.54881286621094,
+      "y": 217.1236114501953,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "aafd3830-7dc1-11e5-9280-01ee1374c8b8",
+      "resourceType": "flow-node",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "name": "Debug",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-debug",
+        "composedOf": {
+          "debug-node": {
+            "type": "nanocyte-node-debug",
+            "linkedToPrev": true,
+            "linkedToPulse": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 440.9224853515625,
+      "y": 166.39613342285156,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "a28c81e0-8250-11e5-9907-3757a21bf06c",
+      "resourceType": "flow-node",
+      "configureWhitelist": [
+        "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295"
+      ],
+      "discoverWhitelist": [
+        "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295"
+      ],
+      "geo": {
+        "range": [
+          1138311168,
+          1138318591
+        ],
+        "country": "US",
+        "region": "CA",
+        "city": "Goleta",
+        "ll": [
+          34.5021,
+          -120.1287
+        ],
+        "metro": 855
+      },
+      "ipAddress": "67.217.90.1",
+      "meshblu": {
+        "hash": "jBkDqBrQzY/jFm0YPwX/ublbgxu69u4rzFj1skPW8YQ="
+      },
+      "name": "asd",
+      "online": false,
+      "owner": "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295",
+      "type": "device:other",
+      "uuid": "78c216fd-5054-455d-a91e-c08da0383b72",
+      "category": "device",
+      "staticMessage": {},
+      "useStaticMessage": false,
+      "nodeType": {
+        "_id": "53c9b832f400e177dca325b3",
+        "category": "device",
+        "categories": [
+          "Other"
+        ],
+        "description": "Other Generic Device",
+        "helpText": "Connect custom devices to Octoblu.",
+        "enabled": true,
+        "name": "Generic Device",
+        "skynet": {
+          "type": "device",
+          "subtype": "other"
+        },
+        "type": "device:other"
+      },
+      "class": "device-other",
+      "defaults": {
+        "configureWhitelist": [
+          "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295"
+        ],
+        "discoverWhitelist": [
+          "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295"
+        ],
+        "geo": {
+          "range": [
+            1138311168,
+            1138318591
+          ],
+          "country": "US",
+          "region": "CA",
+          "city": "Goleta",
+          "ll": [
+            34.5021,
+            -120.1287
+          ],
+          "metro": 855
+        },
+        "ipAddress": "67.217.90.1",
+        "meshblu": {
+          "hash": "jBkDqBrQzY/jFm0YPwX/ublbgxu69u4rzFj1skPW8YQ="
+        },
+        "name": "asd",
+        "online": false,
+        "owner": "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295",
+        "type": "device:other",
+        "uuid": "78c216fd-5054-455d-a91e-c08da0383b72",
+        "category": "device",
+        "staticMessage": {},
+        "useStaticMessage": true,
+        "nodeType": {
+          "_id": "53c9b832f400e177dca325b3",
+          "category": "device",
+          "categories": [
+            "Other"
+          ],
+          "description": "Other Generic Device",
+          "helpText": "Connect custom devices to Octoblu.",
+          "enabled": true,
+          "name": "Generic Device",
+          "skynet": {
+            "type": "device",
+            "subtype": "other"
+          },
+          "type": "device:other"
+        }
+      },
+      "input": 1,
+      "output": 1,
+      "helpText": "Connect custom devices to Octoblu.",
+      "formTemplatePath": "/pages/node_forms/device_form.html",
+      "logo": "https://ds78apnml6was.cloudfront.net/device/other.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 261.7697448730469,
+      "y": 101.39201354980469
+    }
+  ],
+  "links": [
+    {
+      "from": "67171660-7dbf-11e5-9f76-7736e7f8d505",
+      "fromPort": 0,
+      "to": "a28c81e0-8250-11e5-9907-3757a21bf06c",
+      "toPort": 0
+    },
+    {
+      "from": "a28c81e0-8250-11e5-9907-3757a21bf06c",
+      "fromPort": 0,
+      "to": "aafd3830-7dc1-11e5-9280-01ee1374c8b8",
+      "toPort": 0
+    }
+  ],
+  "selectedLink": null,
+  "selectedFlowNode": {
+    "id": "a28c81e0-8250-11e5-9907-3757a21bf06c",
+    "resourceType": "flow-node",
+    "configureWhitelist": [
+      "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295"
+    ],
+    "discoverWhitelist": [
+      "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295"
+    ],
+    "geo": {
+      "range": [
+        1138311168,
+        1138318591
+      ],
+      "country": "US",
+      "region": "CA",
+      "city": "Goleta",
+      "ll": [
+        34.5021,
+        -120.1287
+      ],
+      "metro": 855
+    },
+    "ipAddress": "67.217.90.1",
+    "meshblu": {
+      "hash": "jBkDqBrQzY/jFm0YPwX/ublbgxu69u4rzFj1skPW8YQ="
+    },
+    "name": "asd",
+    "online": false,
+    "owner": "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295",
+    "type": "device:other",
+    "uuid": "78c216fd-5054-455d-a91e-c08da0383b72",
+    "category": "device",
+    "staticMessage": {},
+    "useStaticMessage": false,
+    "nodeType": {
+      "_id": "53c9b832f400e177dca325b3",
+      "category": "device",
+      "categories": [
+        "Other"
+      ],
+      "description": "Other Generic Device",
+      "helpText": "Connect custom devices to Octoblu.",
+      "enabled": true,
+      "name": "Generic Device",
+      "skynet": {
+        "type": "device",
+        "subtype": "other"
+      },
+      "type": "device:other"
+    },
+    "class": "device-other",
+    "defaults": {
+      "configureWhitelist": [
+        "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295"
+      ],
+      "discoverWhitelist": [
+        "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295"
+      ],
+      "geo": {
+        "range": [
+          1138311168,
+          1138318591
+        ],
+        "country": "US",
+        "region": "CA",
+        "city": "Goleta",
+        "ll": [
+          34.5021,
+          -120.1287
+        ],
+        "metro": 855
+      },
+      "ipAddress": "67.217.90.1",
+      "meshblu": {
+        "hash": "jBkDqBrQzY/jFm0YPwX/ublbgxu69u4rzFj1skPW8YQ="
+      },
+      "name": "asd",
+      "online": false,
+      "owner": "1b3e1ba3-864d-43fb-be0e-9fdb1d3a2295",
+      "type": "device:other",
+      "uuid": "78c216fd-5054-455d-a91e-c08da0383b72",
+      "category": "device",
+      "staticMessage": {},
+      "useStaticMessage": true,
+      "nodeType": {
+        "_id": "53c9b832f400e177dca325b3",
+        "category": "device",
+        "categories": [
+          "Other"
+        ],
+        "description": "Other Generic Device",
+        "helpText": "Connect custom devices to Octoblu.",
+        "enabled": true,
+        "name": "Generic Device",
+        "skynet": {
+          "type": "device",
+          "subtype": "other"
+        },
+        "type": "device:other"
+      }
+    },
+    "input": 1,
+    "output": 1,
+    "helpText": "Connect custom devices to Octoblu.",
+    "formTemplatePath": "/pages/node_forms/device_form.html",
+    "logo": "https://ds78apnml6was.cloudfront.net/device/other.svg",
+    "inputLocations": [],
+    "outputLocations": [],
+    "x": 261.7697448730469,
+    "y": 101.39201354980469
+  },
+  "deployed": false
+}

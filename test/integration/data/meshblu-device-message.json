@@ -1,0 +1,4 @@
+{
+  "devices": ["*"],
+  "hello": "world"
+}

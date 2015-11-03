@@ -29,6 +29,7 @@ class EngineInput extends Transform
     messageStreams = mergeStream()
 
     messageStreams.on 'finish', => @push null
+
     messageStreams.on 'readable', =>
       envelope = messageStreams.read()
       @push envelope

@@ -62,14 +62,9 @@ class EngineInAVat
 
     router = new EngineRouterNode nodes: new NodeAssembler().assembleNodes()
 
-    router.on 'end', =>
-      outputStream.end()
-
-    router.on 'data', =>
-
+    router.message(envelope).pipe outputStream
     outputStream.on 'data', (envelope) => debug EngineInAVat.printMessage(envelope)
-
-    router.message envelope
+        
     outputStream
 
   @printMessage: (envelope) ->
