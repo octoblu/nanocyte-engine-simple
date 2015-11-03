@@ -19,8 +19,9 @@ class MessagesController
       metadata:
         flowId: req.params.flowId
         instanceId: req.params.instanceId
+        toNodeId: 'engine-input'
       message: req.body
 
-    inputStream.on 'finish', => console.log "router is done!"
+    inputStream.on 'finish', => debug "router is done!"
 
 module.exports = MessagesController
