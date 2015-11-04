@@ -2,6 +2,7 @@
 _         = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:engine-input')
 PulseSubscriber = require './pulse-subscriber'
+Benchmark = require 'simple-benchmark'
 mergeStream = require 'merge-stream'
 
 class EngineInput extends Transform
@@ -20,15 +21,17 @@ class EngineInput extends Transform
       return next()
 
     fromNodeIds = @_getFromNodeIds message, config
-    debug "fromNodeIds", fromNodeIds
 
     if _.isEmpty fromNodeIds
       @push null
       return console.error 'engineInput could not infer fromNodeId'
 
+    benchmark = new Benchmark label: 'engine-input'
     messageStreams = mergeStream()
 
-    messageStreams.on 'finish', => @push null
+    messageStreams.on 'finish', =>
+      debug 'finish', benchmark.toString()
+      @push null
 
     messageStreams.on 'readable', =>
       envelope = messageStreams.read()
@@ -36,7 +39,6 @@ class EngineInput extends Transform
 
     _.each fromNodeIds, (fromNodeId) =>
       envelope = @_getEngineEnvelope message, fromNodeId, @instanceId
-      debug "creating a new router and sending this message", envelope
       router = new @EngineRouterNode
       messageStreams.add router.message envelope
 
@@ -53,7 +55,6 @@ class EngineInput extends Transform
     message: message
 
   _getFromNodeIds: (message, config) =>
-    debug '_getFromNodeIds', message, config
     fromNodeId = message.payload?.from
     return [fromNodeId] if fromNodeId?
     return [] unless config?

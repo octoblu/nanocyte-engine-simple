@@ -3,6 +3,7 @@ _ = require 'lodash'
 async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
 mergeStream = require 'merge-stream'
+Benchmark = require 'simple-benchmark'
 MAX_MESSAGE_COUNT = 1000
 
 class EngineRouter extends Transform
@@ -33,6 +34,7 @@ class EngineRouter extends Transform
 
     debug "Incoming message from: #{@metadata.fromNodeId}, to: #{toNodeIds}"
 
+    benchmark = new Benchmark label: 'engine-router'
     messageStreams = @_sendMessages toNodeIds, message, config
 
     messageStreams.on 'readable', =>
@@ -44,7 +46,9 @@ class EngineRouter extends Transform
 
       @queue.push router: router, envelope: envelope
 
-    messageStreams.on 'finish', => @end()
+    messageStreams.on 'finish', =>
+      debug benchmark.toString()
+      @end()
 
   _doWork: (task, callback) =>
     {router,envelope} = task
@@ -66,7 +70,6 @@ class EngineRouter extends Transform
 
   _sendMessage: (toNodeId, message, config, metadata={}) =>
     sendMessageStream = new PassThrough objectMode: true
-    debug 'sending message', JSON.stringify(message,null,2)
     toNodeConfig = config[toNodeId]
 
     return console.error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
