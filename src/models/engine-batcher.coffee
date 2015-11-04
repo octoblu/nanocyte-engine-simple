@@ -1,4 +1,6 @@
+_ = require 'lodash'
 async = require 'async'
+debug = require('debug')('nanocyte-engine-simple:engine-batcher')
 EngineOutputNode = require './engine-output-node'
 
 class EngineBatcher
@@ -12,6 +14,7 @@ class EngineBatcher
     @batches[key].messages.push message
 
   flush: (key, callback) =>
+    debug 'flush', key
     @_sendMessage key, callback
 
   flushAll: =>
@@ -20,7 +23,7 @@ class EngineBatcher
 
   _sendMessage: (key, callback) =>
     data = @batches[key]
-    return callback new Error "batch not found for #{key}" unless data?
+    return callback() unless data?
 
     engineOutputNode = new EngineOutputNode
     message =
@@ -29,7 +32,14 @@ class EngineBatcher
       payload:
         messages: data.messages
 
-    engineOutputNode.message message
-    engineOutputNode.on 'finish', => callback()
+    metadata = _.clone data.metadata
+    metadata.toNodeId = 'engine-output'
+
+    delete @batches[key]
+
+    stream = engineOutputNode.message metadata: metadata, message: message
+    stream.on 'finish', =>
+      debug 'engine-output finish', key
+      callback()
 
 module.exports = new EngineBatcher
