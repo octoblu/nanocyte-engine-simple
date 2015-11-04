@@ -5,12 +5,11 @@ EngineNode = require './engine-node'
 class EnginePulseNode extends EngineNode
   constructor: (dependencies={}) ->
     super
-    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EnginePulse, @DatastoreCheckKeyStream, @EngineBatch} = dependencies
+    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EnginePulse, @DatastoreCheckKeyStream} = dependencies
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
     @EnginePulse ?= require './engine-pulse'
     @DatastoreCheckKeyStream ?= require './datastore-check-key-stream'
-    @EngineBatch ?= require './engine-batch'
 
 
   _getEnvelopeStream: ({metadata, message}) =>
@@ -19,7 +18,6 @@ class EnginePulseNode extends EngineNode
       new @DatastoreCheckKeyStream metadata
       new @EngineToNanocyteStream metadata
       new @EnginePulse metadata
-      new @EngineBatch metadata
       new @NanocyteToEngineStream metadata
       debugStream 'out'
     )
