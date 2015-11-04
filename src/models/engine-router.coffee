@@ -1,5 +1,6 @@
 {Transform, PassThrough} = require 'stream'
 _ = require 'lodash'
+async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
 mergeStream = require 'merge-stream'
 MAX_MESSAGE_COUNT = 1000
@@ -52,9 +53,10 @@ class EngineRouter extends Transform
     messageStreams.on 'finish', => @end()
 
   _sendMessages: (toNodeIds, message, config) =>
-    _.each toNodeIds, (toNodeId) =>
+    async.eachSeries toNodeIds, (toNodeId, done) =>
       messageStream = @_sendMessage toNodeId, message, config
       @messageStreams.add messageStream if messageStream?
+      messageStream.on 'end', => done()
 
     return @messageStreams
 
