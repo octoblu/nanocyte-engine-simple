@@ -109,7 +109,7 @@ class EngineRouter extends Transform
       return node.type == 'engine-debug' || node.type == 'engine-pulse'
 
     _.each nodesToWireToOutput, (nodeToWireToOutput) =>
-      nodeToWireToOutput.linkedTo.push 'engine-output'
+      nodeToWireToOutput.linkedTo.push 'engine-batch'
 
     return config
 

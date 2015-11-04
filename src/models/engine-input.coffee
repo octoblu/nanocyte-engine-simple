@@ -4,6 +4,7 @@ debug = require('debug')('nanocyte-engine-simple:engine-input')
 PulseSubscriber = require './pulse-subscriber'
 Benchmark = require 'simple-benchmark'
 mergeStream = require 'merge-stream'
+EngineBatcher = require './engine-batcher'
 
 class EngineInput extends Transform
   constructor: (options, dependencies={}) ->
@@ -31,7 +32,9 @@ class EngineInput extends Transform
 
     messageStreams.on 'finish', =>
       debug 'finish', benchmark.toString()
-      @push null
+      EngineBatcher.flush @flowId, (error) =>
+        console.error error if error?
+        @push null
 
     messageStreams.on 'readable', =>
       envelope = messageStreams.read()
