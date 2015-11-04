@@ -10,6 +10,7 @@ class EngineBatch extends Transform
 
   _transform: (message, enc, next) =>
     EngineBatcher.push @flowId, metadata: @metadata, message: message
+    @push null
     next()
 
 module.exports = EngineBatch
