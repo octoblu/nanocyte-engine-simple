@@ -14,7 +14,6 @@ class EngineBatch extends Transform
       EngineBatch.addToBatch @flowId, message
       return next()
 
-
     EngineBatch.batches[@flowId] =
       devices: ['*']
       topic: 'message-batch'

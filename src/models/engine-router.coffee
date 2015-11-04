@@ -1,8 +1,10 @@
 {Transform, PassThrough} = require 'stream'
+async = require 'async'
 _ = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
 mergeStream = require 'merge-stream'
 MAX_MESSAGE_COUNT = 1000
+Benchmark = require 'simple-benchmark'
 
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
@@ -20,47 +22,58 @@ class EngineRouter extends Transform
       NodeAssembler = require './node-assembler'
       @nodes = new NodeAssembler().assembleNodes()
 
+    @queue = async.queue @doWork, 1
+    @queue.drain = => @push null
+
   _transform: ({config, data, message}, enc, next) =>
     return @push null if @messageCount > MAX_MESSAGE_COUNT
     config = @_setupEngineNodeRoutes config
     toNodeIds = config[@metadata.fromNodeId]?.linkedTo || []
 
     if toNodeIds.length == 0
-      @push null
-      return next()
+      return @push null
 
     debug "Incoming message from: #{@metadata.fromNodeId}, to: #{toNodeIds}"
 
-    messageStreams = @_sendMessages toNodeIds, message, config
+    @messageStreams = @_sendMessages toNodeIds, message, config
+    @messageStreams.on 'end', => @push null
 
-    messageStreams.on 'readable', =>
-      envelope = messageStreams.read()
+    @messageStreams.on 'readable', =>
+      envelope = @messageStreams.read()
       return @push null unless envelope?
 
-      router = new @EngineRouterNode nodes: @nodes
-      if envelope.metadata.msgType == 'error'
-        @_sendError envelope, config
-        @push null
-        return
+      @queue.push envelope
 
-      newEnvelope =
-        metadata: _.extend {}, envelope.metadata, toNodeId: 'router', messageCount: @messageCount
-        message: envelope.message
+  doWork: (envelope, callback) =>
+    router = new @EngineRouterNode nodes: @nodes
+    if envelope.metadata.msgType == 'error'
+      @_sendError envelope, config
+      @push null
+      return
 
-      messageStreams.add router.message(newEnvelope)
+    newEnvelope =
+      metadata: _.extend {}, envelope.metadata, toNodeId: 'router', messageCount: @messageCount
+      message: envelope.message
 
-    messageStreams.on 'finish', => @end()
+    stream = router.message(newEnvelope)
+    @messageStreams.add stream
+    stream.on 'end', => callback()
+    stream.on 'error', (error) => callback error
 
   _sendMessages: (toNodeIds, message, config) =>
-    _.each toNodeIds, (toNodeId) =>
+    async.eachSeries toNodeIds, (toNodeId, done) =>
+      debug "sendMesssages", toNodeId
+      benchmark = new Benchmark label: 'sendMessages'
       messageStream = @_sendMessage toNodeId, message, config
+      messageStream.on 'end', =>
+        debug benchmark.toString()
+        done()
       @messageStreams.add messageStream if messageStream?
 
     return @messageStreams
 
   _sendMessage: (toNodeId, message, config, metadata={}) =>
     sendMessageStream = new PassThrough objectMode: true
-    debug 'sending message', JSON.stringify(message,null,2)
     toNodeConfig = config[toNodeId]
 
     return console.error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?

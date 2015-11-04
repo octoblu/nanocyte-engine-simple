@@ -13,12 +13,14 @@ class Datastore
     @client.exists key, callback
 
   hget: (key, field, callback) =>
+    debug 'hget', key, field
     benchmark = new Benchmark label: 'datastore.hget'
     @client.hget key, field, (error, data) =>
       debug benchmark.toString()
       callback error, json3.parse data
 
   hset: (key, field, value, callback) =>
+    debug 'hset', key, field
     benchmark = new Benchmark label: 'datastore.hset'
     valueStr = JSON.stringify(value)
     if valueStr.length >= 1024 * 1024 * 10
