@@ -23,14 +23,13 @@ class EngineRouter extends Transform
       NodeAssembler = require './node-assembler'
       @nodes = new NodeAssembler().assembleNodes()
 
-  _transform: ({config, data, message}, enc, next) =>
+  _transform: ({config, data, message}, enc) =>
     return @push null if @messageCount > MAX_MESSAGE_COUNT
     config = @_setupEngineNodeRoutes config
     toNodeIds = config[@metadata.fromNodeId]?.linkedTo || []
 
     if toNodeIds.length == 0
       @push null
-      return next()
 
     debug "Incoming message from: #{@metadata.fromNodeId}, to: #{toNodeIds}"
 
@@ -41,11 +40,6 @@ class EngineRouter extends Transform
       return @push null unless envelope?
 
       router = new @EngineRouterNode nodes: @nodes
-      if envelope.metadata.msgType == 'error'
-        @_sendError envelope, config
-        @push null
-        return
-
       messageStreams.add router.stream
 
       @queue.push router: router, envelope: envelope
@@ -122,12 +116,12 @@ class EngineRouter extends Transform
     domain.run run
     return
 
-  _sendError: (toNodeId, error, config) =>
-    if _.startsWith toNodeId, 'engine-'
-      toNodeId = @metadata.fromNodeId
+  _sendError: (fromNodeId, error, config) =>
+    if _.startsWith fromNodeId, 'engine-'
+      fromNodeId = @metadata.fromNodeId
     console.error error.stack
 
-    metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: toNodeId, toNodeId: 'engine-debug', messageCount: @messageCount++
+    metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: fromNodeId, toNodeId: 'engine-debug', messageCount: @messageCount++
     messageStream = @_sendMessage 'engine-debug', {message: error.message}, config, metadata
     @messageStreams.add messageStream
 

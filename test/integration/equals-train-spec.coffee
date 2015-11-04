@@ -16,7 +16,7 @@ describe 'EqualsTrain', ->
       before (done) ->
         @times = 0
         @failure = false
-        @MAX_TIMES = 100
+        @MAX_TIMES = 25
 
         maybeFinish = =>
           # console.log "\nrun #{@times}:\n"

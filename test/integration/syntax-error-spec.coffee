@@ -18,12 +18,13 @@ describe 'syntax-error', ->
         @messages = []
         @times = 0
         @failure = false
-        @MAX_TIMES = 100
+        @MAX_TIMES = 10
 
         maybeFinish = =>
           @engineErrors = _.filter @messages, (message) =>
             message.metadata.msgType == 'error'
-          if @engineErrors.length != 1
+
+          if @engineErrors.length != 2
             @failure = true
             return done()
           return done() if @times == @MAX_TIMES
@@ -41,5 +42,5 @@ describe 'syntax-error', ->
       it "Should have passed #{@MAX_TIMES} times", ->
         expect(@times).to.equal @MAX_TIMES
 
-      it "Should send 1 error message to engine-debug", ->
-        expect(@engineErrors.length).to.equal 1
+      it "Should send 2 error message to engine-debug", ->
+        expect(@engineErrors.length).to.equal 2

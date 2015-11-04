@@ -18,7 +18,7 @@ describe 'error-async', ->
         @messages = []
         @times = 0
         @failure = false
-        @MAX_TIMES = 100
+        @MAX_TIMES = 10
 
         maybeFinish = =>
           @engineErrors = _.filter @messages, (message) =>
