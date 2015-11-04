@@ -104,13 +104,14 @@ class EngineRouter extends Transform
 
     return sendMessageStream
 
-  _setupEngineNodeRoutes: (config)=>
+  _setupEngineNodeRoutes: (config) =>
     nodesToWireToOutput = _.filter config, (node) =>
       return node.type == 'engine-debug' || node.type == 'engine-pulse'
 
     _.each nodesToWireToOutput, (nodeToWireToOutput) =>
       nodeToWireToOutput.linkedTo.push 'engine-batch'
 
+    config['engine-batch'] = type: 'engine-batch'
     return config
 
   _protect: (run, onError) ->
