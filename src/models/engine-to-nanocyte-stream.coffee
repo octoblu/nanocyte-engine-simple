@@ -1,4 +1,5 @@
 _ = require 'lodash'
+debug = require('debug')('nanocyte-engine-simple:engine-to-nanocyte-stream')
 {Transform} = require 'stream'
 
 class EngineToNanocyteStream extends Transform
@@ -10,6 +11,8 @@ class EngineToNanocyteStream extends Transform
     @datastore ?= new (require './datastore')
 
   _transform: (message, enc, next) =>
+    return @push null unless message?
+
     @datastore.hget @flowId, "#{@instanceId}/engine-data/config", (error, dataConfig) =>
       return @push null if error?
       return @push null unless dataConfig?

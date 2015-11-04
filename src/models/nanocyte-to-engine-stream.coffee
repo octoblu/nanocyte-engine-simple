@@ -13,6 +13,8 @@ class NanocyteToEngineStream extends Transform
     delete @metadata.toNodeId
 
   _transform: (message, enc, next) =>
+    return @push null unless message?
+
     @push
       message: message
       metadata: @metadata
