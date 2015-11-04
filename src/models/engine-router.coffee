@@ -54,13 +54,13 @@ class EngineRouter extends Transform
 
     router.message newEnvelope
 
-    router.stream.on 'end', => callback()
+    router.stream.on 'finish', => callback()
 
   _sendMessages: (toNodeIds, message, config) =>
     async.eachSeries toNodeIds, (toNodeId, done) =>
       messageStream = @_sendMessage toNodeId, message, config
       @messageStreams.add messageStream if messageStream?
-      messageStream.on 'end', => done()
+      messageStream.on 'finish', => done()
 
     return @messageStreams
 
@@ -89,7 +89,7 @@ class EngineRouter extends Transform
 
       debug "messageCount: #{@messageCount}"
 
-      sendMessageStream.on 'end', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
+      sendMessageStream.on 'finish', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
 
       @_protect =>
         messageStream = toNode.stream

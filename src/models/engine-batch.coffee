@@ -10,10 +10,9 @@ class EngineBatch extends Transform
 
   _transform: (message, enc, next) =>
     if EngineBatch.batches[@flowId]?
-      debug 'batching', message
+      debug 'batching', JSON.stringify message, null, 2
       EngineBatch.addToBatch @flowId, message
       return next()
-
 
     EngineBatch.batches[@flowId] =
       devices: ['*']
@@ -22,9 +21,10 @@ class EngineBatch extends Transform
         messages: [message]
 
     setTimeout =>
-      debug 'emitting', EngineBatch.batches[@flowId]
-      @push EngineBatch.batches[@flowId]
+      message = EngineBatch.batches[@flowId]
+      debug 'emitting', JSON.stringify message, null, 2
       delete EngineBatch.batches[@flowId]
+      @push message
       next()
     , 100
 
