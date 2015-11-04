@@ -17,6 +17,8 @@ class EngineRouter extends Transform
 
     @messageStreams = mergeStream()
 
+    @queue = async.queue @_doWork, 1
+
     unless @nodes?
       NodeAssembler = require './node-assembler'
       @nodes = new NodeAssembler().assembleNodes()
@@ -44,13 +46,21 @@ class EngineRouter extends Transform
         @push null
         return
 
-      newEnvelope =
-        metadata: _.extend {}, envelope.metadata, toNodeId: 'router', messageCount: @messageCount
-        message: envelope.message
+      messageStreams.add router.stream
 
-      messageStreams.add router.message(newEnvelope)
+      @queue.push router: router, envelope: envelope
 
     messageStreams.on 'finish', => @end()
+
+  _doWork: (task, callback) =>
+    {router,envelope} = task
+    newEnvelope =
+      metadata: _.extend {}, envelope.metadata, toNodeId: 'router', messageCount: @messageCount
+      message: envelope.message
+
+    router.message newEnvelope
+
+    router.stream.on 'end', => callback()
 
   _sendMessages: (toNodeIds, message, config) =>
     async.eachSeries toNodeIds, (toNodeId, done) =>
@@ -88,7 +98,8 @@ class EngineRouter extends Transform
       sendMessageStream.on 'end', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
 
       @_protect =>
-        messageStream = toNode.message envelope
+        messageStream = toNode.stream
+        toNode.message envelope
         messageStream.pipe sendMessageStream
       , (error) =>
         @_sendError toNodeId, error, config
@@ -114,6 +125,7 @@ class EngineRouter extends Transform
   _sendError: (toNodeId, error, config) =>
     if _.startsWith toNodeId, 'engine-'
       toNodeId = @metadata.fromNodeId
+    console.error error.stack
 
     metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: toNodeId, toNodeId: 'engine-debug', messageCount: @messageCount++
     messageStream = @_sendMessage 'engine-debug', {message: error.message}, config, metadata
