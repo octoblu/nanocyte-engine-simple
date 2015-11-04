@@ -64,7 +64,7 @@ class EngineInAVat
 
     router.message(envelope).pipe outputStream
     outputStream.on 'data', (envelope) => debug EngineInAVat.printMessage(envelope)
-        
+
     outputStream
 
   @printMessage: (envelope) ->
@@ -77,8 +77,8 @@ class EngineInAVat
     "[#{colors.yellow metadata.transactionId}] " +
     "#{debugInfo.fromNode.config.name || metadata.fromNodeId} #{colors.green debugInfo.nanocyteType} #{colors.gray debugInfo.fromNode.config.type} : " +
     "--> " +
-    "#{debugInfo.toNode.config.name || metadata.toNodeId} (#{debugInfo.toNode.config.type})" +
-    " #{colors.green messageString}"
+    "#{debugInfo.toNode.config.name || metadata.toNodeId} (#{debugInfo.toNode.config.type})"
+    # " #{colors.green messageString}"
 
   findTriggers: =>
     _.indexBy _.filter(@flowData.nodes, type: 'operation:trigger'), 'name'
