@@ -22,7 +22,7 @@ getVatNodeAssembler = (outputStream) ->
         super
       _getEnvelopeStream: (envelope) =>
         envelope.metadata.nanocyteType = nanocyteType
-        outputStream.write envelope if envelope? and !outputStream.ended
+        outputStream.write envelope if envelope?
         super
 
   VatNodeAssembler
