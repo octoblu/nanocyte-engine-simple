@@ -8,6 +8,7 @@ class EngineDebug extends Transform
 
   _transform: ({config, data, message}, enc, next) =>
     debug "incoming message:", @fromNodeId, config, data, message
+    return @push null unless config?[@fromNodeId]?
     {nodeId} = config[@fromNodeId]
     debug "nodeId", nodeId
 

@@ -47,7 +47,7 @@ class EngineRouter extends Transform
       @queue.push router: router, envelope: envelope
 
     messageStreams.on 'finish', =>
-      debug benchmark.toString()
+      debug 'finish', benchmark.toString(), 'messageCount: ', @messageCount
       @end()
 
   _doWork: (task, callback) =>
