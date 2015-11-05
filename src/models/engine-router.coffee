@@ -61,6 +61,10 @@ class EngineRouter extends Transform
     router.stream.on 'finish', => callback()
 
   _sendMessages: (toNodeIds, message, config) =>
+    toNodeIds = _.sortBy toNodeIds, (toNodeId) =>
+        return 0 if _.startsWith toNodeId, 'engine-'
+        return 1
+
     async.eachSeries toNodeIds, (toNodeId, done) =>
       messageStream = @_sendMessage toNodeId, message, config
       @messageStreams.add messageStream if messageStream?
