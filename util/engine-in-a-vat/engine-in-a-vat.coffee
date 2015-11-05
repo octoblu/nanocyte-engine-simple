@@ -16,6 +16,8 @@ AddNodeInfoStream = require './add-node-info-stream'
 PulseSubscriber = require '../../src/models/pulse-subscriber'
 EngineBatcher = require '../../src/models/engine-batcher'
 
+{Stats} = require 'fast-stats'
+
 class VatChannelConfig
   fetch: (callback) => callback null, {}
 
@@ -33,6 +35,10 @@ class EngineInAVat
     @configurationSaver = new ConfigurationSaver client
 
   initialize: (callback=->) =>
+    #pay the cost of loading up all the nanocytes up front.
+    NodeAssembler = getVatNodeAssembler()
+    (new NodeAssembler).assembleNodes()
+
     debug 'initializing'
     @configurationGenerator.configure flowData: @flowData, userData: {}, (error, configuration) =>
       return console.error "config generator had an error!", error if error?
@@ -44,12 +50,15 @@ class EngineInAVat
         debug 'saved'
         callback(null, configuration)
 
-  triggerByName: ({name, message}) =>
+  triggerByName: ({name, message}, callback=->) =>
     trigger = @triggers[name]
     throw new Error "Can't find a trigger named '#{name}'" unless trigger?
-    @messageRouter trigger.id, message
+    @messageRouter trigger.id, message, callback
 
-  messageRouter: (nodeId, message) =>
+  messageRouter: (nodeId, message, callback=->) =>
+    startTime = Date.now()
+    messages = []
+
     @pulseSubscriber.subscribe @flowName
 
     outputStream = new AddNodeInfoStream flowData: @flowData, nanocyteConfig: @configuration
@@ -73,13 +82,46 @@ class EngineInAVat
     routerStream.on 'finish', =>
       debug "router finished"
       EngineBatcher.flush @flowId, (error) =>
-
         console.error error if error?
+        EngineInAVat.printMessageStats messages
         outputStream.end()
+        callback null, EngineInAVat.getMessageStats startTime, messages
 
-    outputStream.on 'data', (envelope) => debug EngineInAVat.printMessage envelope
+
+    outputStream.on 'data', (envelope) =>
+      debug EngineInAVat.printMessage envelope
+      messages.push envelope
 
     outputStream
+
+  @getMessageStats: (startTime, messages) ->
+    previousTime = startTime
+
+    messageTimes = _.map messages, (message) =>
+      thisTime = message.debugInfo.timestamp
+      elapsed  = thisTime - previousTime
+      previousTime = thisTime
+      return elapsed
+
+    stats = new Stats()
+    stats.push messageTimes
+    mean = _.round stats.amean(), 2
+    errorMargin = _.round stats.moe(), 2
+
+    messageStats =
+      mean:
+        actualMean: mean
+        errorMargin: errorMargin
+        upperLimit95: mean + errorMargin
+        lowerLimit95: mean - errorMargin
+
+      median: stats.median()
+      total: _.sum messageTimes
+      range:
+        from: stats.range()[0]
+        to: stats.range()[1]
+
+    return messageStats
 
   @printMessage: (envelope) ->
     {debugInfo, metadata, message} = envelope
@@ -89,9 +131,9 @@ class EngineInAVat
     lastTime = debugInfo.timestamp
 
     "[#{colors.yellow metadata.transactionId}] " +
-    "#{debugInfo.fromNode?.config.name || metadata.fromNodeId} #{colors.green debugInfo.nanocyteType} #{colors.gray debugInfo.fromNode?.config.type} : " +
+    "#{debugInfo.fromNode?.config.name || metadata.fromNodeId} #{colors.gray debugInfo.fromNode?.config.type} : " +
     "--> " +
-    "#{debugInfo.toNode?.config.name || metadata.toNodeId} (#{debugInfo.toNode?.config.type})" +
+    "#{debugInfo.toNode?.config.name || metadata.toNodeId} #{colors.green debugInfo.nanocyteType} (#{debugInfo.toNode?.config.type})" +
     " #{colors.green messageString}"
 
   findTriggers: =>
@@ -108,7 +150,7 @@ class EngineInAVat
     debugStats "\nINCOMING:"
     @printIncomingMessages messages
     debugStats "\nOUTGOING:"
-    @printOutgoingMessages messages
+    @getOutgoingMessages messages
 
   @printIncomingMessages: (messages) =>
 
@@ -117,18 +159,18 @@ class EngineInAVat
     _.each messagesByType, (messages, type) =>
       debugStats "#{type} got #{messages.length} messages"
 
-  @printOutgoingMessages: (messages) =>
+  @getOutgoingMessages: (messages) =>
     messagesByType = _.groupBy messages, (envelope) =>
       return envelope.debugInfo.fromNode?.config.name || envelope.metadata.fromNodeId
 
     _.each messagesByType, (messages, type) =>
       return unless type?
+
       nodeNames = _.compact _.map messages, (envelope) =>
         return envelope.debugInfo.toNode?.config.name || envelope.metadata.toNodeId
 
       debugStats "#{type} sent #{messages.length} messages to", nodeNames
 
-
-
+      return nodeNames
 
 module.exports = EngineInAVat
