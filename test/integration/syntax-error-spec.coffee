@@ -1,10 +1,11 @@
 _ = require 'lodash'
 debug = require('debug')('syntax-error-spec')
-
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
 describe 'syntax-error', ->
   @timeout 60000
+  MAX_TIMES = 10
+  ERROR_COUNT = 2
 
   describe 'when instantiated with a flow', ->
 
@@ -18,16 +19,15 @@ describe 'syntax-error', ->
         @messages = []
         @times = 0
         @failure = false
-        @MAX_TIMES = 10
 
         maybeFinish = =>
           @engineErrors = _.filter @messages, (message) =>
             message.metadata.msgType == 'error'
 
-          if @engineErrors.length != 2
+          if @engineErrors.length != ERROR_COUNT
             @failure = true
             return done()
-          return done() if @times == @MAX_TIMES
+          return done() if @times == MAX_TIMES
           testIt()
 
         testIt = =>
@@ -39,8 +39,8 @@ describe 'syntax-error', ->
 
         testIt()
 
-      it "Should have passed #{@MAX_TIMES} times", ->
-        expect(@times).to.equal @MAX_TIMES
+      it "Should have passed #{MAX_TIMES} times", ->
+        expect(@times).to.equal MAX_TIMES
 
       it "Should send 2 error message to engine-debug", ->
-        expect(@engineErrors.length).to.equal 2
+        expect(@engineErrors.length).to.equal ERROR_COUNT

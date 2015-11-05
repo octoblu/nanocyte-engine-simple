@@ -21,4 +21,4 @@ describe 'demultiplex', ->
           @responseStream.on 'finish', done
 
       it "Should send messages to engine-debug", ->
-        expect(@messages.length).to.equal 18
+        expect(@messages.length).to.equal 28

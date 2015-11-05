@@ -5,6 +5,8 @@ EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
 describe 'error-async', ->
   @timeout 60000
+  MAX_TIMES = 10
+  ERROR_COUNT = 2
 
   describe 'when instantiated with a flow', ->
 
@@ -18,15 +20,14 @@ describe 'error-async', ->
         @messages = []
         @times = 0
         @failure = false
-        @MAX_TIMES = 10
 
         maybeFinish = =>
           @engineErrors = _.filter @messages, (message) =>
             message.metadata.msgType == 'error'
-          if @engineErrors.length != 1
+          if @engineErrors.length != ERROR_COUNT
             @failure = true
             return done()
-          return done() if @times == @MAX_TIMES
+          return done() if @times == MAX_TIMES
           testIt()
 
         testIt = =>
@@ -38,8 +39,8 @@ describe 'error-async', ->
 
         testIt()
 
-      it "Should have passed #{@MAX_TIMES} times", ->
-        expect(@times).to.equal @MAX_TIMES
+      it "Should have passed #{MAX_TIMES} times", ->
+        expect(@times).to.equal MAX_TIMES
 
       it "Should send 1 error message to engine-debug", ->
-        expect(@engineErrors.length).to.equal 1
+        expect(@engineErrors.length).to.equal ERROR_COUNT
