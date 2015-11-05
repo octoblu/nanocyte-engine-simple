@@ -67,7 +67,9 @@ class EngineRouter extends Transform
 
     async.eachSeries toNodeIds, (toNodeId, done) =>
       messageStream = @_sendMessage toNodeId, message, config
-      @messageStreams.add messageStream if messageStream?
+      return done() unless messageStream?
+
+      @messageStreams.add messageStream
       messageStream.on 'finish', => done()
 
     return @messageStreams
