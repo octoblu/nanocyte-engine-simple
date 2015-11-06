@@ -1,12 +1,105 @@
 {
-  "flowId": "ba13eb85-26d2-4ae9-b69c-43d3311d0559",
-  "token": "844569800b52b78c17cc9c55b59bc72a78f48b69",
-  "name": "Flow ba13eb85",
+  "flowId": "98362f23-dd6e-4625-b1e7-966be2fbede0",
+  "token": "92dd1a27ecb7a1d567e07ca7b1a53f2c1936b6c6",
+  "name": "Harder",
   "description": null,
-  "hash": "42ecb48d",
+  "hash": "d86abe2d",
   "nodes": [
     {
-      "id": "6906abe0-81a5-11e5-86e3-9d626e1b7fc9",
+      "id": "f70cb950-8404-11e5-9587-a9ab24234e71",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "if (!_.isString(msg)) {\n    msg = 'l'\n}\n\nreturn msg + Array(1024).join(\"o\")\n",
+      "name": "=",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 827.6574096679688,
+      "y": 177.31008911132812,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "2b0491c0-8409-11e5-ba65-c7266f18b284",
+      "resourceType": "flow-node",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "name": "*",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-debug",
+        "composedOf": {
+          "debug-node": {
+            "type": "nanocyte-node-debug",
+            "linkedToPrev": true,
+            "linkedToPulse": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 997.0311279296875,
+      "y": 243.22137451171875,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "dedef040-840a-11e5-97a2-11faf115a92f",
+      "resourceType": "flow-node",
+      "name": "D",
+      "class": "demultiplex",
+      "helpText": "Break an array of values into discreet messages",
+      "type": "operation:demultiplex",
+      "category": "operation",
+      "uuid": "99b84aa0-338b-11e4-8c21-0800200c9a66",
+      "defaults": {},
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/demultiplexer_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-demultiplex"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/demultiplex.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "value": "{{msg}}",
+      "x": 828.4600219726562,
+      "y": 243.12673950195312,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "d19ac6f0-84ca-11e5-ae09-07f253fe7944",
       "resourceType": "flow-node",
       "payloadType": "date",
       "once": false,
@@ -36,118 +129,37 @@
       "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
       "inputLocations": [],
       "outputLocations": [],
-      "x": 670.4551391601562,
-      "y": 246.53338623046875
-    },
-    {
-      "id": "6cac5b50-81a5-11e5-86e3-9d626e1b7fc9",
-      "resourceType": "flow-node",
-      "output": 1,
-      "func": "\nreturn {\n    alphabet: [\n    \"a\",\n    \"b\",\n    \"c\"\n    ]\n};",
-      "name": "Function",
-      "class": "function",
-      "helpText": "Sends a custom message using javascript",
-      "category": "operation",
-      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
-      "type": "operation:function",
-      "defaults": {
-        "output": 1,
-        "func": "\nreturn msg;"
-      },
-      "input": 1,
-      "formTemplatePath": "/pages/node_forms/function_form.html",
-      "nanocyte": {
-        "name": "nanocyte-node-function"
-      },
-      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
-      "inputLocations": [],
-      "outputLocations": [],
-      "x": 859.5971069335938,
-      "y": 218.21873474121094
-    },
-    {
-      "id": "7a75de00-81a5-11e5-86e3-9d626e1b7fc9",
-      "resourceType": "flow-node",
-      "name": "Demultiplex",
-      "class": "demultiplex",
-      "helpText": "Break an array of values into discreet messages",
-      "type": "operation:demultiplex",
-      "category": "operation",
-      "uuid": "99b84aa0-338b-11e4-8c21-0800200c9a66",
-      "defaults": {},
-      "input": 1,
-      "output": 1,
-      "formTemplatePath": "/pages/node_forms/demultiplexer_form.html",
-      "nanocyte": {
-        "name": "nanocyte-node-demultiplex"
-      },
-      "logo": "https://ds78apnml6was.cloudfront.net/operation/demultiplex.svg",
-      "inputLocations": [],
-      "outputLocations": [],
-      "x": 1024.388427734375,
-      "y": 172.91526794433594,
-      "value": "{{msg.alphabet}}"
-    },
-    {
-      "id": "7ebcfd90-81a5-11e5-86e3-9d626e1b7fc9",
-      "resourceType": "flow-node",
-      "active": true,
-      "debug": true,
-      "complete": false,
-      "name": "Debug",
-      "class": "debug",
-      "helpText": "Display the contents of the messages it receives in the debug panel",
-      "category": "operation",
-      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
-      "type": "operation:debug",
-      "defaults": {
-        "active": true,
-        "debug": true,
-        "complete": false
-      },
-      "color": "#87a980",
-      "input": 1,
-      "output": 0,
-      "align": "right",
-      "formTemplatePath": "/pages/node_forms/debug_form.html",
-      "nanocyte": {
-        "name": "nanocyte-node-debug",
-        "composedOf": {
-          "debug-node": {
-            "type": "nanocyte-node-debug",
-            "linkedToPrev": true,
-            "linkedToPulse": true
-          }
-        }
-      },
-      "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
-      "inputLocations": [],
-      "outputLocations": [],
-      "x": 1261.665283203125,
-      "y": 134.40733337402344
+      "x": 654.5963134765625,
+      "y": 176.72080993652344
     }
   ],
   "links": [
     {
-      "from": "6906abe0-81a5-11e5-86e3-9d626e1b7fc9",
+      "from": "f70cb950-8404-11e5-9587-a9ab24234e71",
       "fromPort": 0,
-      "to": "6cac5b50-81a5-11e5-86e3-9d626e1b7fc9",
+      "to": "dedef040-840a-11e5-97a2-11faf115a92f",
       "toPort": 0
     },
     {
-      "from": "6cac5b50-81a5-11e5-86e3-9d626e1b7fc9",
+      "from": "dedef040-840a-11e5-97a2-11faf115a92f",
       "fromPort": 0,
-      "to": "7a75de00-81a5-11e5-86e3-9d626e1b7fc9",
+      "to": "f70cb950-8404-11e5-9587-a9ab24234e71",
       "toPort": 0
     },
     {
-      "from": "7a75de00-81a5-11e5-86e3-9d626e1b7fc9",
+      "from": "d19ac6f0-84ca-11e5-ae09-07f253fe7944",
       "fromPort": 0,
-      "to": "7ebcfd90-81a5-11e5-86e3-9d626e1b7fc9",
+      "to": "f70cb950-8404-11e5-9587-a9ab24234e71",
+      "toPort": 0
+    },
+    {
+      "from": "dedef040-840a-11e5-97a2-11faf115a92f",
+      "fromPort": 0,
+      "to": "2b0491c0-8409-11e5-ba65-c7266f18b284",
       "toPort": 0
     }
   ],
   "deployed": false,
-  "selectedFlowNode": null,
-  "selectedLink": null
+  "selectedLink": null,
+  "selectedFlowNode": null
 }

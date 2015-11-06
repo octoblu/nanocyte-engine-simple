@@ -4,7 +4,7 @@ debug = require('debug')('demultiplex-spec')
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
 describe 'demultiplex', ->
-  @timeout 60000
+  @timeout 10000
 
   describe 'when instantiated with a flow', ->
 
