@@ -2,7 +2,7 @@ _ = require 'lodash'
 debug = require('debug')('equals-train-spec')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-MAX_TIMES = 25
+MAX_TIMES = 2
 DEBUG_TIMES= 6
 describe 'EqualsTrain', ->
   @timeout 30000

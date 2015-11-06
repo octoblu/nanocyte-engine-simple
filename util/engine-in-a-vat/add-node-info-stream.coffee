@@ -10,15 +10,14 @@ class AddNodeInfoStream extends Transform
   _transform: (envelope, enc, next) =>
     fromNode = @nanocyteConfig[envelope.metadata.fromNodeId]
     toNode = @nanocyteConfig[envelope.metadata.toNodeId]
-
     debugInfo =
       fromNode: fromNode
       toNode: toNode
       timestamp: Date.now()
       nanocyteType: envelope.metadata.nanocyteType
 
-    newEnvelope = _.merge debugInfo: debugInfo, envelope
-    @push newEnvelope
+    _.extend envelope.metadata, debugInfo: debugInfo
+    @push envelope
     next()
 
 module.exports = AddNodeInfoStream

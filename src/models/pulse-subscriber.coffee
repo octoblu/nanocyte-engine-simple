@@ -6,8 +6,8 @@ class PulseSubscriber
     {@datastore} = dependencies
     @datastore ?= new Datastore
 
-  subscribe: (flowId) =>
+  subscribe: (flowId, callback=->) =>
     debug flowId
-    @datastore.setex "pulse:#{flowId}", 300, '', =>
+    @datastore.setex "pulse:#{flowId}", 300, '', callback
 
 module.exports = PulseSubscriber
