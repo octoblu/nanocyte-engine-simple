@@ -40,7 +40,6 @@ class EngineRouter extends Transform
     messageStreams.on 'readable', =>
       envelope = messageStreams.read()
       return @push null unless envelope?
-
       router = new @EngineRouterNode nodes: @nodes
       messageStreams.add router.stream
 

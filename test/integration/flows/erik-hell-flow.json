@@ -1,0 +1,151 @@
+{
+  "flowId": "d52f1148-b12b-4491-a382-d38ef53f1499",
+  "token": "254a4db0099b273481c539ef7d9b05a122c032a8",
+  "name": "Erik's Hell Flow",
+  "description": null,
+  "hash": "7340996b",
+  "nodes": [
+    {
+      "id": "fb64b280-83e8-11e5-a54d-592e8cef699d",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "once": false,
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger",
+        "composedOf": {
+          "trigger-node": {
+            "type": "nanocyte-node-trigger",
+            "linkedToNext": true,
+            "linkedToInput": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 394.60919189453125,
+      "y": 151.22850036621094
+    },
+    {
+      "id": "fd0e43d0-83e8-11e5-a54d-592e8cef699d",
+      "resourceType": "flow-node",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "name": "Debug",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-debug",
+        "composedOf": {
+          "debug-node": {
+            "type": "nanocyte-node-debug",
+            "linkedToPrev": true,
+            "linkedToPulse": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 744.1443481445312,
+      "y": 71.21443176269531
+    },
+    {
+      "id": "3ca23d00-8400-11e5-a54d-592e8cef699d",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "while(true) {}\n;",
+      "name": "evil1",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 554.6973876953125,
+      "y": 100.88175964355469,
+      "debug": true
+    }
+  ],
+  "links": [
+    {
+      "from": "fb64b280-83e8-11e5-a54d-592e8cef699d",
+      "fromPort": 0,
+      "to": "3ca23d00-8400-11e5-a54d-592e8cef699d",
+      "toPort": 0
+    },
+    {
+      "from": "3ca23d00-8400-11e5-a54d-592e8cef699d",
+      "fromPort": 0,
+      "to": "fd0e43d0-83e8-11e5-a54d-592e8cef699d",
+      "toPort": 0
+    }
+  ],
+  "deployed": false,
+  "selectedFlowNode": {
+    "id": "3ca23d00-8400-11e5-a54d-592e8cef699d",
+    "resourceType": "flow-node",
+    "output": 1,
+    "func": "_.defer(function(){\n    while(true) {\n      _.defer(function() {\n          throw new Error(\"Erik is wasting my time\");\n      });\n    }\n});",
+    "name": "evil1",
+    "class": "function",
+    "helpText": "Sends a custom message using javascript",
+    "category": "operation",
+    "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+    "type": "operation:function",
+    "defaults": {
+      "output": 1,
+      "func": "\nreturn msg;"
+    },
+    "input": 1,
+    "formTemplatePath": "/pages/node_forms/function_form.html",
+    "nanocyte": {
+      "name": "nanocyte-node-function"
+    },
+    "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+    "inputLocations": [],
+    "outputLocations": [],
+    "x": 554.6973876953125,
+    "y": 100.88175964355469,
+    "debug": true
+  },
+  "selectedLink": null
+}

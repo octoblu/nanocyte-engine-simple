@@ -1,0 +1,231 @@
+{
+  "flowId": "873ed416-891f-48df-9106-dd3c5d77ca3f",
+  "token": "3227668b9c7d115c79afe763b7d314d0c27ddb00",
+  "name": "Harder",
+  "description": "",
+  "hash": "f046699f",
+  "nodes": [
+    {
+      "id": "4622f130-84aa-11e5-935a-81e5b14784d3",
+      "resourceType": "flow-node",
+      "output": 1,
+      "func": "if (!_.isString(msg)) {\n    msg = 'l'\n}\n\nreturn msg + Array(8*1024).join(\"o\")\n",
+      "name": "=",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/function.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 827.6574096679688,
+      "y": 177.31008911132812,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "4622f131-84aa-11e5-935a-81e5b14784d3",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "repeat": 1000,
+      "on": true,
+      "name": "8",
+      "class": "interval",
+      "helpText": "Emit a message at the specified interval.",
+      "category": "operation",
+      "uuid": "37f0a966-2f17-11e4-9617-a6c5e4d22fb7",
+      "deviceId": "765bd3a4-546d-45e6-a62f-1157281083f0",
+      "type": "operation:interval",
+      "defaults": {
+        "payloadType": "date",
+        "repeat": 1000,
+        "on": true
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/interval_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-interval"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/interval.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 555.8320922851562,
+      "y": 174.66468811035156,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "46231840-84aa-11e5-935a-81e5b14784d3",
+      "resourceType": "flow-node",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "name": "*",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-debug",
+        "composedOf": {
+          "debug-node": {
+            "type": "nanocyte-node-debug",
+            "linkedToPrev": true,
+            "linkedToPulse": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 1081.2724609375,
+      "y": 286.87030029296875,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "46231841-84aa-11e5-935a-81e5b14784d3",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "crontab": "* * * * * *",
+      "once": false,
+      "name": "~",
+      "class": "schedule",
+      "helpText": "Emits messages at the specified time using Cron syntax",
+      "category": "operation",
+      "uuid": "37f0ac4a-2f17-11e4-9617-a6c5e4d22fb7",
+      "deviceId": "765bd3a4-546d-45e6-a62f-1157281083f0",
+      "type": "operation:schedule",
+      "defaults": {
+        "payloadType": "date",
+        "crontab": "* * * * *",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/schedule_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-schedule"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/schedule.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 895.870849609375,
+      "y": 208.43118286132812,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "46231842-84aa-11e5-935a-81e5b14784d3",
+      "resourceType": "flow-node",
+      "name": "D",
+      "class": "demultiplex",
+      "helpText": "Break an array of values into discreet messages",
+      "type": "operation:demultiplex",
+      "category": "operation",
+      "uuid": "99b84aa0-338b-11e4-8c21-0800200c9a66",
+      "defaults": {},
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/demultiplexer_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-demultiplex"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/demultiplex.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "value": "{{msg}}",
+      "x": 828.4600219726562,
+      "y": 243.12673950195312,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "46231843-84aa-11e5-935a-81e5b14784d3",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "repeat": 1000,
+      "on": true,
+      "name": "8",
+      "class": "interval",
+      "helpText": "Emit a message at the specified interval.",
+      "category": "operation",
+      "uuid": "37f0a966-2f17-11e4-9617-a6c5e4d22fb7",
+      "deviceId": "765bd3a4-546d-45e6-a62f-1157281083f0",
+      "type": "operation:interval",
+      "defaults": {
+        "payloadType": "date",
+        "repeat": 1000,
+        "on": true
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/interval_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-interval"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/interval.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "needsConfiguration": false,
+      "needsSetup": false,
+      "x": 555.8320922851562,
+      "y": 243.7447509765625
+    }
+  ],
+  "links": [
+    {
+      "from": "4622f131-84aa-11e5-935a-81e5b14784d3",
+      "fromPort": 0,
+      "to": "4622f130-84aa-11e5-935a-81e5b14784d3",
+      "toPort": 0
+    },
+    {
+      "from": "46231841-84aa-11e5-935a-81e5b14784d3",
+      "fromPort": 0,
+      "to": "46231840-84aa-11e5-935a-81e5b14784d3",
+      "toPort": 0
+    },
+    {
+      "from": "4622f130-84aa-11e5-935a-81e5b14784d3",
+      "fromPort": 0,
+      "to": "46231842-84aa-11e5-935a-81e5b14784d3",
+      "toPort": 0
+    },
+    {
+      "from": "46231842-84aa-11e5-935a-81e5b14784d3",
+      "fromPort": 0,
+      "to": "4622f130-84aa-11e5-935a-81e5b14784d3",
+      "toPort": 0
+    },
+    {
+      "from": "46231843-84aa-11e5-935a-81e5b14784d3",
+      "fromPort": 0,
+      "to": "46231842-84aa-11e5-935a-81e5b14784d3",
+      "toPort": 0
+    }
+  ],
+  "deployed": false
+}
