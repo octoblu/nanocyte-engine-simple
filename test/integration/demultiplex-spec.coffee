@@ -15,10 +15,16 @@ describe 'demultiplex', ->
         @sut.initialize done
 
       before (done) ->
-          @messages = []
-          @responseStream = @sut.triggerByName name: 'Trigger', message: 1
-          @responseStream.on 'data', (msg) => @messages.push msg
-          @responseStream.on 'finish', done
+        @messages = []
+        @responseStream = @sut.triggerByName name: 'Trigger', message: 1
+        @responseStream.on 'data', (msg) =>
+          console.log "got data! #{@messages.length}"
+          @messages.push msg
+          if @messages.length > 1100
+            console.error 'give up and die'
+            process.exit 1
+        @responseStream.on 'finish', done
 
       it "Should send messages to engine-debug", ->
-        expect(@messages.length).to.equal 28
+        expect(@messages.length).to.be.at.least 1000
+        expect(@messages.length).to.be.at.most 1100

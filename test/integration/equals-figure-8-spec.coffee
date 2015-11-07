@@ -22,4 +22,5 @@ describe 'EqualsFigure8', ->
         @responseStream.on 'finish', done
 
       it "Should kill maybe around 1000 messages", ->
+        expect(@messages.length).to.be.at.least 1000
         expect(@messages.length).to.be.at.most 1100

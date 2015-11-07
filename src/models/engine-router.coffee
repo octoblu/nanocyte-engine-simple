@@ -4,13 +4,19 @@ async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
 mergeStream = require 'merge-stream'
 Benchmark = require 'simple-benchmark'
-MAX_MESSAGE_COUNT = 1000
+MAX_MESSAGE_COUNT = 10
+routerCount = 1
+realCount = 0
 
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
     super objectMode: true
+    @routerId = routerCount++
     {@messageCount} = @metadata
     @messageCount ?= 0
+    @childCount = 0
+    @inMessages = 0
+    @ended = false
     {@EngineRouterNode, @nodes, @lockManager} = dependencies
 
     @lockManager ?= new (require './lock-manager')
@@ -25,12 +31,12 @@ class EngineRouter extends Transform
       @nodes = new NodeAssembler().assembleNodes()
 
   _transform: ({config, data, message}, enc) =>
-    return @push null if @messageCount > MAX_MESSAGE_COUNT
     config = @_setupEngineNodeRoutes config
     toNodeIds = config[@metadata.fromNodeId]?.linkedTo || []
 
     if toNodeIds.length == 0
-      @push null
+      @push null unless @ended
+      return @ended = true
 
     debug "Incoming message from: #{@metadata.fromNodeId}, to: #{toNodeIds}"
 
@@ -38,9 +44,26 @@ class EngineRouter extends Transform
     messageStreams = @_sendMessages toNodeIds, message, config
 
     messageStreams.on 'readable', =>
+      realCount++
+      @inMessages++
       envelope = messageStreams.read()
-      return @push null unless envelope?
+      return if @ended
+
+      if (@messageCount + @inMessages) > MAX_MESSAGE_COUNT
+        @ended = true
+        return @push null
+
+      unless envelope?
+        @ended = true
+        return @push null
+
+      childCount = envelope.metadata.messageCount
+      messageNumber = envelope.metadata.messageNumber
+      console.log "#{Array(@routerId).join('-')}router: #{@routerId} in: #{@inMessages} out: #{@messageCount} Got message ##{messageNumber} real: #{realCount} childCount: #{@childCount}"
+      # console.log "metadata", JSON.stringify(_.omit(envelope.metadata, 'debugInfo'), null, 2)
+      # return if envelope.metadata.fromNodeId == 'router'
       @push envelope.message
+      # console.log "router #{@routerId} got message from #{envelope.metadata.fromNodeId}. total routers: #{routerCount}. realMessageCount: #{realMessageCount}. @messageCount: #{@messageCount}"
       router = new @EngineRouterNode nodes: @nodes
       messageStreams.add router.stream
 
@@ -48,12 +71,14 @@ class EngineRouter extends Transform
 
     messageStreams.on 'finish', =>
       debug 'finish', benchmark.toString(), 'messageCount: ', @messageCount
-      @end()
+      @push null unless @ended
+      @ended = true
 
   _doWork: (task, callback) =>
     {router,envelope} = task
+    oldMessageCount = envelope.metadata.messageCount
     newEnvelope =
-      metadata: _.extend {}, envelope.metadata, toNodeId: 'router', messageCount: @messageCount
+      metadata: _.extend {}, envelope.metadata, toNodeId: 'router', messageCount: 0, messageNumber: realCount
       message: envelope.message
 
     router.message newEnvelope
@@ -75,6 +100,9 @@ class EngineRouter extends Transform
     return @messageStreams
 
   _sendMessage: (toNodeId, message, config, metadata={}) =>
+    @childCount++
+    @messageCount++
+
     sendMessageStream = new PassThrough objectMode: true
     toNodeConfig = config[toNodeId]
 
@@ -90,7 +118,7 @@ class EngineRouter extends Transform
         toNodeId: toNodeId
         fromNodeId: @metadata.fromNodeId
         transactionId: transactionId
-        messageCount: ++@messageCount
+        messageCount: @messageCount
 
       envelope =
         metadata: _.extend {}, @metadata, newMetadata, metadata
@@ -121,9 +149,10 @@ class EngineRouter extends Transform
     return config
 
   _protect: (run, onError) ->
-    domain = require('domain').create()
-    domain.on 'error', onError
-    domain.run run
+    # domain = require('domain').create()
+    # domain.on 'error', onError
+    # domain.run run
+    run()
     return
 
   _sendError: (fromNodeId, error, config) =>
@@ -131,7 +160,7 @@ class EngineRouter extends Transform
       fromNodeId = @metadata.fromNodeId
     console.error error.stack
 
-    metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: fromNodeId, toNodeId: 'engine-debug', messageCount: @messageCount++
+    metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: fromNodeId, toNodeId: 'engine-debug', messageCount: @messageCount
     messageStream = @_sendMessage 'engine-debug', {message: error.message}, config, metadata
     @messageStreams.add messageStream
 

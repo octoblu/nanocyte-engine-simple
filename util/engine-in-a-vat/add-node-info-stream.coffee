@@ -8,6 +8,7 @@ class AddNodeInfoStream extends Transform
     @on 'finish', => debug "I'm dead now, so grateful"
 
   _transform: (envelope, enc, next) =>
+    return @push null unless envelope?
     fromNode = @nanocyteConfig[envelope.metadata.fromNodeId]
     toNode = @nanocyteConfig[envelope.metadata.toNodeId]
     debugInfo =

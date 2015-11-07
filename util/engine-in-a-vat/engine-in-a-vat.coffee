@@ -132,7 +132,7 @@ class EngineInAVat
   @printMessage: (envelope) ->
     {metadata, message} = envelope
     debugInfo = metadata.debugInfo || {}
-    
+
     messageString = JSON.stringify message
     lastTime = debugInfo.timestamp unless lastTime?
     timeDiff = debugInfo.timestamp - lastTime
