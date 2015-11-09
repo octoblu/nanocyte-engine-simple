@@ -18,6 +18,12 @@ class Datastore
       debug benchmark.toString()
       callback error, json3.parse data
 
+  get: (key, callback) =>
+    benchmark = new Benchmark label: 'datastore.get'
+    @client.get key, (error, data) =>
+      debug benchmark.toString()
+      callback error, json3.parse data
+
   hset: (key, field, value, callback) =>
     benchmark = new Benchmark label: 'datastore.hset'
     valueStr = JSON.stringify(value)
@@ -31,11 +37,11 @@ class Datastore
   setex: (key, timeout, value, callback) =>
     @client.setex key, timeout, value, callback
 
-  getAndIncrementCount: (key, callback) =>
+  getAndIncrementCount: (key, increment, expirationTime, callback) =>
     @client
       .multi()
-      .incr   key
-      .expire key, 10
+      .incrby key, increment
+      .expire key, expirationTime
       .exec (error, results) =>
         count = _.first results
         callback error, count

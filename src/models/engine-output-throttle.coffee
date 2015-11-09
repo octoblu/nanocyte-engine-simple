@@ -16,7 +16,7 @@ class EngineOutputThrottle extends Transform
     {config} = envelope
 
     key = "#{config.uuid}:#{@moment().unix()}"
-    @datastore.getAndIncrementCount key, (error, count) =>
+    @datastore.getAndIncrementCount key, 1, 10, (error, count) =>
       debug 'count', error, count
       next()
       return @push(null) if count > 10

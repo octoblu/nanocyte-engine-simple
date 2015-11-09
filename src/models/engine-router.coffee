@@ -113,9 +113,10 @@ class EngineRouter extends Transform
     return config
 
   _protect: (run, onError) ->
-    domain = require('domain').create()
-    domain.on 'error', onError
-    domain.run run
+    # domain = require('domain').create()
+    # domain.on 'error', onError
+    # domain.run run
+    run()
     return
 
   _sendError: (fromNodeId, error, config) =>
