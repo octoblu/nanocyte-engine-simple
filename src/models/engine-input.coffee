@@ -13,7 +13,6 @@ class EngineInput extends Transform
     {@EngineRouterNode, @pulseSubscriber} = dependencies
     @pulseSubscriber ?= new PulseSubscriber
     @EngineRouterNode ?= require './engine-router-node'
-    @messageCount = 0
 
   _transform: ({config, data, message}, enc, next) =>
     if message.topic == 'subscribe:pulse'
@@ -37,11 +36,7 @@ class EngineInput extends Transform
 
     messageStreams.on 'readable', =>
       envelope = messageStreams.read()
-      @messageCount++
-      if @messageCount>1000
-        messageStreams.end()
-      else
-        @push envelope?.message
+      @push envelope?.message
 
     _.each fromNodeIds, (fromNodeId) =>
       envelope = @_getEngineEnvelope message, fromNodeId, @instanceId
@@ -57,7 +52,6 @@ class EngineInput extends Transform
       flowId: @flowId
       instanceId: @instanceId
       fromNodeId: fromNodeId
-      messageCount: ++@messageCount
     message: message
 
   _getFromNodeIds: (message, config) =>

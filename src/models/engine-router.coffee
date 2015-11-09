@@ -9,8 +9,6 @@ MAX_MESSAGE_COUNT = 1000
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
     super objectMode: true
-    {@messageCount} = @metadata
-    @messageCount ?= 0
     {@EngineRouterNode, @nodes, @lockManager} = dependencies
 
     @lockManager ?= new (require './lock-manager')
@@ -25,7 +23,6 @@ class EngineRouter extends Transform
       @nodes = new NodeAssembler().assembleNodes()
 
   _transform: ({config, data, message}, enc) =>
-    return @push null if @messageCount > MAX_MESSAGE_COUNT
     config = @_setupEngineNodeRoutes config
     toNodeIds = config[@metadata.fromNodeId]?.linkedTo || []
 
@@ -46,14 +43,12 @@ class EngineRouter extends Transform
 
       @queue.push router: router, envelope: envelope
 
-    messageStreams.on 'finish', =>
-      debug 'finish', benchmark.toString(), 'messageCount: ', @messageCount
-      @end()
+    messageStreams.on 'finish', => @end()
 
   _doWork: (task, callback) =>
     {router,envelope} = task
     newEnvelope =
-      metadata: _.extend {}, envelope.metadata, toNodeId: 'router', messageCount: @messageCount
+      metadata: _.extend {}, envelope.metadata, toNodeId: 'router'
       message: envelope.message
 
     router.message newEnvelope
@@ -90,13 +85,10 @@ class EngineRouter extends Transform
         toNodeId: toNodeId
         fromNodeId: @metadata.fromNodeId
         transactionId: transactionId
-        messageCount: ++@messageCount
 
       envelope =
         metadata: _.extend {}, @metadata, newMetadata, metadata
         message: message
-
-      debug "messageCount: #{@messageCount}"
 
       sendMessageStream.on 'finish', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
 
@@ -131,7 +123,7 @@ class EngineRouter extends Transform
       fromNodeId = @metadata.fromNodeId
     console.error error.stack
 
-    metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: fromNodeId, toNodeId: 'engine-debug', messageCount: @messageCount++
+    metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: fromNodeId, toNodeId: 'engine-debug'
     messageStream = @_sendMessage 'engine-debug', {message: error.message}, config, metadata
     @messageStreams.add messageStream
 
