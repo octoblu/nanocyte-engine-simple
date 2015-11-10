@@ -34,18 +34,9 @@ class EngineInput extends Transform
         console.error "#{@flowId} already timed out"
         return @shutdown()
 
-      @_sendMessages fromNodeIds, message
+      @_sendMessages fromNodeIds, message.payload?.from, message,
 
-  shutdown: (error) =>
-    debug "shutting down"
-    return if @shuttingDown
-    @shuttingDown = true
-
-    EngineBatcher.flush @flowId, (flushError) =>
-      console.error flushError if flushError?
-      @push null
-
-  _sendMessages: (fromNodeIds, message) =>
+  _sendMessages: (fromNodeIds, nodeId, message) =>
     benchmark = new Benchmark label: 'engine-input'
 
     @messageStreams.on 'finish', =>
@@ -62,7 +53,7 @@ class EngineInput extends Transform
       router = new @EngineRouterNode
 
       router.stream.on 'error', (error) =>
-        debug "got error from a router."
+        debug "got error from a router.", error
         @sendError error.nodeId, error, => @shutdown()
 
       @messageStreams.add router.message envelope
@@ -95,8 +86,18 @@ class EngineInput extends Transform
         msgType: 'error'
       message: error.message
 
+    debug "sending this error message", errorMessage
     router = new @EngineRouterNode
     router.stream.on 'finish', callback
     router.message errorMessage
+
+  shutdown: (error) =>
+    debug "shutting down"
+    return if @shuttingDown
+    @shuttingDown = true
+
+    EngineBatcher.flush @flowId, (flushError) =>
+      console.error flushError if flushError?
+      @push null
 
 module.exports = EngineInput

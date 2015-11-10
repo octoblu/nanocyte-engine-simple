@@ -13,14 +13,15 @@ class NanocyteToEngineStream extends Transform
     delete @metadata.toNodeId
 
   _transform: (message, enc, next) =>
-    return @push null unless message?
+    _.defer =>
+      return @push null unless message?
 
-    @push
-      message: message
-      metadata: @metadata
+      @push
+        message: message
+        metadata: @metadata
 
-    debug "NanocyteToEngineStream sending message", message, "with metadata", @metadata
+      debug "NanocyteToEngineStream sending message", message, "with metadata", @metadata
 
-    next()
+      next()
 
 module.exports = NanocyteToEngineStream
