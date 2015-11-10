@@ -92,11 +92,7 @@ class EngineRouter extends Transform
 
       toNode.stream.on 'finish', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
       toNode.stream.on 'error', (error) => @forwardError toNodeId, error
-
-      @_protect =>
-        toNode.message envelope
-      , (error) =>
-        @forwardError toNodeId, error
+      toNode.message envelope
 
     return toNode.stream
 
@@ -110,13 +106,6 @@ class EngineRouter extends Transform
     config['engine-batch'] = type: 'engine-batch'
     return config
 
-  _protect: (run, onError) ->
-    # domain = require('domain').create()
-    # domain.on 'error', onError
-    # domain.run run
-    run()
-    return
-
   forwardError: (nodeId, error, config) =>
     nodeId = @metadata.fromNodeId if _.startsWith nodeId, 'engine-'
     error.nodeId = nodeId unless error.nodeId?
@@ -127,7 +116,6 @@ class EngineRouter extends Transform
   shutdown: =>
     return if @shuttingDown
     @shuttingDown = true
-    debug "killing #{@queue.length()} messages"
     @queue.kill()
     @push null
 
