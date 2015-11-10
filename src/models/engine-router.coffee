@@ -119,7 +119,7 @@ class EngineRouter extends Transform
 
   forwardError: (nodeId, error, config) =>
     nodeId = @metadata.fromNodeId if _.startsWith nodeId, 'engine-'
-    error.nodeId = nodeId
+    error.nodeId = nodeId unless error.nodeId?
 
     @shutdown()
     @emit 'error', error
