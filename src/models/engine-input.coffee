@@ -10,37 +10,38 @@ class EngineInput extends Transform
   constructor: (options, dependencies={}) ->
     super objectMode: true
     {@flowId, @instanceId, @toNodeId, @fromNodeId} = options
-    {@EngineRouterNode, @pulseSubscriber} = dependencies
+    {@EngineRouterNode, @pulseSubscriber, FlowTime} = dependencies
 
     @pulseSubscriber ?= new PulseSubscriber
     @EngineRouterNode ?= require './engine-router-node'
+    FlowTime ?= require './flow-time'
+    @flowTime = new FlowTime flowId: @flowId
     @messageStreams = mergeStream()
 
   _transform: ({config, data, message}, enc, next) =>
     if message.topic == 'subscribe:pulse'
-      @pulseSubscriber.subscribe @flowId, @flushAndEnd
+      @pulseSubscriber.subscribe @flowId, @shutdown
       return
 
     fromNodeIds = @_getFromNodeIds message, config
 
     if _.isEmpty fromNodeIds
-      @flushAndEnd()
-      return console.error 'engineInput could not infer fromNodeId'
+      @shutdown()
+      return console.error "#{@flowId}: engineInput could not infer fromNodeId"
 
-    @_createRouters fromNodeIds, message
+    @flowTime.getTimedOut (error, timedOut)=>
+      if timedOut
+        console.error "#{@flowId} already timed out"
+        return @shutdown()
 
-  flushAndEnd: =>
-    EngineBatcher.flush @flowId, (flushError) =>
-      console.error flushError if flushError?
-      @messageStreams.end()
-      @push null
+      @_sendMessages fromNodeIds, message.payload?.from, message,
 
-  _createRouters: (fromNodeIds, message) =>
+  _sendMessages: (fromNodeIds, nodeId, message) =>
     benchmark = new Benchmark label: 'engine-input'
 
     @messageStreams.on 'finish', =>
       debug 'finish', benchmark.toString()
-      @flushAndEnd()
+      @shutdown()
 
     @messageStreams.on 'readable', =>
       return if @shuttingDown
@@ -50,6 +51,11 @@ class EngineInput extends Transform
     _.each fromNodeIds, (fromNodeId) =>
       envelope = @_getEngineEnvelope message, fromNodeId, @instanceId
       router = new @EngineRouterNode
+
+      router.stream.on 'error', (error) =>
+        debug "got error from a router.", error
+        @sendError error.nodeId, error, => @shutdown()
+
       @messageStreams.add router.message envelope
 
   _getEngineEnvelope: (message, fromNodeId) =>
@@ -61,6 +67,7 @@ class EngineInput extends Transform
       flowId: @flowId
       instanceId: @instanceId
       fromNodeId: fromNodeId
+      flowTime: @flowTime
     message: message
 
   _getFromNodeIds: (message, config) =>
@@ -68,5 +75,29 @@ class EngineInput extends Transform
     return [fromNodeId] if fromNodeId?
     return [] unless config?
     _.pluck config[message.fromUuid], 'nodeId'
+
+  sendError: (nodeId, error, callback) =>
+    errorMessage =
+      metadata:
+        toNodeId: 'router'
+        fromNodeId: nodeId
+        flowId: @flowId
+        instanceId: @instanceId
+        msgType: 'error'
+      message: error.message
+
+    debug "sending this error message", errorMessage
+    router = new @EngineRouterNode
+    router.stream.on 'finish', callback
+    router.message errorMessage
+
+  shutdown: (error) =>
+    debug "shutting down"
+    return if @shuttingDown
+    @shuttingDown = true
+
+    EngineBatcher.flush @flowId, (flushError) =>
+      console.error flushError if flushError?
+      @push null
 
 module.exports = EngineInput

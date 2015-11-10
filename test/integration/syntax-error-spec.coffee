@@ -5,7 +5,7 @@ EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 describe 'syntax-error', ->
   @timeout 60000
   MAX_TIMES = 10
-  ERROR_COUNT = 2
+  ERROR_COUNT = 3
 
   describe 'when instantiated with a flow', ->
 
@@ -22,7 +22,7 @@ describe 'syntax-error', ->
 
         maybeFinish = =>
           @engineErrors = _.filter @messages, (message) =>
-            message.metadata.msgType == 'error'
+            message.metadata.msgType == 'error'          
 
           if @engineErrors.length != ERROR_COUNT
             @failure = true
