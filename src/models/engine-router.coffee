@@ -23,6 +23,7 @@ class EngineRouter extends Transform
       @nodes = new NodeAssembler().assembleNodes()
 
   _transform: ({config, data, message}, enc) =>
+    debug "Incoming metadata: #{@metadata}"
     config = @_setupEngineNodeRoutes config
     toNodeIds = config[@metadata.fromNodeId]?.linkedTo || []
 

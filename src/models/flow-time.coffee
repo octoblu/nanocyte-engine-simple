@@ -3,7 +3,7 @@ debug = require('debug')('nanocyte-engine-simple:flow-time')
 class FlowTime
   constructor: (options={}, dependencies={})->
     {@flowId, @maxTime, @expires} = options
-    @maxTime ?= 30000
+    @maxTime ?= 3000
     @expires ?= 60*60
     {@datastore} = dependencies
     @datastore ?= new (require './datastore')
@@ -35,7 +35,6 @@ class FlowTime
 
   addTimedOut: (callback) =>
     @add (error, time) =>
-      return callback error if error?
-      return callback null, @timedOut time
+      return callback null, error? or @timedOut time
 
 module.exports = FlowTime
