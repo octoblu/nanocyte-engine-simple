@@ -50,8 +50,8 @@ class EngineInput extends Transform
     @shuttingDown = true
     clearInterval @intervalId
     @flowTime.add()
-    EngineBatcher.flush @flowId, (error) =>
-      console.error error if error?
+    EngineBatcher.flush @flowId, (flushError) =>
+      console.error flushError if flushError?
       @messageStreams.end()
       return @push null unless error?
 
