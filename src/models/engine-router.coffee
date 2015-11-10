@@ -93,13 +93,19 @@ class EngineRouter extends Transform
 
       sendMessageStream.on 'finish', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
 
-      @_protect =>
+      sendMessage = =>
         messageStream = toNode.stream
         toNode.message envelope
         messageStream.pipe sendMessageStream
-      , (error) =>
+
+      errorHandler = (error)=>
         @_sendError toNodeId, error, config
         sendMessageStream.push null
+
+      if @metadata.msgType == 'error'
+        sendMessage()
+      else
+        @_protect sendMessage, errorHandler
 
     return sendMessageStream
 
@@ -118,10 +124,9 @@ class EngineRouter extends Transform
     return config
 
   _protect: (run, onError) ->
-    # domain = require('domain').create()
-    # domain.on 'error', onError
-    # domain.run run
-    run()
+    domain = require('domain').create()
+    domain.on 'error', onError
+    domain.run run
     return
 
   _sendError: (fromNodeId, error, config) =>
