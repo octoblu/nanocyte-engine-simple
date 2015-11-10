@@ -10,18 +10,22 @@ class EngineInputThrottle extends EngineInput
 
     {FlowTime} = dependencies
     FlowTime ?= require './flow-time'
+    @flowTime = new FlowTime flowId: @flowId
 
     @errorMsg = "#{@flowId} #{ERROR_MSG}"
+    super options, dependencies
 
-    @flowTime = new FlowTime flowId: @flowId
+  _transform: (msg, enc, next)=>
+    return super msg, enc, next if @alreadyChecked
     @flowTime.getTimedOut (error, timedOut) =>
+      @alreadyChecked = true
       if timedOut
-        alreadyErrored = "#{@errorMsg} on construction due to #{@flowTime.totalTime}ms of previous use"
+        @flushAndEnd()
+        alreadyErrored = "#{@errorMsg} on transform due to #{@flowTime.totalTime}ms of previous use"
         console.error alreadyErrored
         throw new Error(alreadyErrored)
       @intervalId = setInterval @_checkTimedOut, @throttleIntervalFrequency
-
-    super options, dependencies
+      super msg, enc, next
 
   _checkTimedOut: =>
     @flowTime.addTimedOut (error, timedOut) =>
