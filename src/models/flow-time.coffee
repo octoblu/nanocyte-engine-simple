@@ -3,7 +3,7 @@ debug = require('debug')('nanocyte-engine-simple:flow-time')
 class FlowTime
   constructor: (options={}, dependencies={})->
     {@flowId, @maxTime, @expires} = options
-    @maxTime ?= 3000
+    @maxTime ?= 30000
     @expires ?= 60*60
     {@datastore} = dependencies
     @datastore ?= new (require './datastore')

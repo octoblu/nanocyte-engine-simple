@@ -23,14 +23,14 @@ class EngineRouter extends Transform
       @nodes = new NodeAssembler().assembleNodes()
 
   _transform: ({config, data, message}, enc) =>
-    debug "Incoming metadata: #{@metadata}"
+    debug "Incoming metadata:", @metadata
     config = @_setupEngineNodeRoutes config
     toNodeIds = config[@metadata.fromNodeId]?.linkedTo || []
 
+    debug "Incoming message from: #{@metadata.fromNodeId}, to:", toNodeIds
+
     if toNodeIds.length == 0
       @push null
-
-    debug "Incoming message from: #{@metadata.fromNodeId}, to: #{toNodeIds}"
 
     benchmark = new Benchmark label: 'engine-router'
     messageStreams = @_sendMessages toNodeIds, message, config
@@ -111,6 +111,10 @@ class EngineRouter extends Transform
       nodeToWireToOutput.linkedTo.push 'engine-batch'
 
     config['engine-batch'] = type: 'engine-batch'
+    config['engine-error'] =
+      type: 'nanocyte-component-passthrough'
+      linkedTo: ['engine-debug']
+
     return config
 
   _protect: (run, onError) ->

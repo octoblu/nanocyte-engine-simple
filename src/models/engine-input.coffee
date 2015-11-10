@@ -50,25 +50,28 @@ class EngineInput extends Transform
     @shuttingDown = true
     clearInterval @intervalId
     @flowTime.add()
+    return @flushAndEnd() unless error?
+    @sendError error, @flushAndEnd
+
+  flushAndEnd: =>
     EngineBatcher.flush @flowId, (flushError) =>
       console.error flushError if flushError?
       @messageStreams.end()
-      return @push null unless error?
-
-      @sendError error, => @push null
+      @push null
 
   sendError: (error, callback) =>
     console.log "Sending error: #{error}"
     errorMessage =
       metadata:
-        toNodeId: 'engine-debug'
+        toNodeId: 'router'
+        fromNodeId: 'engine-error'
         flowId: @flowId
         instanceId: @instanceId
         msgType: 'error'
       message: error.message
 
     router = new @EngineRouterNode
-    router.on 'finish', callback
+    router.stream.on 'finish', callback
     router.message errorMessage
 
   _createRouters: (fromNodeIds, message) =>
@@ -79,6 +82,7 @@ class EngineInput extends Transform
       @shutdown()
 
     @messageStreams.on 'readable', =>
+      return if @shuttingDown
       envelope = @messageStreams.read()
       @push envelope?.message
 

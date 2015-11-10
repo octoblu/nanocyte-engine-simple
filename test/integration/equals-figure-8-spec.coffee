@@ -3,7 +3,7 @@ debug = require('debug')('function-to-function-loop')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 describe 'EqualsFigure8', ->
-  @timeout 18000
+  @timeout 38000
   describe 'when instantiated with a flow', ->
 
     describe 'When instantiated with a flow', ->
