@@ -7,6 +7,8 @@ class EngineNode
 
   message: (envelope) =>
     envelopeStream = @_getEnvelopeStream envelope
+    envelopeStream.on 'error', (error) => @stream.emit 'error', error
+
     envelopeStream.pipe @stream
     envelopeStream.write envelope.message
 

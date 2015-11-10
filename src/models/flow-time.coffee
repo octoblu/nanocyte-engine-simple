@@ -25,6 +25,7 @@ class FlowTime
       callback null, @timedOut time
 
   timedOut: (time)=>
+    debug "time was #{time}"
     return time >= @maxTime
 
   add: (callback=->) =>

@@ -4,47 +4,45 @@ async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
 mergeStream = require 'merge-stream'
 Benchmark = require 'simple-benchmark'
-MAX_MESSAGE_COUNT = 1000
 
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
     super objectMode: true
     {@EngineRouterNode, @nodes, @lockManager} = dependencies
-
     @lockManager ?= new (require './lock-manager')
     @EngineRouterNode ?= require './engine-router-node'
 
     @messageStreams = mergeStream()
-
     @queue = async.queue @_doWork, 1
 
     unless @nodes?
       NodeAssembler = require './node-assembler'
       @nodes = new NodeAssembler().assembleNodes()
 
-  _transform: ({config, data, message}, enc) =>
+  _transform: ({config, data, message}, enc, next) =>
     debug "Incoming metadata:", @metadata
     config = @_setupEngineNodeRoutes config
     toNodeIds = config[@metadata.fromNodeId]?.linkedTo || []
 
     debug "Incoming message from: #{@metadata.fromNodeId}, to:", toNodeIds
 
-    if toNodeIds.length == 0
-      @push null
+    return @shutdown() if toNodeIds.length == 0
 
-    benchmark = new Benchmark label: 'engine-router'
     messageStreams = @_sendMessages toNodeIds, message, config
 
     messageStreams.on 'readable', =>
+      return if @shuttingDown
+
       envelope = messageStreams.read()
-      return @push null unless envelope?
+      return @shutdown() unless envelope?
+
       @push envelope.message
       router = new @EngineRouterNode nodes: @nodes
       messageStreams.add router.stream
 
       @queue.push router: router, envelope: envelope
 
-    messageStreams.on 'finish', => @end()
+    messageStreams.on 'finish', @shutdown
 
   _doWork: (task, callback) =>
     {router,envelope} = task
@@ -52,9 +50,10 @@ class EngineRouter extends Transform
       metadata: _.extend {}, envelope.metadata, toNodeId: 'router'
       message: envelope.message
 
-    router.message newEnvelope
-
     router.stream.on 'finish', => callback()
+    router.stream.on 'error', (error) => @forwardError envelope.fromNodeId, error
+
+    router.message newEnvelope
 
   _sendMessages: (toNodeIds, message, config) =>
     toNodeIds = _.sortBy toNodeIds, (toNodeId) =>
@@ -91,15 +90,16 @@ class EngineRouter extends Transform
         metadata: _.extend {}, @metadata, newMetadata, metadata
         message: message
 
-      sendMessageStream.on 'finish', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
+      messageStream = toNode.stream
+      messageStream.on 'finish', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
+      messageStream.on 'error', (error) => @forwardError toNodeId, error
+
+      messageStream.pipe sendMessageStream
 
       @_protect =>
-        messageStream = toNode.stream
         toNode.message envelope
-        messageStream.pipe sendMessageStream
       , (error) =>
-        @_sendError toNodeId, error, config
-        sendMessageStream.push null
+        @forwardError toNodeId, error
 
     return sendMessageStream
 
@@ -111,26 +111,28 @@ class EngineRouter extends Transform
       nodeToWireToOutput.linkedTo.push 'engine-batch'
 
     config['engine-batch'] = type: 'engine-batch'
-    config['engine-error'] =
-      type: 'nanocyte-component-passthrough'
-      linkedTo: ['engine-debug']
-
     return config
 
   _protect: (run, onError) ->
-    # domain = require('domain').create()
-    # domain.on 'error', onError
-    # domain.run run
-    run()
+    domain = require('domain').create()
+    domain.on 'error', onError
+    domain.run run
     return
 
-  _sendError: (fromNodeId, error, config) =>
-    if _.startsWith fromNodeId, 'engine-'
-      fromNodeId = @metadata.fromNodeId
-    console.error error.stack
+  forwardError: (nodeId, error, config) =>
+    error.nodeId = nodeId
 
-    metadata = _.extend {}, @metadata, msgType: 'error', fromNodeId: fromNodeId, toNodeId: 'engine-debug'
-    messageStream = @_sendMessage 'engine-debug', {message: error.message}, config, metadata
-    @messageStreams.add messageStream
+    if _.startsWith nodeId, 'engine-'
+      fromNodeId = @metadata.fromNodeId
+
+    @shutdown()
+    @emit 'error', error
+
+  shutdown: =>
+    return if @shuttingDown
+    @shuttingDown = true
+    debug "killing #{@queue.length()} messages"
+    @queue.kill()
+    @push null
 
 module.exports = EngineRouter

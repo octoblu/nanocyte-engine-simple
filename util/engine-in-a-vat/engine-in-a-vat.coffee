@@ -12,6 +12,7 @@ ConfigurationSaver = require 'nanocyte-configuration-saver-redis'
 
 getEngineInputNode = require './get-engine-input-node'
 AddNodeInfoStream = require './add-node-info-stream'
+uuid = require 'node-uuid'
 
 {Stats} = require 'fast-stats'
 
@@ -21,7 +22,7 @@ class VatChannelConfig
 class EngineInAVat
   constructor: (options) ->
     {@flowName, @flowData} = options
-    @instanceId = 'engine-in-a-vat'
+    @instanceId = uuid.v4()
     @triggers = @findTriggers()
 
     client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
@@ -132,7 +133,7 @@ class EngineInAVat
   @printMessage: (envelope) ->
     {metadata, message} = envelope
     debugInfo = metadata.debugInfo || {}
-    
+
     messageString = JSON.stringify message
     lastTime = debugInfo.timestamp unless lastTime?
     timeDiff = debugInfo.timestamp - lastTime

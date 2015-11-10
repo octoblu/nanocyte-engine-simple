@@ -27,54 +27,25 @@ class EngineInput extends Transform
 
     if _.isEmpty fromNodeIds
       @shutdown()
-      return console.error 'engineInput could not infer fromNodeId'
+      return console.error "#{@flowId}: engineInput could not infer fromNodeId"
 
     @flowTime.getTimedOut (error, timedOut)=>
       if timedOut
         console.error "#{@flowId} already timed out"
         return @shutdown()
 
-      @intervalId = setInterval @_checkTimedOut, 1000
-
-      @_createRouters fromNodeIds, message
-
-  _checkTimedOut: =>
-    @flowTime.addTimedOut (error, timedOut) =>
-      if timedOut
-        console.error "#{@flowId} timed out"
-        @shutdown new Error('timed out')
+      @_sendMessages fromNodeIds, message
 
   shutdown: (error) =>
-    debug "shutting down with error", error
+    debug "shutting down"
     return if @shuttingDown
     @shuttingDown = true
-    clearInterval @intervalId
-    @flowTime.add()
-    return @flushAndEnd() unless error?
-    @sendError error, @flushAndEnd
 
-  flushAndEnd: =>
     EngineBatcher.flush @flowId, (flushError) =>
       console.error flushError if flushError?
-      @messageStreams.end()
       @push null
 
-  sendError: (error, callback) =>
-    console.log "Sending error: #{error}"
-    errorMessage =
-      metadata:
-        toNodeId: 'router'
-        fromNodeId: 'engine-error'
-        flowId: @flowId
-        instanceId: @instanceId
-        msgType: 'error'
-      message: error.message
-
-    router = new @EngineRouterNode
-    router.stream.on 'finish', callback
-    router.message errorMessage
-
-  _createRouters: (fromNodeIds, message) =>
+  _sendMessages: (fromNodeIds, message) =>
     benchmark = new Benchmark label: 'engine-input'
 
     @messageStreams.on 'finish', =>
@@ -89,6 +60,11 @@ class EngineInput extends Transform
     _.each fromNodeIds, (fromNodeId) =>
       envelope = @_getEngineEnvelope message, fromNodeId, @instanceId
       router = new @EngineRouterNode
+
+      router.stream.on 'error', (error) =>
+        debug "got error from a router."
+        @sendError error.nodeId, error, => @shutdown()
+
       @messageStreams.add router.message envelope
 
   _getEngineEnvelope: (message, fromNodeId) =>
@@ -100,6 +76,7 @@ class EngineInput extends Transform
       flowId: @flowId
       instanceId: @instanceId
       fromNodeId: fromNodeId
+      flowTime: @flowTime
     message: message
 
   _getFromNodeIds: (message, config) =>
@@ -107,5 +84,19 @@ class EngineInput extends Transform
     return [fromNodeId] if fromNodeId?
     return [] unless config?
     _.pluck config[message.fromUuid], 'nodeId'
+
+  sendError: (nodeId, error, callback) =>
+    errorMessage =
+      metadata:
+        toNodeId: 'router'
+        fromNodeId: nodeId
+        flowId: @flowId
+        instanceId: @instanceId
+        msgType: 'error'
+      message: error.message
+
+    router = new @EngineRouterNode
+    router.stream.on 'finish', callback
+    router.message errorMessage
 
 module.exports = EngineInput

@@ -14,13 +14,14 @@ class NanocyteNodeWrapper
         @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
         @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
         @ChristacheioStream ?= require './christacheio-stream'
-
+        @FlowTimeStream ?= require './flow-time-stream'
       _getEnvelopeStream: ({metadata, message}) =>
         combine.obj(
           debugStream 'in'
           new @EngineToNanocyteStream metadata
           new @ChristacheioStream metadata
           new NanocyteClass metadata
+          new @FlowTimeStream metadata
           new @NanocyteToEngineStream metadata
           debugStream 'out'
         )
