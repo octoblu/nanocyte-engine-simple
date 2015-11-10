@@ -10,48 +10,24 @@ class EngineInput extends Transform
   constructor: (options, dependencies={}) ->
     super objectMode: true
     {@flowId, @instanceId, @toNodeId, @fromNodeId} = options
-    {@EngineRouterNode, @pulseSubscriber, FlowTime} = dependencies
+    {@EngineRouterNode, @pulseSubscriber} = dependencies
 
     @pulseSubscriber ?= new PulseSubscriber
     @EngineRouterNode ?= require './engine-router-node'
-    FlowTime ?= require './flow-time'
-    @flowTime = new FlowTime flowId: @flowId
     @messageStreams = mergeStream()
 
   _transform: ({config, data, message}, enc, next) =>
     if message.topic == 'subscribe:pulse'
-      @pulseSubscriber.subscribe @flowId, @shutdown
+      @pulseSubscriber.subscribe @flowId, @flushAndEnd
       return
 
     fromNodeIds = @_getFromNodeIds message, config
 
     if _.isEmpty fromNodeIds
-      @shutdown()
+      @flushAndEnd()
       return console.error 'engineInput could not infer fromNodeId'
 
-    @flowTime.getTimedOut (error, timedOut)=>
-      if timedOut
-        console.error "#{@flowId} already timed out"
-        return @shutdown()
-
-      @intervalId = setInterval @_checkTimedOut, 1000
-
-      @_createRouters fromNodeIds, message
-
-  _checkTimedOut: =>
-    @flowTime.addTimedOut (error, timedOut) =>
-      if timedOut
-        console.error "#{@flowId} timed out"
-        @shutdown new Error('timed out')
-
-  shutdown: (error) =>
-    debug "shutting down with error", error
-    return if @shuttingDown
-    @shuttingDown = true
-    clearInterval @intervalId
-    @flowTime.add()
-    return @flushAndEnd() unless error?
-    @sendError error, @flushAndEnd
+    @_createRouters fromNodeIds, message
 
   flushAndEnd: =>
     EngineBatcher.flush @flowId, (flushError) =>
@@ -59,27 +35,12 @@ class EngineInput extends Transform
       @messageStreams.end()
       @push null
 
-  sendError: (error, callback) =>
-    console.log "Sending error: #{error}"
-    errorMessage =
-      metadata:
-        toNodeId: 'router'
-        fromNodeId: 'engine-error'
-        flowId: @flowId
-        instanceId: @instanceId
-        msgType: 'error'
-      message: error.message
-
-    router = new @EngineRouterNode
-    router.stream.on 'finish', callback
-    router.message errorMessage
-
   _createRouters: (fromNodeIds, message) =>
     benchmark = new Benchmark label: 'engine-input'
 
     @messageStreams.on 'finish', =>
       debug 'finish', benchmark.toString()
-      @shutdown()
+      @flushAndEnd()
 
     @messageStreams.on 'readable', =>
       return if @shuttingDown

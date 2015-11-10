@@ -3,8 +3,8 @@ _ = require 'lodash'
 debug = require('debug')('engine-in-a-vat:node-assembler')
 
 NodeAssembler = require('../../src/models/node-assembler')
-EngineInput = require '../../src/models/engine-input'
-EngineInputNode = require '../../src/models/engine-input-node'
+EngineInputThrottle = require '../../src/models/engine-input-throttle'
+EngineInputThrottleNode = require '../../src/models/engine-input-throttle-node'
 EngineRouterNode = require '../../src/models/engine-router-node'
 
 getVatEngineInput = (outputStream) ->
@@ -35,16 +35,15 @@ getVatEngineInput = (outputStream) ->
       outputStream.write envelope if envelope?
       super envelope
 
-  class VatEngineInput extends EngineInput
+  class VatEngineInput extends EngineInputThrottle
     constructor: (options, dependencies={}) ->
       dependencies.EngineRouterNode = VatEngineRouterNode
       super options, dependencies
 
-  class VatEngineInputNode extends EngineInputNode
+  class VatEngineInputNode extends EngineInputThrottleNode
     constructor: (dependencies={}) ->
       dependencies.EngineInput = VatEngineInput
       super dependencies
-
 
   return VatEngineInputNode
 

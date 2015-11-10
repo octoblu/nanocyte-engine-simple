@@ -3,8 +3,8 @@ debug = require('debug')('nanocyte-engine-simple:flow-time')
 class FlowTime
   constructor: (options={}, dependencies={})->
     {@flowId, @maxTime, @expires} = options
-    @maxTime ?= 30000
-    @expires ?= 60*60
+    @maxTime ?= 3000
+    @expires ?= 60 #60*60
     {@datastore} = dependencies
     @datastore ?= new (require './datastore')
 
@@ -17,12 +17,13 @@ class FlowTime
     return "stats-#{@flowId}-minute-#{@startMinute}"
 
   get: (callback)=>
-    @datastore.get @minuteKey, callback
+    @datastore.get @minuteKey, (error, time) =>
+      @totalTime = time
+      callback(error,time)
 
   getTimedOut: (callback)=>
-    @datastore.get @minuteKey, (error, time) =>
-      return callback error if error?
-      callback null, @timedOut time
+    @get (error, time) =>
+      callback error, error? or @timedOut time
 
   timedOut: (time)=>
     return time >= @maxTime
@@ -31,10 +32,12 @@ class FlowTime
     now = Date.now()
     elapsedTime = now - @lastTime
     @lastTime = now
-    @datastore.getAndIncrementCount @minuteKey, elapsedTime, @expires, callback
+    @datastore.getAndIncrementCount @minuteKey, elapsedTime, @expires, (error, time) =>
+      @totalTime = time
+      callback(error,time)
 
   addTimedOut: (callback) =>
     @add (error, time) =>
-      return callback null, error? or @timedOut time
+      return callback error, error? or @timedOut time
 
 module.exports = FlowTime
