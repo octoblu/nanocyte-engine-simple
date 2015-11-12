@@ -1,6 +1,6 @@
 {
   "name": "@octoblu/nanocyte-engine-simple",
-  "version": "2.0.36",
+  "version": "2.0.37",
   "description": "Simple engine for nanocytes",
   "main": "src/models/router.coffee",
   "engines": {
