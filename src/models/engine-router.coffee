@@ -31,7 +31,10 @@ class EngineRouter extends Transform
       toNodeConfig = config[toNodeId]
       "#{toNodeConfig?.type}(#{toNodeId})"
 
-    debug "Incoming message from: #{fromNodeName}(#{@metadata.fromNodeId}), to:", toNodeNames
+    unless _.isEmpty toNodeNames
+      debug "Incoming message #{JSON.stringify message}"
+      debug "  from: #{fromNodeName}(#{@metadata.fromNodeId})"
+      debug "  to: #{toNodeNames}"
 
     return @shutdown() if toNodeIds.length == 0
 
@@ -66,7 +69,7 @@ class EngineRouter extends Transform
         return 0 if _.startsWith toNodeId, 'engine-'
         return 1
 
-    async.eachSeries toNodeIds, (toNodeId, done) =>
+    async.each toNodeIds, (toNodeId, done) =>
       messageStream = @_sendMessage toNodeId, message, config
       return done() unless messageStream?
 
@@ -82,14 +85,15 @@ class EngineRouter extends Transform
     ToNodeClass = @nodes[toNodeConfig.type]
     return console.error "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
 
-    toNode = new ToNodeClass()
-
     transactionGroupId = toNodeConfig.transactionGroupId
     if toNodeId == 'engine-data'
       fromNodeConfig = config[@metadata.fromNodeId]
       transactionGroupId = fromNodeConfig.transactionGroupId
 
+    passThrough = new PassThrough objectMode: true
+
     @lockManager.lock transactionGroupId, @metadata.transactionId, (error, transactionId) =>
+      toNode = new ToNodeClass()
 
       newMetadata =
         toNodeId: toNodeId
@@ -100,11 +104,14 @@ class EngineRouter extends Transform
         metadata: _.extend {}, @metadata, newMetadata, metadata
         message: message
 
-      toNode.stream.on 'finish', => @lockManager.unlock transactionGroupId, transactionId
+      toNode.stream.on 'finish', =>
+        debug "unlocking #{toNodeConfig.type}(#{toNodeId}) #{transactionGroupId} #{transactionId}"
+        @lockManager.unlock transactionGroupId, transactionId
       toNode.stream.on 'error', (error) => @forwardError toNodeId, error
       toNode.message envelope
+      toNode.stream.pipe passThrough
 
-    return toNode.stream
+    return passThrough
 
   _setupEngineNodeRoutes: (config) =>
     nodesToWireToOutput = _.filter config, (node) =>

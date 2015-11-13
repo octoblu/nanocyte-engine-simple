@@ -11,8 +11,6 @@ class EngineData extends Transform
     @datastore ?= new Datastore
 
   _transform: ({message, data, config}, enc, next) =>
-    debug "data is currently", data
-
     unless config?
       console.error "engine-data.coffee: config not found for '#{@fromNodeId}'"
       @push null
