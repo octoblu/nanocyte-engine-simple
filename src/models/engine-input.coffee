@@ -5,6 +5,7 @@ PulseSubscriber = require './pulse-subscriber'
 Benchmark = require 'simple-benchmark'
 mergeStream = require 'merge-stream'
 EngineBatcher = require './engine-batcher'
+LockManager = require './lock-manager'
 
 class EngineInput extends Transform
   constructor: (options, dependencies={}) ->
@@ -48,9 +49,10 @@ class EngineInput extends Transform
       envelope = @messageStreams.read()
       @push envelope?.message
 
+    lockManager = new LockManager
     _.each fromNodeIds, (fromNodeId) =>
       envelope = @_getEngineEnvelope message, fromNodeId, @instanceId
-      router = new @EngineRouterNode
+      router = new @EngineRouterNode lockManager: lockManager
 
       router.stream.on 'error', (error) =>
         debug "got error from a router.", error

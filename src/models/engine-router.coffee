@@ -40,7 +40,7 @@ class EngineRouter extends Transform
       return @shutdown() unless envelope?
 
       @push envelope.message
-      router = new @EngineRouterNode nodes: @nodes
+      router = new @EngineRouterNode nodes: @nodes, lockManager: @lockManager
       messageStreams.add router.stream
 
       @queue.push router: router, envelope: envelope
