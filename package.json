@@ -2,12 +2,11 @@
   "name": "@octoblu/nanocyte-engine-simple",
   "version": "2.0.38",
   "description": "Simple engine for nanocytes",
-  "main": "src/models/router.coffee",
+  "main": "index.js",
   "engines": {
     "node": ">=4.0.0"
   },
   "scripts": {
-    "start": "node nanocyte-engine-simple.js",
     "test": "istanbul cover _mocha -- -R spec",
     "postinstall": "coffee ./scripts/install-components.coffee",
     "benchmark": "node ./integration/runner.js"
@@ -21,7 +20,7 @@
     "octoblu"
   ],
   "author": "Octoblu <npm@octoblu.com>",
-  "license": "MIT",
+  "license": "SEE LICENCE IN LICENSE",
   "bugs": {
     "url": "https://github.com/octoblu/nanocyte-engine-simple/issues"
   },
@@ -55,7 +54,8 @@
     "redlock": "^1.0.0",
     "request": "^2.64.0",
     "simple-benchmark": "^1.0.7",
-    "stream-combiner2": "^1.1.1"
+    "stream-combiner2": "^1.1.1",
+    "hiredis": "^0.4.1"
   },
   "devDependencies": {
     "array-stream": "^0.1.1",
@@ -78,5 +78,8 @@
   },
   "optionalDependencies": {
     "hiredis": "^0.4.1"
+  },
+  "directories": {
+    "test": "test"
   }
 }

@@ -1,25 +1,17 @@
-{Transform, PassThrough} = require 'stream'
+{Transform} = require 'stream'
 _ = require 'lodash'
-async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
 mergeStream = require 'merge-stream'
+NodeAssembler = require './node-assembler'
+LockManager = require './lock-manager'
+MessageProcessQueue = require './message-process-queue'
 
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
     super objectMode: true
-    {@EngineRouterNode, @nodes, @lockManager} = dependencies
-    @lockManager ?= new (require './lock-manager')
-    @EngineRouterNode ?= require './engine-router-node'
-
-    @messageStreams = mergeStream()
-    @queue = async.queue @_doWork, 1
-
-    unless @nodes?
-      NodeAssembler = require './node-assembler'
-      @nodes = new NodeAssembler().assembleNodes()
+    @nodes = new NodeAssembler().assembleNodes()
 
   _transform: ({config, data, message}, enc, next) =>
-
     config = @_setupEngineNodeRoutes config
     fromNodeConfig = config[@metadata.fromNodeId]
 
@@ -31,38 +23,14 @@ class EngineRouter extends Transform
       toNodeConfig = config[toNodeId]
       "#{toNodeConfig?.type}(#{toNodeId})"
 
-    unless _.isEmpty toNodeNames
-      debug "Incoming message #{JSON.stringify message}"
-      debug "  from: #{fromNodeName}(#{@metadata.fromNodeId})"
-      debug "  to: #{toNodeNames}"
+    # unless _.isEmpty toNodeNames
+    debug "Incoming message #{JSON.stringify message}"
+    debug "  from: #{fromNodeName}(#{@metadata.fromNodeId})"
+    debug "  to: #{toNodeNames}"
 
-    return @shutdown() if toNodeIds.length == 0
+    return @push null if toNodeIds.length == 0
 
-    messageStreams = @_sendMessages toNodeIds, message, config
-
-    messageStreams.on 'finish', @shutdown
-    messageStreams.on 'readable', =>
-      return if @shuttingDown
-
-      envelope = messageStreams.read()
-      return @shutdown() unless envelope?
-
-      @push envelope.message
-      router = new @EngineRouterNode nodes: @nodes, lockManager: @lockManager
-      messageStreams.add router.stream
-
-      @queue.push router: router, envelope: envelope
-
-  _doWork: (task, callback) =>
-    {router,envelope} = task
-    newEnvelope =
-      metadata: _.extend {}, envelope.metadata, toNodeId: 'router'
-      message: envelope.message
-
-    router.stream.on 'finish', => callback()
-    router.stream.on 'error', (error) => @forwardError envelope.metadata.fromNodeId, error
-
-    router.message newEnvelope
+    @_sendMessages toNodeIds, message, config
 
   _sendMessages: (toNodeIds, message, config) =>
     toNodeIds = _.sortBy toNodeIds, (toNodeId) =>
@@ -70,29 +38,25 @@ class EngineRouter extends Transform
         return 1
 
     async.each toNodeIds, (toNodeId, done) =>
-      messageStream = @_sendMessage toNodeId, message, config
-      return done() unless messageStream?
+      @_sendMessage toNodeId, message, config, (error) =>
+        console.error error.message if error?
+        done()
+    , =>
+      @push null
 
-      @messageStreams.add messageStream
-      messageStream.on 'finish', => done()
-
-    return @messageStreams
-
-  _sendMessage: (toNodeId, message, config, metadata={}) =>
+  _sendMessage: (toNodeId, message, config, metadata={}, callback) =>
     toNodeConfig = config[toNodeId]
-    return console.error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
+    return callback new Error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
 
     ToNodeClass = @nodes[toNodeConfig.type]
-    return console.error "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
+    return callback new Error "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
 
     transactionGroupId = toNodeConfig.transactionGroupId
     if toNodeId == 'engine-data'
       fromNodeConfig = config[@metadata.fromNodeId]
       transactionGroupId = fromNodeConfig.transactionGroupId
 
-    passThrough = new PassThrough objectMode: true
-
-    @lockManager.lock transactionGroupId, @metadata.transactionId, (error, transactionId) =>
+    LockManager.lock transactionGroupId, @metadata.transactionId, (error, transactionId) =>
       toNode = new ToNodeClass()
 
       newMetadata =
@@ -104,14 +68,9 @@ class EngineRouter extends Transform
         metadata: _.extend {}, @metadata, newMetadata, metadata
         message: message
 
-      toNode.stream.on 'finish', =>
-        debug "unlocking #{toNodeConfig.type}(#{toNodeId}) #{transactionGroupId} #{transactionId}"
-        @lockManager.unlock transactionGroupId, transactionId
-      toNode.stream.on 'error', (error) => @forwardError toNodeId, error
-      toNode.message envelope
-      toNode.stream.pipe passThrough
-
-    return passThrough
+      EngineStreamer.add toNode.stream
+      MessageProcessQueue.push node: toNode, envelope: envelope
+      callback()
 
   _setupEngineNodeRoutes: (config) =>
     nodesToWireToOutput = _.filter config, (node) =>
@@ -122,18 +81,5 @@ class EngineRouter extends Transform
 
     config['engine-batch'] = type: 'engine-batch'
     return config
-
-  forwardError: (nodeId, error, config) =>
-    nodeId = @metadata.fromNodeId if _.startsWith nodeId, 'engine-'
-    error.nodeId = nodeId unless error.nodeId?
-
-    @shutdown()
-    @emit 'error', error
-
-  shutdown: =>
-    return if @shuttingDown
-    @shuttingDown = true
-    @queue.kill()
-    @push null
 
 module.exports = EngineRouter

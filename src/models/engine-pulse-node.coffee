@@ -11,8 +11,7 @@ class EnginePulseNode extends EngineNode
     @EnginePulse ?= require './engine-pulse'
     @DatastoreCheckKeyStream ?= require './datastore-check-key-stream'
 
-
-  _getEnvelopeStream: ({metadata, message}) =>
+  _getEnvelopeStream: ({metadata}) =>
     combine.obj(
       debugStream 'in'
       new @DatastoreCheckKeyStream metadata

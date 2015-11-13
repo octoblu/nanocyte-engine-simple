@@ -50,4 +50,4 @@ class LockManager
   _generateTransactionId: =>
     NodeUuid.v4()
 
-module.exports  = LockManager
+module.exports  = new LockManager

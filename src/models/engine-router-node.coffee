@@ -5,7 +5,7 @@ combine = require 'stream-combiner2'
 class EngineRouterNode extends EngineNode
   constructor: (dependencies={}) ->
     super
-    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineRouter, @nodes, @lockManager} = dependencies
+    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EngineRouter} = dependencies
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
     @EngineRouter ?= require './engine-router'
@@ -14,7 +14,7 @@ class EngineRouterNode extends EngineNode
     combine.obj(
       debugStream 'in'
       new @EngineToNanocyteStream metadata
-      new @EngineRouter metadata, nodes: @nodes, lockManager: @lockManager
+      new @EngineRouter metadata
       new @NanocyteToEngineStream metadata
       debugStream 'out'
     )

@@ -14,6 +14,7 @@ class Datastore
 
   hget: (key, field, callback) =>
     benchmark = new Benchmark label: 'datastore.hget'
+    debug 'hget', key, field
     @client.hget key, field, (error, data) =>
       debug benchmark.toString()
       callback error, json3.parse data
