@@ -12,17 +12,15 @@ class MessageRouteQueue
 
   _routeEnvelope: ({envelope, stream}, callback) =>
     router = new EngineRouterNode
-    EngineStreamer.add router.stream
-
     router.stream.on 'finish', (error) =>
-      stream.end()
       @_onRouteFinish error, envelope, callback
 
     # check for lock here
     debug 'routing envelope:', envelope
-    router.message envelope
+    router.sendEnvelope envelope
 
   _onRouteFinish: (error, envelope, callback) =>
+    EngineStreamer.subtract()
     callback error if error?
 
     @_unlock envelope, callback

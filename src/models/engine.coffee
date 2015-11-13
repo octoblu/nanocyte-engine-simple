@@ -9,21 +9,15 @@ class Engine
     debug 'Engine.run', envelope
 
     node = new EngineInputNode
-    EngineStreamer.add node.stream
-
     MessageProcessQueue.push node: node, envelope: envelope
-    #
-    # EngineStreamer.stream.on 'finish', =>
-    #   @finish callback
-    #
-    # EngineStreamer.stream.on 'error', (error) =>
-    #   @panic error, callback
+
+    EngineStreamer.onDone => @finish callback
 
     return EngineStreamer.stream
 
-  panic: (error, callback) =>
-    @finish =>
-      callback error
+  # panic: (error, callback) =>
+  #   @finish =>
+  #     callback error
 
   finish: (callback) =>
     EngineBatcher.flush @flowId, (flushError) =>

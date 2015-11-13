@@ -2,6 +2,7 @@
 _         = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:engine-input')
 PulseSubscriber = require './pulse-subscriber'
+MessageRouteQueue = require './message-route-queue'
 
 class EngineInput extends Transform
   constructor: (metadata, dependencies={}) ->
@@ -21,12 +22,11 @@ class EngineInput extends Transform
 
     return @push null unless fromNodeId?
 
-    @_sendMessage fromNodeId, message.payload?.from, message,
+    @_sendEnvelope fromNodeId, message.payload?.from, message,
 
-  _sendMessage: (fromNodeId, nodeId, message) =>
-    envelope = @_getEngineEnvelope message, fromNodeId, @instanceId
-    debug '@push', envelope
-    @push envelope
+  _sendEnvelope: (fromNodeId, nodeId, message) =>
+    envelope = @_getEngineEnvelope message, fromNodeId
+    MessageRouteQueue.push envelope: envelope
     @push null
 
   _getEngineEnvelope: (message, fromNodeId) =>
@@ -38,6 +38,7 @@ class EngineInput extends Transform
       flowId: @flowId
       instanceId: @instanceId
       fromNodeId: fromNodeId
+      flowTime: @flowTime
     message: message
 
   _getFromNodeId: (message, config) =>

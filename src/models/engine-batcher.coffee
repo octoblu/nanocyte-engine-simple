@@ -37,7 +37,7 @@ class EngineBatcher
 
     delete @batches[key]
 
-    stream = engineOutputNode.message metadata: metadata, message: message
+    stream = engineOutputNode.sendEnvelope metadata: metadata, message: message
     stream.on 'finish', =>
       debug 'engine-output finish', key
       callback()

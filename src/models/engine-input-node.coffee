@@ -11,6 +11,7 @@ class EngineInputNode extends EngineNode
     @EngineInput ?= require './engine-input'
 
   _getEnvelopeStream: ({metadata, message}) =>
+    
     combine.obj(
       debugStream 'in'
       new @EngineToNanocyteStream metadata

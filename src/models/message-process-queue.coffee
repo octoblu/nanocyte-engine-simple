@@ -13,20 +13,23 @@ class MessageProcessQueue
     @queue.push envelope
 
   _processMessage: ({node, envelope}, callback) =>
-    node.stream.on 'finish', callback
-    node.stream.on 'readable', =>
-      stream = new PassThrough objectMode: true
-      EngineStreamer.add stream
+    node.stream.on 'finish', =>
+      EngineStreamer.subtract()
+      callback()
 
+    node.stream.on 'readable', =>
+      EngineStreamer.add()
       receivedEnvelope = node.stream.read()
       debug 'processed envelope:', receivedEnvelope
-      return stream.end() unless receivedEnvelope?
+
+      unless receivedEnvelope?
+        EngineStreamer.subtract()
+        return
 
       {metadata, message} = receivedEnvelope
       {toNodeId} = metadata
 
       newMetadata = _.clone metadata
-      newMetadata.fromNodeId = toNodeId
       newMetadata.toNodeId = 'router'
 
       newEnvelope =
@@ -34,9 +37,9 @@ class MessageProcessQueue
         message: message
 
       debug 'enqueueueueing envelope', newEnvelope
-      MessageRouteQueue.push envelope: newEnvelope, stream: stream
+      MessageRouteQueue.push envelope: newEnvelope
 
     debug 'sending message:', envelope
-    node.message envelope    
+    node.sendEnvelope envelope
 
 module.exports = new MessageProcessQueue
