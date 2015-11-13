@@ -20,13 +20,18 @@ class EngineRouter extends Transform
 
   _transform: ({config, data, message}, enc, next) =>
 
-    debug "Incoming metadata:", @metadata
     config = @_setupEngineNodeRoutes config
+    fromNodeConfig = config[@metadata.fromNodeId]
 
-    toNodeIds = config[@metadata.fromNodeId]?.linkedTo || []
+    toNodeIds = fromNodeConfig?.linkedTo || []
     toNodeIds = ['engine-debug'] if @metadata.msgType == 'error' and @metadata.fromNodeId != 'engine-debug'
 
-    debug "Incoming message from: #{@metadata.fromNodeId}, to:", toNodeIds
+    fromNodeName = fromNodeConfig?.type
+    toNodeNames = _.map toNodeIds, (toNodeId) =>
+      toNodeConfig = config[toNodeId]
+      "#{toNodeConfig?.type}(#{toNodeId})"
+
+    debug "Incoming message from: #{fromNodeName}(#{@metadata.fromNodeId}), to:", toNodeNames
 
     return @shutdown() if toNodeIds.length == 0
 
@@ -79,7 +84,12 @@ class EngineRouter extends Transform
 
     toNode = new ToNodeClass()
 
-    @lockManager.lock toNodeConfig.transactionGroupId, @metadata.transactionId, (error, transactionId) =>
+    transactionGroupId = toNodeConfig.transactionGroupId
+    if toNodeId == 'engine-data'
+      fromNodeConfig = config[@metadata.fromNodeId]
+      transactionGroupId = fromNodeConfig.transactionGroupId
+
+    @lockManager.lock transactionGroupId, @metadata.transactionId, (error, transactionId) =>
 
       newMetadata =
         toNodeId: toNodeId
@@ -90,7 +100,7 @@ class EngineRouter extends Transform
         metadata: _.extend {}, @metadata, newMetadata, metadata
         message: message
 
-      toNode.stream.on 'finish', => @lockManager.unlock toNodeConfig.transactionGroupId, transactionId
+      toNode.stream.on 'finish', => @lockManager.unlock transactionGroupId, transactionId
       toNode.stream.on 'error', (error) => @forwardError toNodeId, error
       toNode.message envelope
 
