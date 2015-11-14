@@ -8,6 +8,9 @@ class MessageRouteQueue
   constructor: ->
     @queue = async.queue @_routeEnvelope, 1
 
+  clear: =>
+    @queue.kill()
+    
   push: (task) =>
     {metadata} = task.envelope
     {transactionGroupId, transactionId} = metadata

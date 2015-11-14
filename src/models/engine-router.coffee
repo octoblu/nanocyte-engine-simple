@@ -46,10 +46,10 @@ class EngineRouter extends Transform
 
   _sendMessage: (toNodeId, message, config) =>
     toNodeConfig = config[toNodeId]
-    return callback new Error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
+    return console.error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
 
     ToNodeClass = @nodes[toNodeConfig.type]
-    return callback new Error "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
+    return console.error "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
 
     transactionGroupId = toNodeConfig.transactionGroupId
     if toNodeId == 'engine-data'

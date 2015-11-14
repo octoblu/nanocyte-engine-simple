@@ -1,4 +1,3 @@
-{PassThrough} = require 'stream'
 debug = require('debug')('nanocyte-node-assembler')
 debugStream = require('debug-stream')('nanocyte-node-assembler')
 _ = require 'lodash'

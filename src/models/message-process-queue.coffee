@@ -3,12 +3,16 @@ async = require 'async'
 MessageRouteQueue = require './message-route-queue'
 MessageCounter = require './message-counter'
 LockManager = require './lock-manager'
+ErrorHandler = require './error-handler'
+
 debug = require('debug')('nanocyte-engine-simple:message-process-queue')
-{PassThrough} = require 'stream'
 
 class MessageProcessQueue
   constructor: ->
     @queue = async.queue @_processMessage, 1
+
+  clear: =>
+    @queue.kill()
 
   push: (task) =>
     {metadata} = task.envelope
@@ -19,6 +23,9 @@ class MessageProcessQueue
       @queue.push task
 
   _processMessage: ({node, envelope}, callback) =>
+    node.stream.on 'error', (error) =>
+      ErrorHandler.handleError error, envelope
+
     node.stream.on 'finish', =>
       {transactionGroupId} = envelope.metadata
       LockManager.unlock transactionGroupId
