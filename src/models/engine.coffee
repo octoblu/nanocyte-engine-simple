@@ -1,7 +1,7 @@
 EngineBatcher = require './engine-batcher'
-EngineStreamer = require './engine-streamer'
 MessageProcessQueue = require './message-process-queue'
 EngineInputNode = require './engine-input-node'
+MessageCounter = require './message-counter'
 debug = require('debug')('nanocyte-engine-simple:engine')
 
 class Engine
@@ -11,9 +11,7 @@ class Engine
     node = new EngineInputNode
     MessageProcessQueue.push node: node, envelope: envelope
 
-    EngineStreamer.onDone => @finish callback
-
-    return EngineStreamer.stream
+    MessageCounter.onDone => @finish callback
 
   # panic: (error, callback) =>
   #   @finish =>

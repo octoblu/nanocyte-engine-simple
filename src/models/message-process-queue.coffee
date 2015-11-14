@@ -1,34 +1,43 @@
 _ = require 'lodash'
 async = require 'async'
 MessageRouteQueue = require './message-route-queue'
+MessageCounter = require './message-counter'
+LockManager = require './lock-manager'
 debug = require('debug')('nanocyte-engine-simple:message-process-queue')
 {PassThrough} = require 'stream'
-EngineStreamer = require './engine-streamer'
 
 class MessageProcessQueue
   constructor: ->
     @queue = async.queue @_processMessage, 1
 
-  push: (envelope) =>
-    @queue.push envelope
+  push: (task) =>
+    {metadata} = task.envelope
+    {transactionGroupId, transactionId} = metadata
+    MessageCounter.add()
+    LockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
+      metadata.transactionId = transactionId
+      @queue.push task
 
   _processMessage: ({node, envelope}, callback) =>
     node.stream.on 'finish', =>
-      EngineStreamer.subtract()
+      {transactionGroupId} = envelope.metadata
+      LockManager.unlock transactionGroupId
+      MessageCounter.subtract()
       callback()
 
     node.stream.on 'readable', =>
-      EngineStreamer.add()
+      MessageCounter.add()
       receivedEnvelope = node.stream.read()
       debug 'processed envelope:', receivedEnvelope
 
       unless receivedEnvelope?
-        EngineStreamer.subtract()
+        MessageCounter.subtract()
         return
 
       {metadata, message} = receivedEnvelope
       {toNodeId} = metadata
 
+      debug 'enqueueueueing envelope', newEnvelope
       newMetadata = _.clone metadata
       newMetadata.toNodeId = 'router'
 
@@ -36,8 +45,8 @@ class MessageProcessQueue
         metadata: newMetadata
         message: message
 
-      debug 'enqueueueueing envelope', newEnvelope
       MessageRouteQueue.push envelope: newEnvelope
+      MessageCounter.subtract()
 
     debug 'sending message:', envelope
     node.sendEnvelope envelope
