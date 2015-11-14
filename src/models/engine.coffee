@@ -10,6 +10,7 @@ ErrorHandler = require './error-handler'
 class Engine
   run: (envelope, callback) =>
     debug 'Engine.run', envelope
+    @flowId = envelope.metadata.flowId
 
     ErrorHandler.onError (error, errorToSend) =>
       @finish errorToSend, callback
@@ -21,6 +22,6 @@ class Engine
   finish: (errorToSend, callback) =>
     EngineBatcher.flush @flowId, (flushError) =>
       console.error flushError if flushError?
-    callback()
+      callback errorToSend
 
 module.exports = Engine

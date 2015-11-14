@@ -2,7 +2,7 @@ _ = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:error-handler')
 
 EngineDebugNode = require './engine-debug-node'
-EngineOutputNode = require './engine-output-node'
+EngineBatchNode = require './engine-batch-node'
 
 class ErrorHandler
   handleError: (error, envelope) =>
@@ -35,15 +35,15 @@ class ErrorHandler
       envelope = engineDebugNode.stream.read()
       return unless envelope?
 
-      engineOutputNode = new EngineOutputNode
-      engineOutputNode.stream.on 'finish', =>
+      engineBatchNode = new EngineBatchNode
+      engineBatchNode.stream.on 'finish', =>
         callback null, error
 
       outputEnvelope =
         metadata: _.extend {}, debugEnvelope.metadata, toNodeId: 'engine-output'
         message: envelope.message
 
-      engineOutputNode.sendEnvelope outputEnvelope
+      engineBatchNode.sendEnvelope outputEnvelope
 
     engineDebugNode.sendEnvelope debugEnvelope
 
