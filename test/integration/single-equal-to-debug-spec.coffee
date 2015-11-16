@@ -17,7 +17,7 @@ describe 'single-equal-to-debug', ->
         @sut = new EngineInAVat flowName: 'equals-train', flowData: flow
         @sut.initialize done
 
-      before (done) ->
+      beforeEach (done) ->
         @times = 0
         @failure = false
 

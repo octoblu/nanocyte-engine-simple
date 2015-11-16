@@ -10,7 +10,7 @@ class MessageRouteQueue
 
   clear: =>
     @queue.kill()
-    
+
   push: (task) =>
     {metadata} = task.envelope
     {transactionGroupId, transactionId} = metadata
@@ -29,7 +29,6 @@ class MessageRouteQueue
       MessageCounter.subtract()
       callback()
 
-    # check for lock here
     debug 'routing envelope:', envelope
     router.sendEnvelope envelope
 

@@ -1,18 +1,25 @@
-fs = require 'fs'
 colors = require 'colors'
 {PassThrough} = require 'stream'
 _ = require 'lodash'
-
+async = require 'async'
 redis = require 'redis'
 debug = require('debug')('engine-in-a-vat')
 debugStats = require('debug')('engine-in-a-vat:stats')
+uuid = require 'node-uuid'
 
 ConfigurationGenerator = require 'nanocyte-configuration-generator'
 ConfigurationSaver = require 'nanocyte-configuration-saver-redis'
 
-getEngineInputNode = require './get-engine-input-node'
+Engine = require '../../src/models/engine'
+
+MessageRouteQueue = require '../../src/models/message-route-queue'
+MessageProcessQueue = require '../../src/models/message-process-queue'
+EngineBatchNode = require '../../src/models/engine-batch-node'
+NanocyteNodeWrapper = require '../../src/models/nanocyte-node-wrapper'
+
+NanocytePassThrough = NanocyteNodeWrapper.wrap(require 'nanocyte-component-pass-through')
+
 AddNodeInfoStream = require './add-node-info-stream'
-uuid = require 'node-uuid'
 
 {Stats} = require 'fast-stats'
 
@@ -26,7 +33,6 @@ class EngineInAVat
     @triggers = @findTriggers()
 
     client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
-    client.unref()
 
     @configurationGenerator = new ConfigurationGenerator {}, channelConfig: new VatChannelConfig
     @configurationSaver = new ConfigurationSaver client
@@ -52,9 +58,7 @@ class EngineInAVat
 
   messageEngine: (nodeId, message, callback=->) =>
     outputStream = new AddNodeInfoStream flowData: @flowData, nanocyteConfig: @configuration
-
-    VatEngineInputNode = getEngineInputNode outputStream
-    engineInputNode = new VatEngineInputNode
+    @messUpProcessQueue outputStream
 
     startTime = Date.now()
     messages = []
@@ -67,23 +71,19 @@ class EngineInAVat
           message: message
           from: nodeId
 
-    engineInputStream = engineInputNode.message newMessage
-
-    engineInputStream.on 'data', (envelope) =>
-      debug EngineInAVat.printMessage envelope
-      messages.push envelope
-      outputStream.write envelope
-
-    engineInputStream.on 'finish', =>
+    engine = new Engine
+    engine.run newMessage, (error) =>
+      throw error if error?
       outputStream.end()
       callback null, EngineInAVat.getMessageStats startTime, messages
+
+    outputStream.on 'data', (envelope) =>
+      debug EngineInAVat.printMessage envelope
+      messages.push envelope
 
     return outputStream
 
   subscribeToPulses: (callback)=>
-    VatEngineInputNode = getEngineInputNode(new PassThrough objectMode: true)
-    engineInputNode = new VatEngineInputNode
-
     newMessage =
       metadata:
         flowId: @flowName
@@ -91,16 +91,31 @@ class EngineInAVat
       message:
         topic: 'subscribe:pulse'
 
-    engineInputStream = engineInputNode.message newMessage
+    engine = new Engine
+    engine.run newMessage, (error) =>
+      throw error if error?
+      callback()
 
-    engineInputStream.on 'data', (envelope) =>
+  messUpProcessQueue: (messageStream) =>
+    interceptProcess = (task, callback) ->
+      task.node = EngineInAVat.messUpNode task.node, messageStream
+      MessageProcessQueue._processMessage task, callback
 
-    engineInputStream.on 'finish', => callback()
+    MessageProcessQueue.queue = async.queue interceptProcess, 1
 
-    return engineInputStream
+  @messUpNode: (node, messageStream) =>
+    node = new NanocytePassThrough() if node instanceof EngineBatchNode
 
+    return node if node.__getEnvelopeStream?
 
-  @getMessageStats: (startTime, messages) ->    
+    node.__getEnvelopeStream = node._getEnvelopeStream
+    node._getEnvelopeStream = (envelope) =>
+      messageStream.write(envelope) if envelope?
+      node.__getEnvelopeStream envelope
+
+    node
+
+  @getMessageStats: (startTime, messages) ->
     previousTime = startTime
 
     messageTimes = _.map messages, (message) =>
