@@ -18,16 +18,23 @@ class EngineInput extends Transform
       @pulseSubscriber.subscribe @flowId, =>
         return @push null
 
-    fromNodeId = @_getFromNodeId message, config
+    fromNodeIds = @_getfromNodeIds message, config
 
-    return @push null unless fromNodeId?
+    return @push null if _.isEmpty fromNodeIds
 
-    @_sendEnvelope fromNodeId, message.payload?.from, message,
+    @_sendEnvelopes fromNodeIds, message
 
-  _sendEnvelope: (fromNodeId, nodeId, message) =>
+
+  _sendEnvelopes:(fromNodeIds, config) =>
+    _.each fromNodeIds, (fromNodeId) =>
+       @_sendEnvelope fromNodeId, config
+       
+    @push null
+
+
+  _sendEnvelope: (fromNodeId, message) =>
     envelope = @_getEngineEnvelope message, fromNodeId
     MessageRouteQueue.push envelope: envelope
-    @push null
 
   _getEngineEnvelope: (message, fromNodeId) =>
     delete message.payload?.from
@@ -41,11 +48,10 @@ class EngineInput extends Transform
       flowTime: @flowTime
     message: message
 
-  _getFromNodeId: (message, config) =>
+  _getFromNodeIds: (message, config) =>
     fromNodeId = message.payload?.from
-    return fromNodeId if fromNodeId?
+    return [fromNodeId] if fromNodeId?
     return unless config?
-
-    config[message.fromUuid]?.nodeId
+    _.pluck config[message.fromUuid], 'nodeId'
 
 module.exports = EngineInput
