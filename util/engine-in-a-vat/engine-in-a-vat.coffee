@@ -58,7 +58,7 @@ class EngineInAVat
 
   messageEngine: (nodeId, message, callback=->) =>
     outputStream = new AddNodeInfoStream flowData: @flowData, nanocyteConfig: @configuration
-    @messUpProcessQueue outputStream
+    EngineInAVat.messUpProcessQueue outputStream
 
     startTime = Date.now()
     messages = []
@@ -73,6 +73,8 @@ class EngineInAVat
 
     engine = new Engine
     engine.run newMessage, (error) =>
+      EngineInAVat.unMessUpProcessQueue()
+      
       throw error if error?
       outputStream.end()
       callback null, EngineInAVat.getMessageStats startTime, messages
@@ -96,9 +98,12 @@ class EngineInAVat
       throw error if error?
       callback()
 
-  messUpProcessQueue: (messageStream) =>
+  @messUpProcessQueue: (messageStream) =>
+    MessageProcessQueue.queue.kill()
+
     interceptProcess = (task, callback) ->
       task.node = EngineInAVat.messUpNode task.node, messageStream
+
       MessageProcessQueue._processMessage task, callback
 
     MessageProcessQueue.queue = async.queue interceptProcess, 1
@@ -106,14 +111,18 @@ class EngineInAVat
   @messUpNode: (node, messageStream) =>
     node = new NanocytePassThrough() if node instanceof EngineBatchNode
 
-    return node if node.__getEnvelopeStream?
-
+    node._getEnvelopeStream = node.__getEnvelopeStream if node.__getEnvelopeStream?
     node.__getEnvelopeStream = node._getEnvelopeStream
+
     node._getEnvelopeStream = (envelope) =>
       messageStream.write(envelope) if envelope?
       node.__getEnvelopeStream envelope
 
     node
+
+  @unMessUpProcessQueue: (messageStream) =>
+    MessageProcessQueue.queue.kill()
+    MessageProcessQueue.queue = async.queue MessageProcessQueue._processMessage, 1
 
   @getMessageStats: (startTime, messages) ->
     previousTime = startTime

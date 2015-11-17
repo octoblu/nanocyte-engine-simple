@@ -12,7 +12,7 @@ describe 'single-equal-to-debug', ->
   describe 'when instantiated with a flow', ->
 
     describe 'When we instantiate the single-equal-to-debug', ->
-      before (done) ->
+      beforeEach (done) ->
         flow = require './flows/single-equal-to-debug.json'
         @sut = new EngineInAVat flowName: 'equals-train', flowData: flow
         @sut.initialize done

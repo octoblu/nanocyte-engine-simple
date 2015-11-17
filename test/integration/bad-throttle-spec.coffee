@@ -4,7 +4,7 @@ debug = require('debug')('bad-throttle')
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 MAX_TIMES = 2
 DEBUG_TIMES= 6
-describe 'BadThrottle', ->
+xdescribe 'BadThrottle', ->
   @timeout 300000
   describe 'when instantiated with a flow', ->
 
@@ -20,7 +20,6 @@ describe 'BadThrottle', ->
 
       translate = (id)=>
         filter = _.filter(@nodes,{id:id})?[0]
-        # console.log 'translated', id, 'to', filter
         return filter?.name or id
 
       maybeFinish = =>
@@ -38,7 +37,6 @@ describe 'BadThrottle', ->
         throttle.initialize =>
           debug 'sut initialized'
           throttleId = filter = _.filter(@nodes,{name:"Throttle"})?[0].id
-          console.log 'using throttleId:', throttleId
           @throttleTimes++
           @throttleMessages = []
           throttleStream = throttle.messageEngine throttleId

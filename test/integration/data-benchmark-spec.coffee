@@ -15,7 +15,7 @@ describe 'DataBenchmark', ->
       @sut.messageEngine intervalId, hello: 'world', (error, @stats) => done()
 
     it "Should finish in a reasonable amount of time", ->
-      expect(@stats.total).to.be.at.most 2000
+      expect(@stats.total).to.be.at.most 4000
 
     it "Should finish each message in a reasonable amount of time", ->
       expect(@stats.mean.upperLimit95).to.be.at.most 60

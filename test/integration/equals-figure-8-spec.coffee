@@ -4,8 +4,8 @@ debug = require('debug')('equals-figure-8')
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 MAX_TIMES = 10
 DEBUG_TIMES= 6
-describe 'EqualsFigure8', ->
-  @timeout 300000
+xdescribe 'EqualsFigure8', ->
+  @timeout 3000
   describe 'when instantiated with a flow', ->
 
     beforeEach ->

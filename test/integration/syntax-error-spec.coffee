@@ -22,7 +22,7 @@ describe 'syntax-error', ->
 
         maybeFinish = =>
           @engineErrors = _.filter @messages, (message) =>
-            message.metadata.msgType == 'error'          
+            message.metadata.msgType == 'error'
 
           if @engineErrors.length != ERROR_COUNT
             @failure = true
@@ -33,9 +33,12 @@ describe 'syntax-error', ->
         testIt = =>
           @times++
           @messages = []
-          @responseStream = @sut.triggerByName name: 'Trigger', message: 1
-          @responseStream.on 'data', (msg) => @messages.push msg
-          @responseStream.on 'finish', maybeFinish
+          try
+            @responseStream = @sut.triggerByName name: 'Trigger', message: 1
+            @responseStream.on 'data', (msg) => @messages.push msg
+            @responseStream.on 'finish', maybeFinish
+            @responseStream.on 'error', =>
+          catch error
 
         testIt()
 
