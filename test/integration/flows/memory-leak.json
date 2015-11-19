@@ -1,0 +1,127 @@
+{
+  "flowId": "6e117bee-54fe-4fdb-9892-45deae9e4862",
+  "token": "87e5a499a44d6be231772b31b088c275ad983f0a",
+  "name": "Flow 6e117bee",
+  "description": null,
+  "hash": "a9b97387",
+  "nodes": [
+    {
+      "id": "70876cc0-8f05-11e5-b691-99916f206474",
+      "resourceType": "flow-node",
+      "payloadType": "string",
+      "once": false,
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger",
+        "composedOf": {
+          "trigger-node": {
+            "type": "nanocyte-node-trigger",
+            "linkedToNext": true,
+            "linkedToInput": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 578.642578125,
+      "y": 90.21533966064453,
+      "payload": "The Project Gutenberg eBook"
+    },
+    {
+      "id": "73aaa5c0-8f05-11e5-b691-99916f206474",
+      "resourceType": "flow-node",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "name": "Debug",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-debug",
+        "composedOf": {
+          "debug-node": {
+            "type": "nanocyte-node-debug",
+            "linkedToPrev": true,
+            "linkedToPulse": true
+          }
+        }
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 744.3177490234375,
+      "y": 135.54666137695312
+    }
+  ],
+  "links": [
+    {
+      "from": "70876cc0-8f05-11e5-b691-99916f206474",
+      "fromPort": 0,
+      "to": "73aaa5c0-8f05-11e5-b691-99916f206474",
+      "toPort": 0
+    }
+  ],
+  "selectedFlowNode": {
+    "id": "70876cc0-8f05-11e5-b691-99916f206474",
+    "resourceType": "flow-node",
+    "payloadType": "string",
+    "once": false,
+    "name": "Trigger",
+    "class": "trigger",
+    "helpText": "Send a static message. Can also be triggered from other flows",
+    "category": "operation",
+    "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+    "type": "operation:trigger",
+    "defaults": {
+      "payloadType": "date",
+      "once": false
+    },
+    "input": 0,
+    "output": 1,
+    "formTemplatePath": "/pages/node_forms/button_form.html",
+    "nanocyte": {
+      "name": "nanocyte-node-trigger",
+      "composedOf": {
+        "trigger-node": {
+          "type": "nanocyte-node-trigger",
+          "linkedToNext": true,
+          "linkedToInput": true
+        }
+      }
+    },
+    "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+    "inputLocations": [],
+    "outputLocations": [],
+    "x": 578.642578125,
+    "y": 90.21533966064453,
+    "payload": "{{msg.payload.message.book}}"
+  },
+  "deployed": false,
+  "selectedLink": null
+}
