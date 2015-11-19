@@ -25,7 +25,7 @@ class EngineRouter extends Transform
       "#{toNodeConfig?.type}(#{toNodeId})"
 
     # unless _.isEmpty toNodeNames
-    debug "Incoming message #{JSON.stringify message}"
+    # debug "Incoming message #{JSON.stringify message}"
     debug "  from: #{fromNodeName}(#{@metadata.fromNodeId})"
     debug "  to: #{toNodeNames}(#{toNodeIds})"
 

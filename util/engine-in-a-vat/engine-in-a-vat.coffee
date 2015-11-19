@@ -160,7 +160,8 @@ class EngineInAVat
     {metadata, message} = envelope
     debugInfo = metadata.debugInfo || {}
 
-    messageString = JSON.stringify message
+    messageString = "unparsed-message"
+    #messageString = JSON.stringify message
     lastTime = debugInfo.timestamp unless lastTime?
     timeDiff = debugInfo.timestamp - lastTime
     lastTime = debugInfo.timestamp
@@ -187,7 +188,7 @@ class EngineInAVat
       debugStats "#{type} got #{messages.length} messages"
 
   @getOutgoingMessages: (messages) =>
-    console.log JSON.stringify messages, null, 2
+    #console.log JSON.stringify messages, null, 2
     process.exit -1
     messagesByType = _.groupBy messages, (envelope) =>
       return envelope.metadata.debugInfo.fromNode?.config.name || envelope.metadata.fromNodeId

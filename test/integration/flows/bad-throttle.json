@@ -38,7 +38,7 @@
       "outputLocations": [],
       "x": 149.16160583496094,
       "y": 648.8424682617188,
-      "payload": "ab",
+      "payload": "{{msg.payload.message.book}}",
       "needsConfiguration": false,
       "needsSetup": false
     },

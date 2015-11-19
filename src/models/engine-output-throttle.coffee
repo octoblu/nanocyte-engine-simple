@@ -12,7 +12,7 @@ class EngineOutputThrottle extends Transform
     @moment    ?= moment
 
   _transform: (envelope, enc, next) =>
-    envelope = _.cloneDeep envelope
+    envelope = _.clone envelope
     {config} = envelope
 
     key = "#{config.uuid}:#{@moment().unix()}"
@@ -23,13 +23,13 @@ class EngineOutputThrottle extends Transform
 
       if count == 10
         toNodeId = envelope.message.payload?.node
-
-        envelope.message.topic   = 'debug'
-        envelope.message.devices = ['*']
-        envelope.message.payload =
-          msgType: 'error'
-          msg: 'Engine rate limit exceeded'
-          node:    toNodeId
+        envelope.message =
+          topic   : 'debug'
+          devices : ['*']
+          payload :
+            msgType: 'error'
+            msg: 'Engine rate limit exceeded'
+            node:    toNodeId
         debug 'emitting error', envelope
 
       debug 'push'

@@ -1,11 +1,14 @@
 _ = require 'lodash'
 async = require 'async'
 debug = require('debug')('bad-throttle')
-
+fs = require 'fs'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-MAX_TIMES = 2
+heapdump = require 'heapdump'
+memwatch = require 'memwatch'
+
+MAX_TIMES = 2000
 describe 'BadThrottle', ->
-  @timeout 30000
+  @timeout 300000
   describe 'when instantiated with a flow', =>
 
     before =>
@@ -17,6 +20,11 @@ describe 'BadThrottle', ->
       debug 'have throttleId', @throttleId
       @triggerId = _.filter(@nodes,{name:"Trigger"})?[0].id
       debug 'have triggerId', @triggerId
+
+      @bigBook = fs.readFileSync './test/integration/data/big-book.txt'
+      # @bigBookArray = ["a","b"]
+      @bigBookArray = Array(2).fill @bigBook, 0, 2
+
 
       @_translate = (id) =>
         filter = _.filter(@nodes,{id:id})?[0]
@@ -41,7 +49,7 @@ describe 'BadThrottle', ->
 
       @_sendThrottle = (isFinished,next,sut=@sut) =>
         @throttleTimes++
-        throttleStream = sut.messageEngine @throttleId, timestamp: Date.now()
+        throttleStream = sut.messageEngine @throttleId, {timestamp: Date.now(), book: @bigBookArray}
         throttleStream.on 'data', @_pushThrottleDebug
         throttleStream.on 'finish', =>
           debug 'throttleStream finished'
@@ -53,10 +61,14 @@ describe 'BadThrottle', ->
       @sut = new EngineInAVat flowName: 'bad-throttle', flowData: @flow, instanceId: 'bad-throttle-instance'
       @throttleMessages = []
       @times = 0
-
-    describe "and messaged sequentially #{MAX_TIMES} times", =>
+      @startTime = Date.now()
+    describe.only "and messaged sequentially #{MAX_TIMES} times", =>
       beforeEach (done) =>
         isFinished = =>
+          console.log "Time: #{Date.now() - @startTime}"
+          @startTime = Date.now()
+          heapdump.writeSnapshot()
+          console.log process.memoryUsage()
           @times++
           process.stdout.write "#{@throttleMessages.length} "
           return done(new Error 'missed a message') if @times != @throttleMessages.length
@@ -65,7 +77,7 @@ describe 'BadThrottle', ->
         debug "trigger initializing sut #{@times}"
         @sut.initialize =>
           debug 'sut initialized'
-          triggerStream = @sut.triggerByName name: 'Trigger'
+          triggerStream = @sut.triggerByName name: 'Trigger', message: book: @bigBookArray
           triggerStream.on 'data', @_pushThrottleDebug
           triggerStream.on 'finish', =>
             debug 'responseStream finished'
@@ -75,7 +87,7 @@ describe 'BadThrottle', ->
         console.log '!'
         expect(@throttleMessages.length).to.equals MAX_TIMES
 
-    describe.only "and messaged async #{MAX_TIMES} times", =>
+    describe "and messaged async #{MAX_TIMES} times", =>
       beforeEach (done) =>
         debug "trigger initializing sut #{@times}"
         triggerSuts = []
