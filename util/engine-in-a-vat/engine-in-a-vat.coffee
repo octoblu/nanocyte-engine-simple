@@ -28,9 +28,11 @@ class VatChannelConfig
 
 class EngineInAVat
   constructor: (options) ->
-    {@flowName, @flowData} = options
-    @instanceId = uuid.v4()
+    {@flowName, @flowData, @instanceId} = options
+    @instanceId ?= uuid.v4()
     @triggers = @findTriggers()
+
+    debug 'created an EngineInAVat with flowName', @flowName, 'instanceId', @instanceId
 
     client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
 
@@ -54,9 +56,9 @@ class EngineInAVat
   triggerByName: ({name, message}, callback=->) =>
     trigger = @triggers[name]
     throw new Error "Can't find a trigger named '#{name}'" unless trigger?
-    @messageEngine trigger.id, message, callback
+    @messageEngine trigger.id, message, "button", callback
 
-  messageEngine: (nodeId, message, callback=->) =>
+  messageEngine: (nodeId, message, topic, callback=->) =>
     outputStream = new AddNodeInfoStream flowData: @flowData, nanocyteConfig: @configuration
     EngineInAVat.messUpProcessQueue outputStream
 
@@ -70,11 +72,12 @@ class EngineInAVat
         payload:
           message: message
           from: nodeId
+        topic: topic
 
     engine = new Engine
     engine.run newMessage, (error) =>
       EngineInAVat.unMessUpProcessQueue()
-      
+
       throw error if error?
       outputStream.end()
       callback null, EngineInAVat.getMessageStats startTime, messages
