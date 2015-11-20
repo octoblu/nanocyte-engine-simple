@@ -11,9 +11,8 @@ class EngineOutput extends Transform
 
   _transform: ({config, message}, enc, next) =>
     meshbluHttp = new @MeshbluHttp config
-    meshbluHttp.message message, (error, response) =>
+    meshbluHttp.message message, (error) =>
       @push null
       next error if error?
-      next new Error 'Rate Limit Exceeded' if response?.statusCode == 429
 
 module.exports = EngineOutput
