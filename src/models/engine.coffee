@@ -2,7 +2,6 @@ debug = require('debug')('nanocyte-engine-simple:engine')
 
 EngineBatcher = require './engine-batcher'
 MessageProcessQueue = require './message-process-queue'
-EngineInputNode = require './engine-input-node'
 MessageCounter = require './message-counter'
 ErrorHandler = require './error-handler'
 
@@ -15,8 +14,7 @@ class Engine
     ErrorHandler.onError (error, errorToSend) =>
       @finish errorToSend, callback
 
-    node = new EngineInputNode
-    MessageProcessQueue.push node: node, envelope: envelope
+    MessageProcessQueue.push node: 'engine-input', envelope: envelope
     MessageCounter.onDone => @finish null, callback
 
   finish: (errorToSend, callback) =>

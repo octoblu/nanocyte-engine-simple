@@ -8,8 +8,9 @@ class EngineNode
 
   sendEnvelope: (envelope) =>
     envelopeStream = @_getEnvelopeStream envelope
+    @stream.on 'finish', => envelopeStream.end()
+    
     envelopeStream.on 'error', (error) => @stream.emit 'error', error
-
     envelopeStream.pipe @stream
     debug "enginenode is writing", envelope.message
     envelopeStream.write envelope.message

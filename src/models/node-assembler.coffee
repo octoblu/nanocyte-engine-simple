@@ -5,12 +5,13 @@ uuid = require 'node-uuid'
 
 class NodeAssembler
   constructor: (options, dependencies={}) ->
-    {@EngineDataNode, @EngineDebugNode, @EngineOutputNode, @EnginePulseNode, @EngineBatchNode, @NanocyteNodeWrapper} = dependencies
+    {@EngineDataNode, @EngineDebugNode, @EngineOutputNode, @EnginePulseNode, @EngineBatchNode, @NanocyteNodeWrapper, @EngineInputNode} = dependencies
     @EngineBatchNode ?= require './engine-batch-node'
     @EngineDataNode ?= require './engine-data-node'
     @EngineDebugNode ?= require './engine-debug-node'
     @EngineBatchNode ?= require './engine-batch-node'
     @EngineOutputNode ?= require './engine-output-node'
+    @EngineInputNode ?= require './engine-input-node'
     @EnginePulseNode ?= require './engine-pulse-node'
     @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
 
@@ -25,6 +26,7 @@ class NodeAssembler
       'engine-output': @EngineOutputNode
       'engine-pulse':  @EnginePulseNode
       'engine-batch':  @EngineBatchNode
+      'engine-input':  @EngineInputNode
 
     componentMap = @componentLoader.getComponentMap()
 

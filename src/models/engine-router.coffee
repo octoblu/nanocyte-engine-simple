@@ -3,14 +3,14 @@ _ = require 'lodash'
 async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
 mergeStream = require 'merge-stream'
-NodeAssembler = require './node-assembler'
+
 MessageProcessQueue = require './message-process-queue'
 MessageCounter = require './message-counter'
 
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
     super objectMode: true
-    @nodes = new NodeAssembler().assembleNodes()
+
 
   _transform: ({config, data, message}, enc, next) =>
     config = @_setupEngineNodeRoutes config
@@ -48,15 +48,16 @@ class EngineRouter extends Transform
     toNodeConfig = config[toNodeId]
     return console.error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
 
-    ToNodeClass = @nodes[toNodeConfig.type]
-    return console.error "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
+    # ToNodeClass = @nodes[toNodeConfig.type]
+    # return console.error "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
 
     transactionGroupId = toNodeConfig.transactionGroupId
     if toNodeId == 'engine-data'
       fromNodeConfig = config[@metadata.fromNodeId]
       transactionGroupId = fromNodeConfig.transactionGroupId
 
-    toNode = new ToNodeClass()
+    # toNode = new ToNodeClass()
+    toNode = toNodeConfig.type
 
     newMetadata =
       toNodeId: toNodeId
