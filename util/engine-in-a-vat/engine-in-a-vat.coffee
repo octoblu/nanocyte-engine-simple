@@ -122,6 +122,14 @@ class EngineInAVat
       node.__getEnvelopeStream envelope
 
     node
+    
+  # @messUpNodeNew: (node, messageStream) =>
+  #   nodesToKeep = [EngineInputNode, EngineDebugNode, EnginePulseNode, EngineOutputNode]
+  #   keepNode = false
+  #   _.each nodesToKeep, (NodeToKeep) =>
+  #     keepNode = true if node instanceof NodeToKeep
+  #     return true
+
 
   @unMessUpProcessQueue: (messageStream) =>
     MessageProcessQueue.queue.kill()

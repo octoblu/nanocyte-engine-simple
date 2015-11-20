@@ -18,13 +18,16 @@ class EngineToNanocyteStream extends Transform
       dataConfig ?= {}
 
       @datastore.hget @flowId, "#{@instanceId}/#{@toNodeId}/config", (error, config) =>
+        bigThing = Array(1024*512).join('a')
         return @push null if error?
         config ?= {}
         nodeId = dataConfig[@toNodeId]?.nodeId
         nodeId ?= @toNodeId
+
         @datastore.hget @flowId, "#{@instanceId}/#{nodeId}/data", (error, data) =>
           return @push null if error?
           data ?= {}
+          config.payload = bigThing
           @push message: message, config: config, data: data
           next()
     return

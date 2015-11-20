@@ -30,8 +30,9 @@ class NodeAssembler
 
     wrappedComponents = _.transform componentMap, (result, NanocyteClass, nanocyteType) =>
       result[nanocyteType] = @wrapNanocyte NanocyteClass
-
     assembledNodes = _.extend {}, wrappedComponents, engineComponents
+
+    # assembledNodes['nanocyte-component-trigger'] = assembledNodes['nanocyte-component-pass-through']
     return assembledNodes
 
   wrapNanocyte: (NanocyteClass) =>
