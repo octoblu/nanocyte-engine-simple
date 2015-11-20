@@ -60,7 +60,7 @@ class EngineInAVat
 
   messageEngine: (nodeId, message, topic, callback=->) =>
     outputStream = new AddNodeInfoStream flowData: @flowData, nanocyteConfig: @configuration
-    EngineInAVat.messUpProcessQueue outputStream
+    # EngineInAVat.messUpProcessQueue outputStream
 
     startTime = Date.now()
     messages = []
@@ -122,7 +122,7 @@ class EngineInAVat
       node.__getEnvelopeStream envelope
 
     node
-    
+
   # @messUpNodeNew: (node, messageStream) =>
   #   nodesToKeep = [EngineInputNode, EngineDebugNode, EnginePulseNode, EngineOutputNode]
   #   keepNode = false

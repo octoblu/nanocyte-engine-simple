@@ -24,8 +24,6 @@ class EngineRouter extends Transform
       toNodeConfig = config[toNodeId]
       "#{toNodeConfig?.type}(#{toNodeId})"
 
-    # unless _.isEmpty toNodeNames
-    # debug "Incoming message #{JSON.stringify message}"
     debug "  from: #{fromNodeName}(#{@metadata.fromNodeId})"
     debug "  to: #{toNodeNames}(#{toNodeIds})"
 
@@ -48,16 +46,12 @@ class EngineRouter extends Transform
     toNodeConfig = config[toNodeId]
     return console.error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
 
-    # ToNodeClass = @nodes[toNodeConfig.type]
-    # return console.error "No registered type for '#{toNodeConfig.type}' for node #{toNodeId}" unless ToNodeClass?
-
     transactionGroupId = toNodeConfig.transactionGroupId
     if toNodeId == 'engine-data'
       fromNodeConfig = config[@metadata.fromNodeId]
       transactionGroupId = fromNodeConfig.transactionGroupId
 
-    # toNode = new ToNodeClass()
-    toNode = toNodeConfig.type
+    toNodeType = toNodeConfig.type
 
     newMetadata =
       toNodeId: toNodeId
@@ -68,7 +62,7 @@ class EngineRouter extends Transform
       metadata: _.extend {}, @metadata, newMetadata
       message: message
 
-    MessageProcessQueue.push node: toNode, envelope: envelope
+    MessageProcessQueue.push nodeType: toNodeType, envelope: envelope
     MessageCounter.subtract()
 
   _setupEngineNodeRoutes: (config) =>

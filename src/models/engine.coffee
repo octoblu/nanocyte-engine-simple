@@ -14,7 +14,7 @@ class Engine
     ErrorHandler.onError (error, errorToSend) =>
       @finish errorToSend, callback
 
-    MessageProcessQueue.push node: 'engine-input', envelope: envelope
+    MessageProcessQueue.push nodeType: 'engine-input', envelope: envelope
     MessageCounter.onDone => @finish null, callback
 
   finish: (errorToSend, callback) =>

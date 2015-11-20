@@ -23,8 +23,8 @@ class MessageProcessQueue
       metadata.transactionId = transactionId
       @queue.push task
 
-  _processMessage: ({node, envelope}, callback) =>    
-    ToNodeClass = @nodes[node]
+  _processMessage: ({nodeType, envelope}, callback) =>
+    ToNodeClass = @nodes[nodeType]
     node = new ToNodeClass()
 
     node.stream.on 'error', (error) =>
