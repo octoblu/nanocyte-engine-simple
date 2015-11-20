@@ -10,13 +10,11 @@ class EngineOutputNode extends EngineNode
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
     @EngineOutput ?= require './engine-output'
-    @EngineOutputThrottle ?= require './engine-output-throttle'
 
   _getEnvelopeStream: ({metadata, message}) =>
     combine.obj(
       debugStream 'in'
       new @EngineToNanocyteStream metadata
-      new @EngineOutputThrottle metadata
       new @EngineOutput metadata
       new @NanocyteToEngineStream metadata
       debugStream 'out'

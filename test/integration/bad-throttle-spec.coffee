@@ -3,8 +3,6 @@ async = require 'async'
 debug = require('debug')('bad-throttle')
 fs = require 'fs'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-heapdump = require 'heapdump'
-memwatch = require 'memwatch'
 
 MAX_TIMES = 2000
 describe 'BadThrottle', ->
@@ -67,7 +65,6 @@ describe 'BadThrottle', ->
         isFinished = =>
           console.log "Time: #{Date.now() - @startTime}"
           @startTime = Date.now()
-          heapdump.writeSnapshot()
           console.log process.memoryUsage()
           @times++
           process.stdout.write "#{@throttleMessages.length} "
