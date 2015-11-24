@@ -44,7 +44,9 @@ class EngineRouter extends Transform
 
   _sendMessage: (toNodeId, message, config) =>
     toNodeConfig = config[toNodeId]
-    return console.error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
+    unless toNodeConfig?
+      MessageCounter.subtract()
+      return console.error "toNodeConfig was not defined for node: #{toNodeId}"
 
     transactionGroupId = toNodeConfig.transactionGroupId
     if toNodeId == 'engine-data'
