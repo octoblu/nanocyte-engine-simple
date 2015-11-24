@@ -3,8 +3,7 @@ debug = require('debug')('syntax-error-spec')
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
 describe 'syntax-error', ->
-  @timeout 60000
-  MAX_TIMES = 10
+  @timeout 3000
   ERROR_COUNT = 3
 
   describe 'when instantiated with a flow', ->
@@ -20,30 +19,16 @@ describe 'syntax-error', ->
         @times = 0
         @failure = false
 
-        maybeFinish = =>
+        @messages = []
+
+        @responseStream = @sut.triggerByName name: 'Trigger', message: 1
+        @responseStream.on 'data', (msg) => @messages.push msg
+        @responseStream.on 'finish', =>
+          console.log @messages
           @engineErrors = _.filter @messages, (message) =>
             message.metadata.msgType == 'error'
 
-          if @engineErrors.length != ERROR_COUNT
-            @failure = true
-            return done()
-          return done() if @times == MAX_TIMES
-          testIt()
-
-        testIt = =>
-          @times++
-          @messages = []
-          try
-            @responseStream = @sut.triggerByName name: 'Trigger', message: 1
-            @responseStream.on 'data', (msg) => @messages.push msg
-            @responseStream.on 'finish', maybeFinish
-            @responseStream.on 'error', =>
-          catch error
-
-        testIt()
-
-      it "Should have passed #{MAX_TIMES} times", ->
-        expect(@times).to.equal MAX_TIMES
+          done()
 
       it "Should send 2 error message to engine-debug", ->
         expect(@engineErrors.length).to.equal ERROR_COUNT

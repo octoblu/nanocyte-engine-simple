@@ -60,7 +60,7 @@ class EngineInAVat
 
   messageEngine: (nodeId, message, topic, callback=->) =>
     outputStream = new AddNodeInfoStream flowData: @flowData, nanocyteConfig: @configuration
-    # EngineInAVat.messUpProcessQueue outputStream
+    EngineInAVat.messUpProcessQueue outputStream
 
     startTime = Date.now()
     messages = []
@@ -77,10 +77,8 @@ class EngineInAVat
     engine = new Engine
     engine.run newMessage, (error) =>
       EngineInAVat.unMessUpProcessQueue()
-
-      throw error if error?
       outputStream.end()
-      callback null, EngineInAVat.getMessageStats startTime, messages
+      callback error, EngineInAVat.getMessageStats startTime, messages
 
     outputStream.on 'data', (envelope) =>
       debug EngineInAVat.printMessage envelope
@@ -97,39 +95,18 @@ class EngineInAVat
         topic: 'subscribe:pulse'
 
     engine = new Engine
-    engine.run newMessage, (error) =>
-      throw error if error?
-      callback()
+    engine.run newMessage, callback
 
   @messUpProcessQueue: (messageStream) =>
     MessageProcessQueue.queue.kill()
 
     interceptProcess = (task, callback) ->
-      task.node = EngineInAVat.messUpNode task.node, messageStream
-
+      return callback() unless task?
+      task.nodeType = 'nanocyte-component-pass-through' if task.nodeType == 'engine-batch'
+      messageStream.write task.envelope if task.envelope?
       MessageProcessQueue._processMessage task, callback
 
     MessageProcessQueue.queue = async.queue interceptProcess, 1
-
-  @messUpNode: (node, messageStream) =>
-    node = new NanocytePassThrough() if node instanceof EngineBatchNode
-
-    node._getEnvelopeStream = node.__getEnvelopeStream if node.__getEnvelopeStream?
-    node.__getEnvelopeStream = node._getEnvelopeStream
-
-    node._getEnvelopeStream = (envelope) =>
-      messageStream.write(envelope) if envelope?
-      node.__getEnvelopeStream envelope
-
-    node
-
-  # @messUpNodeNew: (node, messageStream) =>
-  #   nodesToKeep = [EngineInputNode, EngineDebugNode, EnginePulseNode, EngineOutputNode]
-  #   keepNode = false
-  #   _.each nodesToKeep, (NodeToKeep) =>
-  #     keepNode = true if node instanceof NodeToKeep
-  #     return true
-
 
   @unMessUpProcessQueue: (messageStream) =>
     MessageProcessQueue.queue.kill()

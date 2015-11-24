@@ -4,16 +4,15 @@ debug = require('debug')('memory-leak')
 fs = require 'fs'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
-MAX_TIMES = 10000
+MAX_TIMES = 100
 describe 'MemoryLeak', ->
-  @timeout 30000000
+  @timeout 30000
   describe 'when instantiated with a flow', ->
 
     before ->
       debug 'settup flow and nodes'
       @flow = require './flows/memory-leak.json'
       @bigBook = fs.readFileSync './test/integration/data/big-book.txt', 'utf-8'
-      # @bigBookArray = ["a","b"]
       @bigBookArray = Array(2).fill @bigBook, 0, 2
       @nodes = _.map @flow.nodes, (val)=>
         return _.pick val, ['id','name','uuid']
@@ -28,7 +27,6 @@ describe 'MemoryLeak', ->
         debugFromNodeId = @_translate(msg.metadata.debugInfo?.fromNode?.config.id)
         debugToNodeId = @_translate(msg.metadata.debugInfo?.toNode?.config.id)
         debug "  - debugInfo #{debugFromNodeId}(#{fromNodeId})=>#{debugToNodeId}(#{toNodeId})"
-        # debug 'trigger response:', fromNodeId, '=>', toNodeId, ':', JSON.stringify(msg.message, null, 2)
 
       @_pushTriggerDebug = (msg) =>
         @_debugMsg msg
@@ -49,7 +47,6 @@ describe 'MemoryLeak', ->
           next(isFinished,next) if next?
 
     beforeEach ->
-      console.log 'initializing sut'
       @sut = new EngineInAVat flowName: 'memory-leak', flowData: @flow, instanceId: 'memory-leak-instance'
       @triggerMessages = []
       @times = 0
@@ -58,12 +55,13 @@ describe 'MemoryLeak', ->
     describe "and messaged sequentially #{MAX_TIMES} times", ->
       beforeEach (done) ->
         isFinished = =>
-          console.log "Time: #{Date.now() - @startTime}"
+          debug "Time: #{Date.now() - @startTime}"
           @startTime = Date.now()
-          console.log process.memoryUsage()
+          debug process.memoryUsage()
           @times++
-          process.stdout.write "#{@times} : #{@triggerMessages.length} "
-          # return done(new Error 'missed a message') if @times != @triggerMessages.length
+          debug "#{@times} : #{@triggerMessages.length} "
+          return done(new Error 'missed a message') if @times != @triggerMessages.length
+
           return done() if @times == MAX_TIMES
 
         debug "trigger initializing sut #{@times}"
@@ -75,5 +73,4 @@ describe 'MemoryLeak', ->
             @_sendTrigger(isFinished,@_sendTrigger)
 
       it "Should have the right number length of debugs", ->
-        console.log '!'
         expect(@triggerMessages.length).to.equals MAX_TIMES
