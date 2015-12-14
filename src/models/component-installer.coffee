@@ -12,7 +12,7 @@ class ComponentInstaller
     @registryUrl ?=
       process.env.NANOCYTE_NODE_REGISTRY_URL || DEFAULT_NANOCYTE_NODE_REGISTRY_URL
 
-    @componentLoader = new ComponentLoader
+    @componentLoader = new ComponentLoader options, dependencies
 
   downloadRegistry: (callback) =>
     fileStream = @fs.createWriteStream './nanocyte-node-registry.json'

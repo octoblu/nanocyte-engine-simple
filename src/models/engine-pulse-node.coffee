@@ -3,9 +3,9 @@ combine = require 'stream-combiner2'
 EngineNode = require './engine-node'
 
 class EnginePulseNode extends EngineNode
-  constructor: (dependencies={}) ->
+  constructor: (options, @dependencies={}) ->
     super
-    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EnginePulse, @DatastoreCheckKeyStream} = dependencies
+    {@EngineToNanocyteStream, @NanocyteToEngineStream, @EnginePulse, @DatastoreCheckKeyStream} = @dependencies
     @EngineToNanocyteStream ?= require './engine-to-nanocyte-stream'
     @NanocyteToEngineStream ?= require './nanocyte-to-engine-stream'
     @EnginePulse ?= require './engine-pulse'
@@ -14,10 +14,10 @@ class EnginePulseNode extends EngineNode
   _getEnvelopeStream: ({metadata}) =>
     combine.obj(
       debugStream 'in'
-      new @DatastoreCheckKeyStream metadata
-      new @EngineToNanocyteStream metadata
-      new @EnginePulse metadata
-      new @NanocyteToEngineStream metadata
+      new @DatastoreCheckKeyStream metadata, @dependencies
+      new @EngineToNanocyteStream metadata, @dependencies
+      new @EnginePulse metadata, @dependencies
+      new @NanocyteToEngineStream metadata, @dependencies
       debugStream 'out'
     )
 

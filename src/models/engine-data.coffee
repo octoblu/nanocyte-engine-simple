@@ -8,7 +8,7 @@ class EngineData extends Transform
     {@flowId, @instanceId, @fromNodeId} = metadata
 
     {@datastore} = dependencies
-    @datastore ?= new Datastore
+    @datastore ?= new Datastore null, dependencies
 
   _transform: ({message, data, config}, enc, next) =>
     unless config?

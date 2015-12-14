@@ -5,7 +5,7 @@ uuid = require 'node-uuid'
 
 class NodeAssembler
   constructor: (options, dependencies={}) ->
-    {@EngineDataNode, @EngineDebugNode, @EngineOutputNode, @EnginePulseNode, @EngineBatchNode, @NanocyteNodeWrapper, @EngineInputNode} = dependencies
+    {@EngineDataNode, @EngineDebugNode, @EngineOutputNode, @EnginePulseNode, @EngineBatchNode, @EngineInputNode, @nanocyteNodeWrapper} = dependencies
     @EngineBatchNode     ?= require './engine-batch-node'
     @EngineDataNode      ?= require './engine-data-node'
     @EngineDebugNode     ?= require './engine-debug-node'
@@ -13,11 +13,11 @@ class NodeAssembler
     @EngineOutputNode    ?= require './engine-output-node'
     @EngineInputNode     ?= require './engine-input-node'
     @EnginePulseNode     ?= require './engine-pulse-node'
-    @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
+    @nanocyteNodeWrapper ?= new (require './nanocyte-node-wrapper') options, dependencies
 
     {ComponentLoader} = dependencies
     ComponentLoader  ?= require './component-loader'
-    @componentLoader  = new ComponentLoader
+    @componentLoader  = new ComponentLoader options, dependencies
 
   assembleNodes: =>
     engineComponents =
@@ -37,6 +37,6 @@ class NodeAssembler
     return assembledNodes
 
   wrapNanocyte: (NanocyteClass) =>
-    return @NanocyteNodeWrapper.wrap NanocyteClass
+    return @nanocyteNodeWrapper.wrap NanocyteClass
 
 module.exports = NodeAssembler

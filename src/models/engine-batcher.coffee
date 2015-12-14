@@ -4,7 +4,7 @@ debug = require('debug')('nanocyte-engine-simple:engine-batcher')
 EngineOutputNode = require './engine-output-node'
 
 class EngineBatcher
-  constructor: ->
+  constructor: (@options, @dependencies) ->
     @batches = {}
     @interval = setInterval @flushAll, 100
 
@@ -25,7 +25,7 @@ class EngineBatcher
     data = @batches[key]
     return callback() unless data?
 
-    engineOutputNode = new EngineOutputNode
+    engineOutputNode = new EngineOutputNode @options, @dependencies
     message =
       devices: ['*']
       topic: 'message-batch'

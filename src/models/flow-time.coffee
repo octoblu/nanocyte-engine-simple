@@ -9,7 +9,7 @@ class FlowTime
     @maxTime ?= 1000*60*2
     @expires ?= 60*60
     {@datastore, @Date} = dependencies
-    @datastore ?= new (require './datastore')
+    @datastore ?= new (require './datastore') options, dependencies
     @Date ?= Date
     @lastTime = @Date.now()
 

@@ -10,7 +10,7 @@ class EngineInput extends Transform
     {@flowId, @instanceId, @toNodeId, @fromNodeId} = metadata
     {@pulseSubscriber} = dependencies
 
-    @pulseSubscriber ?= new PulseSubscriber
+    @pulseSubscriber ?= new PulseSubscriber null, dependencies
 
   _transform: ({config, data, message}, enc, next) =>
     debug 'config', config

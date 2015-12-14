@@ -8,7 +8,7 @@ class EngineToNanocyteStream extends Transform
     {@flowId, @instanceId, @toNodeId} = options
 
     {@datastore} = dependencies
-    @datastore ?= new (require './datastore')
+    @datastore ?= new (require './datastore') options, dependencies
 
   _transform: (message, enc, next) =>
     return @push null unless message?

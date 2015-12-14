@@ -5,10 +5,10 @@ NodeAssembler = require './node-assembler'
 debug = require('debug')('nanocyte-engine-simple:message-process-queue')
 
 class MessageProcessQueue
-  constructor: (options, @dependencies) ->
+  constructor: (@options, @dependencies) ->
     {@messageRouteQueue, @messageCounter, @lockManager, @errorHandler} = @dependencies
     @queue = async.queue @_processMessage, 1
-    @nodes = new NodeAssembler(@dependencies).assembleNodes()
+    @nodes = new NodeAssembler(options, @dependencies).assembleNodes()
   clear: =>
     @queue.kill()
 
@@ -22,7 +22,7 @@ class MessageProcessQueue
 
   _processMessage: ({nodeType, envelope}, callback) =>
     ToNodeClass = @nodes[nodeType]
-    node = new ToNodeClass(@dependencies)
+    node = new ToNodeClass @options, @dependencies
 
     node.stream.on 'error', (error) =>
       @errorHandler.handleError error, envelope

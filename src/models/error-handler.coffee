@@ -6,7 +6,7 @@ EngineBatchNode = require './engine-batch-node'
 
 class ErrorHandler
 
-  constructor: (options, @dependencies) ->
+  constructor: (@options, @dependencies) ->
     {@messageRouteQueue, @messageProcessQueue} = @dependencies
 
   handleError: (error, envelope) =>
@@ -30,13 +30,13 @@ class ErrorHandler
 
     debug "sending this error envelope", debugEnvelope
 
-    engineDebugNode = new EngineDebugNode
+    engineDebugNode = new EngineDebugNode @options, @dependencies
 
     engineDebugNode.stream.on 'readable', =>
       envelope = engineDebugNode.stream.read()
       return unless envelope?
 
-      engineBatchNode = new EngineBatchNode @dependencies
+      engineBatchNode = new EngineBatchNode @options, @dependencies
       engineBatchNode.stream.on 'finish', =>
         callback null, error
 

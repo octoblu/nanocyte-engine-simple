@@ -7,7 +7,7 @@ class DatastoreCheckKeyStream extends Transform
     super objectMode: true
     {@flowId} = options
     {@datastore} = dependencies
-    @datastore ?= new (require './datastore')
+    @datastore ?= new (require './datastore') options, dependencies
 
   _transform: (message, enc, next) =>
     @datastore.exists "pulse:#{@flowId}", (error, exists) =>

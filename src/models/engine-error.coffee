@@ -1,6 +1,8 @@
 EngineRouterNode = require './engine-router-node'
 
 class EngineError
+  constructor: (@options, @dependencies) ->
+
   @sendError: (error, callback, Router=EngineRouterNode) =>
     console.log "Sending error: #{error}"
     errorMessage =
@@ -12,7 +14,7 @@ class EngineError
         msgType: 'error'
       message: error.message
 
-    router = new Router
+    router = new Router @options, @dependencies
     router.stream.on 'finish', callback
     router.message errorMessage
 

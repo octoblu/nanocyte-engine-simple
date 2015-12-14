@@ -3,7 +3,7 @@ combine = require 'stream-combiner2'
 EngineNode = require './engine-node'
 
 class EngineBatchNode extends EngineNode
-  constructor: (@dependencies={}) ->
+  constructor: (options, @dependencies={}) ->
     super
     {@EngineBatch} = @dependencies
     @EngineBatch ?= require './engine-batch'
