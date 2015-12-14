@@ -1,15 +1,13 @@
 {Transform} = require 'stream'
 _         = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:engine-input')
-PulseSubscriber = require './pulse-subscriber'
-MessageRouteQueue = require './message-route-queue'
 
 class EngineInput extends Transform
   constructor: (metadata, dependencies={}) ->
     super objectMode: true
     {@flowId, @instanceId, @toNodeId, @fromNodeId} = metadata
-    {@pulseSubscriber} = dependencies
-
+    {PulseSubscriber, @pulseSubscriber, @messageRouteQueue} = dependencies
+    PulseSubscriber ?= require './pulse-subscriber'
     @pulseSubscriber ?= new PulseSubscriber null, dependencies
 
   _transform: ({config, data, message}, enc, next) =>
@@ -34,7 +32,7 @@ class EngineInput extends Transform
 
   _sendEnvelope: (fromNodeId, message) =>
     envelope = @_getEngineEnvelope message, fromNodeId
-    MessageRouteQueue.push envelope: envelope
+    @messageRouteQueue.push envelope: envelope
 
   _getEngineEnvelope: (message, fromNodeId) =>
     delete message.payload?.from

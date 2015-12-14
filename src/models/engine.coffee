@@ -1,3 +1,4 @@
+_ = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:engine')
 
 class Engine
@@ -6,15 +7,16 @@ class Engine
     {@FlowTime} = @dependencies
     @FlowTime ?= require './flow-time'
     Engine.populateDependencies @options, @dependencies
-    {@errorHandler, @messageProcessQueue, @messageCounter, @engineBatcher} = dependencies
+    {@errorHandler, @messageProcessQueue, @messageCounter, @engineBatcher} = @dependencies
 
   @populateDependencies: (options={},depends={}) ->
     depends.lockManager         ?= new (require './lock-manager') options, depends
+    depends.errorHandler        ?= new (require './error-handler') options, depends
     depends.engineBatcher       ?= new (require './engine-batcher') options, depends
     depends.messageCounter      ?= new (require './message-counter') options, depends
     depends.messageRouteQueue   ?= new (require './message-route-queue') options, depends
     depends.messageProcessQueue ?= new (require './message-process-queue') options, depends
-    depends.errorHandler        ?= new (require './error-handler') options, depends
+    depends.errorHandler.updateDependencies depends
     depends
 
   run: (envelope, @callback) =>

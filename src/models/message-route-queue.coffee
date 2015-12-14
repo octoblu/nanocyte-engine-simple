@@ -4,7 +4,7 @@ debug = require('debug')('nanocyte-engine-simple:message-route-queue')
 
 class MessageRouteQueue
   constructor: (@options, @dependencies) ->
-    {@lockManager, @messageCounter} = dependencies
+    {@lockManager, @messageCounter} = @dependencies
     @queue = async.queue @_routeEnvelope, 1
 
   clear: =>

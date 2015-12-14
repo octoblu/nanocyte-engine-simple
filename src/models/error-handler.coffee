@@ -6,7 +6,10 @@ EngineBatchNode = require './engine-batch-node'
 
 class ErrorHandler
 
-  constructor: (@options, @dependencies) ->
+  constructor: (@options, dependencies) ->
+    @updateDependencies dependencies
+
+  updateDependencies: (@dependencies) =>
     {@messageRouteQueue, @messageProcessQueue} = @dependencies
 
   handleError: (error, envelope) =>

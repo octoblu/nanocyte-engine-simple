@@ -12,12 +12,8 @@ ConfigurationSaver = require 'nanocyte-configuration-saver-redis'
 
 Engine = require '../../src/models/engine'
 
-MessageRouteQueue = require '../../src/models/message-route-queue'
-MessageProcessQueue = require '../../src/models/message-process-queue'
-EngineBatchNode = require '../../src/models/engine-batch-node'
-NanocyteNodeWrapper = require '../../src/models/nanocyte-node-wrapper'
-
-NanocytePassThrough = NanocyteNodeWrapper.wrap(require 'nanocyte-component-pass-through')
+engineDependencies = Engine.populateDependencies()
+{messageProcessQueue} = engineDependencies
 
 AddNodeInfoStream = require './add-node-info-stream'
 
@@ -38,6 +34,9 @@ class EngineInAVat
 
     @configurationGenerator = new ConfigurationGenerator {}, channelConfig: new VatChannelConfig
     @configurationSaver = new ConfigurationSaver client
+
+    messageProcessQueue.queue.kill()
+    messageProcessQueue.queue = async.queue @interceptProcessMessage, 1
 
   initialize: (callback=->) =>
     debug 'initializing'
@@ -60,7 +59,7 @@ class EngineInAVat
 
   messageEngine: (nodeId, message, topic, callback=->) =>
     outputStream = new AddNodeInfoStream flowData: @flowData, nanocyteConfig: @configuration
-    EngineInAVat.messUpProcessQueue outputStream
+    # EngineInAVat.messUpProcessQueue outputStream
 
     startTime = Date.now()
     messages = []
@@ -74,9 +73,9 @@ class EngineInAVat
           from: nodeId
         topic: topic
 
-    engine = new Engine
+    engine = new Engine null, engineDependencies
     engine.run newMessage, (error) =>
-      EngineInAVat.unMessUpProcessQueue()
+      # EngineInAVat.unMessUpProcessQueue()
       outputStream.end()
       callback error, EngineInAVat.getMessageStats startTime, messages
 
@@ -97,20 +96,24 @@ class EngineInAVat
     engine = new Engine
     engine.run newMessage, callback
 
-  @messUpProcessQueue: (messageStream) =>
-    MessageProcessQueue.queue.kill()
+  interceptProcessMessage: ({nodeType, envelope}, callback) =>
+    nodeType = 'nanocyte-component-pass-through' if nodeType == 'engine-batch'
+    messageProcessQueue._processMessage {nodeType, envelope}, callback
 
-    interceptProcess = (task, callback) ->
-      return callback() unless task?
-      task.nodeType = 'nanocyte-component-pass-through' if task.nodeType == 'engine-batch'
-      messageStream.write task.envelope if task.envelope?
-      MessageProcessQueue._processMessage task, callback
-
-    MessageProcessQueue.queue = async.queue interceptProcess, 1
-
-  @unMessUpProcessQueue: (messageStream) =>
-    MessageProcessQueue.queue.kill()
-    MessageProcessQueue.queue = async.queue MessageProcessQueue._processMessage, 1
+  # @messUpProcessQueue: (messageStream) =>
+  #   messageProcessQueue.queue.kill()
+  #
+  #   interceptProcess = (task, callback) ->
+  #     return callback() unless task?
+  #     task.nodeType = 'nanocyte-component-pass-through' if task.nodeType == 'engine-batch'
+  #     messageStream.write task.envelope if task.envelope?
+  #     messageProcessQueue._processMessage task, callback
+  #
+  #   messageProcessQueue.queue = async.queue interceptProcess, 1
+  #
+  # @unMessUpProcessQueue: (messageStream) =>
+  #   messageProcessQueue.queue.kill()
+  #   messageProcessQueue.queue = async.queue messageProcessQueue._processMessage, 1
 
   @getMessageStats: (startTime, messages) ->
     previousTime = startTime
