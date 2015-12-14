@@ -4,13 +4,10 @@ async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
 mergeStream = require 'merge-stream'
 
-MessageProcessQueue = require './message-process-queue'
-MessageCounter = require './message-counter'
-
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
     super objectMode: true
-
+    {@messageProcessQueue, @messageCounter} = dependencies
 
   _transform: ({config, data, message}, enc, next) =>
     config = @_setupEngineNodeRoutes config
@@ -37,7 +34,7 @@ class EngineRouter extends Transform
         return 1
 
     _.each toNodeIds, (toNodeId, done) =>
-      MessageCounter.add()
+      @messageCounter.add()
       @_sendMessage toNodeId, message, config
 
     @push null
@@ -45,7 +42,7 @@ class EngineRouter extends Transform
   _sendMessage: (toNodeId, message, config) =>
     toNodeConfig = config[toNodeId]
     unless toNodeConfig?
-      MessageCounter.subtract()
+      @messageCounter.subtract()
       return console.error "toNodeConfig was not defined for node: #{toNodeId}"
 
     transactionGroupId = toNodeConfig.transactionGroupId
@@ -64,8 +61,8 @@ class EngineRouter extends Transform
       metadata: _.extend {}, @metadata, newMetadata
       message: message
 
-    MessageProcessQueue.push nodeType: toNodeType, envelope: envelope
-    MessageCounter.subtract()
+    @messageProcessQueue.push nodeType: toNodeType, envelope: envelope
+    @messageCounter.subtract()
 
   _setupEngineNodeRoutes: (config) =>
     nodesToWireToOutput = _.filter config, (node) =>

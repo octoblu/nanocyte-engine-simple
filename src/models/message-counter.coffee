@@ -11,4 +11,4 @@ class MessageCounter
 
   onDone: (@callback) =>
 
-module.exports = new MessageCounter
+module.exports = MessageCounter

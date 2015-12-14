@@ -1,11 +1,10 @@
 async = require 'async'
 EngineRouterNode = require './engine-router-node'
 debug = require('debug')('nanocyte-engine-simple:message-route-queue')
-MessageCounter = require './message-counter'
-LockManager = require './lock-manager'
 
 class MessageRouteQueue
-  constructor: ->
+  constructor: (options, dependencies) ->
+    {@lockManager, @messageCounter} = dependencies
     @queue = async.queue @_routeEnvelope, 1
 
   clear: =>
@@ -14,8 +13,8 @@ class MessageRouteQueue
   push: (task) =>
     {metadata} = task.envelope
     {transactionGroupId, transactionId} = metadata
-    MessageCounter.add()
-    LockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
+    @messageCounter.add()
+    @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
       metadata.transactionId = transactionId
       @queue.push task
 
@@ -25,11 +24,11 @@ class MessageRouteQueue
     router = new EngineRouterNode
 
     router.stream.on 'finish', (error) =>
-      LockManager.unlock transactionGroupId
-      MessageCounter.subtract()
+      @lockManager.unlock transactionGroupId
+      @messageCounter.subtract()
       callback()
 
     debug 'routing envelope:', envelope
     router.sendEnvelope envelope
 
-module.exports = new MessageRouteQueue
+module.exports = MessageRouteQueue

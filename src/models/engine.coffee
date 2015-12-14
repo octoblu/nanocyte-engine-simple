@@ -1,38 +1,48 @@
 debug = require('debug')('nanocyte-engine-simple:engine')
 
-EngineBatcher = require './engine-batcher'
-MessageProcessQueue = require './message-process-queue'
-MessageCounter = require './message-counter'
-ErrorHandler = require './error-handler'
-FlowTime = require './src/models/flow-time'
-
 class Engine
-  run: (envelope, callback) =>
+
+  constructor: (@options={}, @dependencies={}) ->
+    {@FlowTime} = @dependencies
+    @FlowTime ?= require './flow-time'
+    Engine.populateDependencies @options, @dependencies
+    {@errorHandler, @messageProcessQueue, @messageCounter, @engineBatcher} = dependencies
+
+  @populateDependencies: (options={},depends={}) ->
+    depends.lockManager         ?= new (require './lock-manager') options, depends
+    depends.engineBatcher       ?= new (require './engine-batcher') options, depends
+    depends.messageCounter      ?= new (require './message-counter') options, depends
+    depends.messageRouteQueue   ?= new (require './message-route-queue') options, depends
+    depends.messageProcessQueue ?= new (require './message-process-queue') options, depends
+    depends.errorHandler        ?= new (require './error-handler') options, depends
+    depends
+
+  run: (envelope, @callback) =>
     debug 'Engine.run', envelope
+    @callback new Error 'aborting stale engine instance' if @flowId?
     @flowId = envelope.metadata.flowId
-    @flowTime = new FlowTime {@flowId}
-    @timedOutIntervalId = setInterval @timedOutInterval, 1000, callback
+    @callback new Error 'flowId is not defined, aborting' unless @flowId?
+    @flowTime = new @FlowTime _.extend({},@options,{@flowId}), @dependencies
+    @checkTimedOutIntervalId = setInterval @_checkTimedOut, 1000
+    @errorHandler.onError (error, errorToSend) =>
+      @_finish errorToSend
+    @messageProcessQueue.push nodeType: 'engine-input', envelope: envelope
+    @messageCounter.onDone => @_finish null
 
-    ErrorHandler.onError (error, errorToSend) =>
-      @finish errorToSend, callback
-
-    MessageProcessQueue.push nodeType: 'engine-input', envelope: envelope
-    MessageCounter.onDone => @finish null, callback
-
-  finish: (errorToSend, callback) =>
-    return if @alreadyFinished
-    @alreadyFinished = true
-    clearTimeout @timedOutIntervalId
-    EngineBatcher.flush @flowId, (flushError) =>
+  _finish: (errorToSend) =>
+    return if @finished
+    @finished = true
+    clearTimeout @checkTimedOutIntervalId
+    @engineBatcher.flush @flowId, (flushError) =>
       console.error flushError if flushError?
       @flowTime.add()
-      callback errorToSend
+      @callback errorToSend
 
-  timedOutInterval: (callback) =>
+  _checkTimedOut: =>
     @flowTime.addTimedOut (error, timedOut) =>
       return unless timedOut
       errorString = "flow #{@flowId} violated max flow-time of #{@flowTime.maxTime}ms"
       console.error errorString
-      @finish new Error(errorString), callback
+      @_finish new Error(errorString)
 
 module.exports = Engine

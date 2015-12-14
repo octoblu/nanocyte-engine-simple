@@ -5,12 +5,13 @@ EngineDebugNode = require './engine-debug-node'
 EngineBatchNode = require './engine-batch-node'
 
 class ErrorHandler
-  handleError: (error, envelope) =>
-    MessageRouteQueue = require './message-route-queue'
-    MessageProcessQueue = require './message-process-queue'
 
-    MessageRouteQueue.clear()
-    MessageProcessQueue.clear()
+  constructor: (options, @dependencies) ->
+    {@messageRouteQueue, @messageProcessQueue} = @dependencies
+
+  handleError: (error, envelope) =>
+    @messageRouteQueue.clear()
+    @messageProcessQueue.clear()
     @sendError error, envelope, @callback
 
   onError: (@callback) =>
@@ -35,7 +36,7 @@ class ErrorHandler
       envelope = engineDebugNode.stream.read()
       return unless envelope?
 
-      engineBatchNode = new EngineBatchNode
+      engineBatchNode = new EngineBatchNode @dependencies
       engineBatchNode.stream.on 'finish', =>
         callback null, error
 
@@ -47,4 +48,4 @@ class ErrorHandler
 
     engineDebugNode.sendEnvelope debugEnvelope
 
-module.exports = new ErrorHandler
+module.exports = ErrorHandler

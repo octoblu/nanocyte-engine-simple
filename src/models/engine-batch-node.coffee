@@ -3,16 +3,15 @@ combine = require 'stream-combiner2'
 EngineNode = require './engine-node'
 
 class EngineBatchNode extends EngineNode
-  constructor: (dependencies={}) ->
+  constructor: (@dependencies={}) ->
     super
-    {@EngineBatch} = dependencies
+    {@EngineBatch} = @dependencies
     @EngineBatch ?= require './engine-batch'
-
 
   _getEnvelopeStream: ({metadata, message}) =>
     combine.obj(
       debugStream 'in'
-      new @EngineBatch metadata
+      new @EngineBatch metadata, @dependencies
       debugStream 'out'
     )
 

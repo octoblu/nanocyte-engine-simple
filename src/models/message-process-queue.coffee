@@ -1,48 +1,45 @@
 _ = require 'lodash'
 async = require 'async'
-MessageRouteQueue = require './message-route-queue'
-MessageCounter = require './message-counter'
-LockManager = require './lock-manager'
-ErrorHandler = require './error-handler'
 NodeAssembler = require './node-assembler'
 
 debug = require('debug')('nanocyte-engine-simple:message-process-queue')
 
 class MessageProcessQueue
-  constructor: ->
+  constructor: (options, @dependencies) ->
+    {@messageRouteQueue, @messageCounter, @lockManager, @errorHandler} = @dependencies
     @queue = async.queue @_processMessage, 1
-    @nodes = new NodeAssembler().assembleNodes()
+    @nodes = new NodeAssembler(@dependencies).assembleNodes()
   clear: =>
     @queue.kill()
 
   push: (task) =>
     {metadata} = task.envelope
     {transactionGroupId, transactionId} = metadata
-    MessageCounter.add()
-    LockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
+    @messageCounter.add()
+    @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
       metadata.transactionId = transactionId
       @queue.push task
 
   _processMessage: ({nodeType, envelope}, callback) =>
     ToNodeClass = @nodes[nodeType]
-    node = new ToNodeClass()
+    node = new ToNodeClass(@dependencies)
 
     node.stream.on 'error', (error) =>
-      ErrorHandler.handleError error, envelope
+      @errorHandler.handleError error, envelope
 
     node.stream.on 'finish', =>
       {transactionGroupId} = envelope.metadata
-      LockManager.unlock transactionGroupId
-      MessageCounter.subtract()
+      @lockManager.unlock transactionGroupId
+      @messageCounter.subtract()
       callback()
 
     node.stream.on 'readable', =>
-      MessageCounter.add()
+      @messageCounter.add()
       receivedEnvelope = node.stream.read()
       debug 'processed envelope:', receivedEnvelope
 
       unless receivedEnvelope?
-        MessageCounter.subtract()
+        @messageCounter.subtract()
         return
 
       {metadata, message} = receivedEnvelope
@@ -56,10 +53,10 @@ class MessageProcessQueue
         metadata: newMetadata
         message: message
 
-      MessageRouteQueue.push envelope: newEnvelope
-      MessageCounter.subtract()
+      @messageRouteQueue.push envelope: newEnvelope
+      @messageCounter.subtract()
 
     debug 'sending message:', envelope
     node.sendEnvelope envelope
 
-module.exports = new MessageProcessQueue
+module.exports = MessageProcessQueue

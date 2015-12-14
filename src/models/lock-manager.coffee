@@ -2,6 +2,7 @@ _ = require 'lodash'
 NodeUuid = require 'node-uuid'
 Redlock = require 'redlock'
 debug = require('debug')('nanocyte-engine-simple:lock-manager')
+
 class LockManager
   constructor: (options, dependencies={}) ->
     {@redlock, @client} = dependencies
@@ -53,4 +54,4 @@ class LockManager
   _generateTransactionId: =>
     NodeUuid.v4()
 
-module.exports  = new LockManager
+module.exports = LockManager

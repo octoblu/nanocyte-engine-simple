@@ -6,27 +6,27 @@ uuid = require 'node-uuid'
 class NodeAssembler
   constructor: (options, dependencies={}) ->
     {@EngineDataNode, @EngineDebugNode, @EngineOutputNode, @EnginePulseNode, @EngineBatchNode, @NanocyteNodeWrapper, @EngineInputNode} = dependencies
-    @EngineBatchNode ?= require './engine-batch-node'
-    @EngineDataNode ?= require './engine-data-node'
-    @EngineDebugNode ?= require './engine-debug-node'
-    @EngineBatchNode ?= require './engine-batch-node'
-    @EngineOutputNode ?= require './engine-output-node'
-    @EngineInputNode ?= require './engine-input-node'
-    @EnginePulseNode ?= require './engine-pulse-node'
+    @EngineBatchNode     ?= require './engine-batch-node'
+    @EngineDataNode      ?= require './engine-data-node'
+    @EngineDebugNode     ?= require './engine-debug-node'
+    @EngineBatchNode     ?= require './engine-batch-node'
+    @EngineOutputNode    ?= require './engine-output-node'
+    @EngineInputNode     ?= require './engine-input-node'
+    @EnginePulseNode     ?= require './engine-pulse-node'
     @NanocyteNodeWrapper ?= require './nanocyte-node-wrapper'
 
     {ComponentLoader} = dependencies
-    ComponentLoader ?= require './component-loader'
-    @componentLoader = new ComponentLoader
+    ComponentLoader  ?= require './component-loader'
+    @componentLoader  = new ComponentLoader
 
   assembleNodes: =>
     engineComponents =
-      'engine-data':   @EngineDataNode
-      'engine-debug':  @EngineDebugNode
+      'engine-data'  : @EngineDataNode
+      'engine-debug' : @EngineDebugNode
       'engine-output': @EngineOutputNode
-      'engine-pulse':  @EnginePulseNode
-      'engine-batch':  @EngineBatchNode
-      'engine-input':  @EngineInputNode
+      'engine-pulse' : @EnginePulseNode
+      'engine-batch' : @EngineBatchNode
+      'engine-input' : @EngineInputNode
 
     componentMap = @componentLoader.getComponentMap()
 

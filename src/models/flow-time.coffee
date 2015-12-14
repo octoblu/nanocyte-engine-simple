@@ -1,16 +1,26 @@
 _ = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:flow-time')
+
 class FlowTime
   constructor: (options={}, dependencies={})->
-    {@flowId, @maxTime, @expires} = options
+    {@flowId, flowTime} = options
+    flowTime ?= {}
+    {@maxTime, @expires} = flowTime
     @maxTime ?= 1000*60*2
     @expires ?= 60*60
-    {@datastore} = dependencies
+    {@datastore, @Date} = dependencies
     @datastore ?= new (require './datastore')
-    @lastTime = Date.now()
+    @Date ?= Date
+    @lastTime = @Date.now()
+
+  fetchFlowOptions: (callback) =>
+    @datastore.hget "flowtime-options-#{@flowId}", "maxTime", (error, maxTime) =>
+      return callback error if error?
+      {@maxTime, @expires} = options
+
 
   getMinute: (time)=>
-    time ?= Date.now()
+    time ?= @Date.now()
     @startMinute = Math.floor(time / (1000*60))
     return "stats-#{@flowId}-minute-#{@startMinute}"
 
@@ -27,7 +37,7 @@ class FlowTime
     return time >= @maxTime
 
   add: (callback=->) =>
-    now = Date.now()
+    now = @Date.now()
     elapsedTime = now - @lastTime
     @lastTime = now
     @datastore.getAndIncrementCount @getMinute(), elapsedTime, @expires, (error, time) =>

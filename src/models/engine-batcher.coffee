@@ -42,4 +42,4 @@ class EngineBatcher
       debug 'engine-output finish', key
       callback()
 
-module.exports = new EngineBatcher
+module.exports = EngineBatcher
