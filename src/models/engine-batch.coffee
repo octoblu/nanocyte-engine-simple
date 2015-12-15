@@ -1,7 +1,7 @@
 {Transform} = require 'stream'
 debug = require('debug')('nanocyte-engine-simple:engine-batch')
 _ = require 'lodash'
-EngineBatcher = require './engine-batcher'
+
 class EngineBatch extends Transform
   constructor: (@metadata, dependencies) ->
     super objectMode: true

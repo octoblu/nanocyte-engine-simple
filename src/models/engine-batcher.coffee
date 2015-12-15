@@ -17,9 +17,10 @@ class EngineBatcher
     debug 'flush', key
     @_sendMessage key, callback
 
-  flushAll: =>
+  flushAll: (callback=->) =>
     async.eachSeries _.keys(@batches), (key, done) =>
       @_sendMessage key, done
+    , callback
 
   _sendMessage: (key, callback) =>
     data = @batches[key]

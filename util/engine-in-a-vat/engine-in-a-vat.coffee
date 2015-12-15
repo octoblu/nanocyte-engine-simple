@@ -1,5 +1,5 @@
 colors = require 'colors'
-{PassThrough} = require 'stream'
+{Transform,PassThrough} = require 'stream'
 _ = require 'lodash'
 async = require 'async'
 redis = require 'redis'
@@ -11,13 +11,37 @@ ConfigurationGenerator = require 'nanocyte-configuration-generator'
 ConfigurationSaver = require 'nanocyte-configuration-saver-redis'
 
 Engine = require '../../src/models/engine'
-
-engineDependencies = Engine.populateDependencies()
-{messageProcessQueue} = engineDependencies
+EngineOutput = require '../../src/models/engine-output'
+EngineOutputNode = require '../../src/models/engine-output-node'
+EngineBatch = require '../../src/models/engine-batch'
 
 AddNodeInfoStream = require './add-node-info-stream'
 
 {Stats} = require 'fast-stats'
+
+#--------------------------------------------------------
+
+createEngineOutput = (outputStream) ->
+  class CaptureEngineOutput extends EngineOutput
+    constructor: (@metadata)->
+      super
+
+    _transform: ({config, message}, enc, next) =>
+      throw new Error 'output stream undefined' unless outputStream?
+      finished = =>
+        @push null
+        next()
+      if message?.topic == 'message-batch'
+        return async.each message?.payload?.messages, (message, callback) =>
+          outputStream.write {@metadata,config,message}, enc, callback
+        , finished
+      console.log 'writing out topic of', message?.topic
+      outputStream.write {@metadata,config,message}, enc, finished
+
+getDependencies = (outputStream) ->
+  return EngineOutput: createEngineOutput(outputStream)
+
+#--------------------------------------------------------
 
 class VatChannelConfig
   fetch: (callback) => callback null, {}
@@ -35,8 +59,8 @@ class EngineInAVat
     @configurationGenerator = new ConfigurationGenerator {}, channelConfig: new VatChannelConfig
     @configurationSaver = new ConfigurationSaver client
 
-    messageProcessQueue.queue.kill()
-    messageProcessQueue.queue = async.queue @interceptProcessMessage, 1
+    # messageProcessQueue.queue.kill()
+    # messageProcessQueue.queue = async.queue @interceptProcessMessage, 1
 
   initialize: (callback=->) =>
     debug 'initializing'
@@ -73,11 +97,11 @@ class EngineInAVat
           from: nodeId
         topic: topic
 
-    engine = new Engine null, engineDependencies
+    depends = getDependencies(outputStream)
+    engine = new Engine null, depends
     engine.run newMessage, (error) =>
-      # EngineInAVat.unMessUpProcessQueue()
       outputStream.end()
-      callback error, EngineInAVat.getMessageStats startTime, messages
+      callback(error)
 
     outputStream.on 'data', (envelope) =>
       debug EngineInAVat.printMessage envelope
@@ -93,7 +117,7 @@ class EngineInAVat
       message:
         topic: 'subscribe:pulse'
 
-    engine = new Engine
+    engine = new Engine null, getDependencies()
     engine.run newMessage, callback
 
   interceptProcessMessage: ({nodeType, envelope}, callback) =>

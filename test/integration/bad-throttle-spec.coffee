@@ -70,7 +70,9 @@ describe 'BadThrottle', ->
         @sut.initialize =>
           debug 'sut initialized'
           triggerStream = @sut.triggerByName name: 'Trigger'
-          triggerStream.on 'data', @_pushThrottleDebug
+          triggerStream.on 'data', (msg) =>
+            # console.log 'pushing msg', JSON.stringify msg, null, 2
+            @_pushThrottleDebug(msg)
           triggerStream.on 'finish', =>
             debug 'responseStream finished'
             @_sendThrottle(isFinished,@_sendThrottle)
