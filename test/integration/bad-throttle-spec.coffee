@@ -5,8 +5,9 @@ fs = require 'fs'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
 MAX_TIMES = 100
+TIMEOUT = 300000
 describe 'BadThrottle', ->
-  @timeout 300000
+  @timeout TIMEOUT
   describe 'when instantiated with a flow', =>
 
     before =>
@@ -17,96 +18,65 @@ describe 'BadThrottle', ->
 
       @throttleId = _.filter(@nodes,{name:"Throttle"})?[0].id
       debug 'have throttleId', @throttleId
-      @triggerId = _.filter(@nodes,{name:"Trigger"})?[0].id
-      debug 'have triggerId', @triggerId
 
-      @_translate = (id) =>
-        filter = _.filter(@nodes,{id:id})?[0]
-        return filter?.name or id
-
-      @_debugMsg = (msg) =>
-        fromNodeId = @_translate(msg.metadata.fromNodeId)
-        toNodeId = @_translate(msg.metadata.toNodeId)
-        debugFromNodeId = @_translate(msg.metadata.debugInfo?.fromNode?.config.id)
-        debugToNodeId = @_translate(msg.metadata.debugInfo?.toNode?.config.id)
-        debug "  - debugInfo #{debugFromNodeId}(#{fromNodeId})=>#{debugToNodeId}(#{toNodeId})"
-
-      @_pushThrottleDebug = (msg) =>
-        @_debugMsg msg
-        return unless msg?.message?.topic == 'debug'
-        return unless msg?.metadata?.fromNodeId
-        node = @_translate(msg.message?.payload?.node)
-        debug 'checking output to ', node, "(#{msg.message?.payload?.node})"
-        return unless node == 'Debug-Throttle'
-        @throttleMessages.push msg.message.payload.msg
+      @_findId = (name) =>
+        _.filter(@nodes,{name})?[0].id
 
       @_sendThrottle = (isFinished,next,sut=@sut) =>
         @throttleTimes++
-        throttleStream = sut.messageEngine @throttleId, timestamp: Date.now()
-        throttleStream.on 'data', @_pushThrottleDebug
-        throttleStream.on 'finish', =>
-          debug 'throttleStream finished'
+        throttleStream = sut.messageEngine @throttleId, timestamp: Date.now(), undefined, (error, messages) =>
+          throw error if error?
+          debugId = @_findId 'Debug-Throttle'
+          filter = message:{topic:'debug',payload:{node:debugId}}
+          debugs = _.filter messages, filter
+          msgs = _.map debugs, (debug) => debug.message.payload.msg
+          @throttleMessages = @throttleMessages.concat msgs
           return if isFinished? and isFinished()
-          next(isFinished,next) if next?
+          next(isFinished,next) if next? and @throttleTimes < MAX_TIMES
 
     beforeEach =>
-      @sut = new EngineInAVat flowName: 'bad-throttle', flowData: @flow, instanceId: 'bad-throttle-instance'
+      @sut = new EngineInAVat
+        flowName: 'bad-throttle'
+        instanceId: 'bad-throttle-instance'
+        flowData: @flow
+        flowTime:
+          maxTime: MAX_TIMES*TIMEOUT
       @throttleMessages = []
-      @times = 0
+      @throttleTimes = 0
       @startTime = Date.now()
 
     describe "and messaged sequentially #{MAX_TIMES} times", =>
       beforeEach (done) =>
-        isFinished = =>
-          debug "Time: #{Date.now() - @startTime}"
-          @startTime = Date.now()
-          debug process.memoryUsage()
-          @times++
-          # process.stdout.write "#{@throttleMessages.length} "
-          return done(new Error 'missed a message') if @times != @throttleMessages.length
-          return done() if @times == MAX_TIMES
+        isFinishedSync = =>
+          return done(new Error 'missed a sync message') if @throttleTimes != @throttleMessages.length
+          return done() if @throttleTimes == MAX_TIMES
 
         debug "trigger initializing sut #{@times}"
         @sut.initialize =>
           debug 'sut initialized'
-          triggerStream = @sut.triggerByName name: 'Trigger'
-          triggerStream.on 'data', (msg) =>
-            # console.log 'pushing msg', JSON.stringify msg, null, 2
-            @_pushThrottleDebug(msg)
-          triggerStream.on 'finish', =>
-            debug 'responseStream finished'
-            @_sendThrottle(isFinished,@_sendThrottle)
+          @sut.triggerByName name: 'Trigger', =>
+            @_sendThrottle isFinishedSync, @_sendThrottle
 
-      it "Should have the right number length of debugs", =>
+      it "Should have the messages in order", =>
         expect(@throttleMessages.length).to.equals MAX_TIMES
+        expect(@throttleMessages.join('')).to.equals 'ab'.repeat(50)
 
-    xdescribe "and messaged async #{MAX_TIMES} times", =>
+    describe "and messaged async #{MAX_TIMES} times", =>
       beforeEach (done) =>
+        isFinishedASync = =>
+          return done() if @throttleMessages.length == MAX_TIMES
+          return done(new Error 'missed an async message')
+
         debug "trigger initializing sut #{@times}"
-        triggerSuts = []
-
-        async.times MAX_TIMES, (n, next) =>
-          triggerSuts[n] = new EngineInAVat flowName: 'bad-throttle', flowData: @flow, instanceId: 'bad-throttle-instance'
-          triggerSuts[n].initialize next
-          debug 'done init trigger sut',n
-
         @sut.initialize =>
           debug 'sut initialized'
-          triggerStream = @sut.triggerByName name: 'Trigger'
-          triggerStream.on 'data', @_pushThrottleDebug
-          triggerStream.on 'finish', =>
-            debug 'responseStream finished'
-
+          @sut.triggerByName name: 'Trigger', =>
             async.times MAX_TIMES, (n, next) =>
               debug "sending Throttle message ##{n}"
-              isFinished = =>
-                @times++
-                debug n, @times, @throttleMessages.length
-                return done(new Error 'missed a message') if @times != @throttleMessages.length
-                return done() if @times == MAX_TIMES
-                next()
-
-              @_sendThrottle(isFinished, null, triggerSuts[n])
+              @_sendThrottle next
+            , isFinishedASync
 
       it "Should have the right number length of debugs", =>
         expect(@throttleMessages.length).to.equals MAX_TIMES
+        console.log 'ab'.repeat(50)
+        console.log @throttleMessages.join('')

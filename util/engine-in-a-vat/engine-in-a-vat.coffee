@@ -17,8 +17,8 @@ class VatChannelConfig
   fetch: (callback) => callback null, {}
 
 class EngineInAVat
-  constructor: (options) ->
-    {@flowName, @flowData, @instanceId} = options
+  constructor: (@options) ->
+    {@flowName, @flowData, @instanceId} = @options
     @instanceId ?= uuid.v4()
     @triggers = @findTriggers()
     client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
@@ -72,7 +72,7 @@ class EngineInAVat
     newMessage = @createMessage topic, {message, from: nodeId}
     # console.log 'sending:', JSON.stringify newMessage, null, 2
 
-    engine = new Engine null, @getEngineDependencies(outputStream)
+    engine = new Engine @options, @getEngineDependencies(outputStream)
     engine.run newMessage, (error) =>
       outputStream.end()
       callback(error,messages)
@@ -81,7 +81,7 @@ class EngineInAVat
 
   subscribeToPulses: (callback)=>
     newMessage = @createMessage 'subscribe:pulse'
-    engine = new Engine null, @getEngineDependencies()
+    engine = new Engine @options, @getEngineDependencies()
     engine.run newMessage, callback
 
 module.exports = EngineInAVat
