@@ -19,7 +19,7 @@ class MessageRouteQueue
       @queue.push task
 
   _routeEnvelope: ({envelope, stream}, callback) =>
-    {transactionGroupId, transactionId} = envelope.metadata
+    {transactionGroupId} = envelope.metadata
 
     router = new EngineRouterNode @options, @dependencies
 

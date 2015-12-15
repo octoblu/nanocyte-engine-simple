@@ -7,7 +7,7 @@ class LockManager
   constructor: (options, dependencies={}) ->
     {@redlock, @client, @instanceCount} = dependencies
     @client ?= require '../handlers/redis-handler'
-    @redlock ?= new Redlock [@client]
+    @redlock ?= new Redlock [@client], {driftFactor:0.5,retryCount:10,retryDelay:200}
     @activeLocks = {}
 
   canLock: (transactionGroupId, transactionId) =>
@@ -48,8 +48,9 @@ class LockManager
 
   _acquireLock: (transactionGroupId, callback) =>
     debug "#{@instanceCount} acquireLock", transactionGroupId
-    @redlock.lock "locks:#{transactionGroupId}", 6000, (error, lock) =>
+    @redlock.lock "locks:#{transactionGroupId}", 60*1000, (error, lock) =>
       debug "#{@instanceCount} redlock #{lock}", error
+      return setImmediate @_acquireLock, transactionGroupId, callback if error? or !lock?
       callback error, lock
 
   _generateTransactionId: =>

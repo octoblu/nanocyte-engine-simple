@@ -4,7 +4,7 @@ debug = require('debug')('bad-throttle')
 fs = require 'fs'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
-MAX_TIMES = 6
+MAX_TIMES = 20
 TIMEOUT = 300000
 describe 'BadThrottle', ->
   @timeout TIMEOUT
@@ -46,7 +46,7 @@ describe 'BadThrottle', ->
       @throttleTimes = 0
       @startTime = Date.now()
 
-    describe.only "and messaged sequentially #{MAX_TIMES} times", =>
+    describe "and messaged sequentially #{MAX_TIMES} times", =>
       beforeEach (done) =>
         isFinishedSync = =>
           return done(new Error 'missed a sync message') if @throttleTimes != @throttleMessages.length

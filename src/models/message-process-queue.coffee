@@ -24,6 +24,7 @@ class MessageProcessQueue
   _processMessage: ({nodeType, envelope}, callback) =>
     ToNodeClass = @nodes[nodeType]
     node = new ToNodeClass @options, @dependencies
+    
     node.stream.on 'error', (error) =>
       @errorHandler.handleError error, envelope
 
