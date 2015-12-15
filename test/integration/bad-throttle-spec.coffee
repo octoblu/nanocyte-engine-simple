@@ -4,7 +4,7 @@ debug = require('debug')('bad-throttle')
 fs = require 'fs'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
-MAX_TIMES = 100
+MAX_TIMES = 6
 TIMEOUT = 300000
 describe 'BadThrottle', ->
   @timeout TIMEOUT
@@ -46,7 +46,7 @@ describe 'BadThrottle', ->
       @throttleTimes = 0
       @startTime = Date.now()
 
-    describe "and messaged sequentially #{MAX_TIMES} times", =>
+    describe.only "and messaged sequentially #{MAX_TIMES} times", =>
       beforeEach (done) =>
         isFinishedSync = =>
           return done(new Error 'missed a sync message') if @throttleTimes != @throttleMessages.length
@@ -60,7 +60,7 @@ describe 'BadThrottle', ->
 
       it "Should have the messages in order", =>
         expect(@throttleMessages.length).to.equals MAX_TIMES
-        expect(@throttleMessages.join('')).to.equals 'ab'.repeat(50)
+        expect(@throttleMessages.join('')).to.equals 'ab'.repeat(MAX_TIMES/2)
 
     describe "and messaged async #{MAX_TIMES} times", =>
       beforeEach (done) =>
@@ -79,5 +79,5 @@ describe 'BadThrottle', ->
 
       it "Should have the right number length of debugs", =>
         expect(@throttleMessages.length).to.equals MAX_TIMES
-        console.log 'ab'.repeat(50)
+        console.log 'ab'.repeat(MAX_TIMES/2)
         console.log @throttleMessages.join('')

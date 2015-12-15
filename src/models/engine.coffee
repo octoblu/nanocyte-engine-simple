@@ -10,6 +10,7 @@ class Engine
     {@errorHandler, @messageProcessQueue, @messageCounter, @engineBatcher} = @dependencies
 
   @populateDependencies: (options={},depends={}) ->
+    depends.instanceCount        = ++Engine.instanceCount
     depends.lockManager         ?= new (require './lock-manager') options, depends
     depends.errorHandler        ?= new (require './error-handler') options, depends
     depends.engineBatcher       ?= new (require './engine-batcher') options, depends
@@ -18,6 +19,8 @@ class Engine
     depends.messageProcessQueue ?= new (require './message-process-queue') options, depends
     depends.errorHandler.updateDependencies depends
     depends
+
+  @instanceCount: 0
 
   run: (envelope, @callback) =>
     debug 'Engine.run', envelope

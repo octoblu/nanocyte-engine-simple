@@ -38,18 +38,20 @@ class MessageUtil
     {metadata, message} = envelope
     debugInfo = metadata.debugInfo || {}
 
+    return "pulse" if message.topic == 'pulse'
     # messageString = "unparsed-message"
     #messageString = JSON.stringify envelope, null, 2
-    messageString = envelope?.message?.payload?.msg
+    messageString = envelope or envelope?.message?.payload?.msg or envelope?.message
+    messageString = JSON.stringify messageString, null, 2
     lastTime = debugInfo.timestamp unless lastTime?
     timeDiff = debugInfo.timestamp - lastTime
     lastTime = debugInfo.timestamp
 
 
-    # "[#{colors.yellow metadata.transactionId}] " +
-    # "#{debugInfo.fromNodeName || metadata.fromNodeId} #{colors.gray debugInfo.fromNodeType} : " +
-    # "--> " +
-    # "#{debugInfo.toNodeName || metadata.toNodeId} #{colors.green debugInfo.nanocyteType} (#{debugInfo.toNodeType})\n" +
+    "[#{colors.yellow metadata.transactionId}] " +
+    "#{debugInfo.fromNodeName || metadata.fromNodeId} #{colors.gray debugInfo.fromNodeType} : " +
+    "--> " +
+    "#{debugInfo.toNodeName || metadata.toNodeId} #{colors.green debugInfo.nanocyteType} (#{debugInfo.toNodeType})\n" +
     " #{colors.green messageString}" if messageString
 
   @printStats: (messages) =>

@@ -5,7 +5,7 @@ debug = require('debug')('nanocyte-engine-simple:lock-manager')
 
 class LockManager
   constructor: (options, dependencies={}) ->
-    {@redlock, @client} = dependencies
+    {@redlock, @client, @instanceCount} = dependencies
     @client ?= require '../handlers/redis-handler'
     @redlock ?= new Redlock [@client]
     @activeLocks = {}
@@ -19,17 +19,18 @@ class LockManager
     if @canLock transactionGroupId, transactionId
       @activeLocks[transactionGroupId].count += 1
 
-      debug "already locked: #{transactionGroupId}. transactionId: #{transactionId} count: #{@activeLocks[transactionGroupId].count}"
+      debug "#{@instanceCount} already locked: #{transactionGroupId}. transactionId: #{transactionId} count: #{@activeLocks[transactionGroupId].count}"
       return callback null, transactionId
 
     @_acquireLock transactionGroupId, (error, lock) =>
+      return callback(error or new Error 'unspecified redlock error') if error? or !lock?
       transactionId = @_generateTransactionId()
       @activeLocks[transactionGroupId] =
         lockObject: lock
         transactionId: transactionId
         count: 1
 
-      debug "locked: #{transactionGroupId}. transactionId: #{transactionId} count: #{@activeLocks[transactionGroupId].count}"
+      debug "#{@instanceCount} locked: #{transactionGroupId}. transactionId: #{transactionId} count: #{@activeLocks[transactionGroupId].count}"
       callback error, transactionId
 
   unlock: (transactionGroupId) =>
@@ -37,19 +38,19 @@ class LockManager
     return unless @activeLocks[transactionGroupId]?
 
     @activeLocks[transactionGroupId].count -= 1
-    debug "unlocking: #{transactionGroupId}. #{@activeLocks[transactionGroupId]?.count} locks remaining"
+    debug "#{@instanceCount} unlocking: #{transactionGroupId}. #{@activeLocks[transactionGroupId]?.count} locks remaining"
 
     return if @activeLocks[transactionGroupId].count != 0
     @activeLocks[transactionGroupId].lockObject?.unlock()
     delete @activeLocks[transactionGroupId]
 
-    debug "unlocked: #{transactionGroupId}"
+    debug "#{@instanceCount} unlocked: #{transactionGroupId}"
 
   _acquireLock: (transactionGroupId, callback) =>
-    debug 'acquireLock', transactionGroupId
+    debug "#{@instanceCount} acquireLock", transactionGroupId
     @redlock.lock "locks:#{transactionGroupId}", 6000, (error, lock) =>
-      debug 'redlock', error
-      callback null, lock
+      debug "#{@instanceCount} redlock #{lock}", error
+      callback error, lock
 
   _generateTransactionId: =>
     NodeUuid.v4()
