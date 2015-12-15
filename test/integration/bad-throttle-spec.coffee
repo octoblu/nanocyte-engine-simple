@@ -30,6 +30,7 @@ describe 'BadThrottle', ->
           filter = message:{topic:'debug',payload:{node:debugId}}
           debugs = _.filter messages, filter
           msgs = _.map debugs, (debug) => debug.message.payload.msg
+          debug 'msgs:', msgs
           @throttleMessages = @throttleMessages.concat msgs
           return if isFinished? and isFinished()
           next(isFinished,next) if next? and @throttleTimes < MAX_TIMES

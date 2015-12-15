@@ -11,8 +11,10 @@ class AddNodeInfoStream extends Transform
     fromNode = @nanocyteConfig[envelope?.metadata?.fromNodeId]
     toNode = @nanocyteConfig[envelope?.metadata?.toNodeId]
     debugInfo =
-      fromNode: fromNode
-      toNode: toNode
+      fromNodeName: fromNode?.config.name
+      toNodeName: fromNode?.config.name
+      fromNodeType: fromNode?.config.type
+      toNodeType: toNode?.config.type
       timestamp: Date.now()
       nanocyteType: envelope.metadata?.nanocyteType
 

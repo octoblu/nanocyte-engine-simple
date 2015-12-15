@@ -65,13 +65,10 @@ class EngineInAVat
 
     outputStream = new AddNodeInfoStream flowData: @flowData, nanocyteConfig: @configuration
     outputStream.on 'data', (envelope) =>
-      # console.log 'envelope:', envelope
       debug MessageUtil.print envelope
       messages.push envelope
 
     newMessage = @createMessage topic, {message, from: nodeId}
-    # console.log 'sending:', JSON.stringify newMessage, null, 2
-
     engine = new Engine @options, @getEngineDependencies(outputStream)
     engine.run newMessage, (error) =>
       outputStream.end()

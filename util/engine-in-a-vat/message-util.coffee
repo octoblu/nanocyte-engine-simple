@@ -38,17 +38,19 @@ class MessageUtil
     {metadata, message} = envelope
     debugInfo = metadata.debugInfo || {}
 
-    messageString = "unparsed-message"
-    #messageString = JSON.stringify message
+    # messageString = "unparsed-message"
+    #messageString = JSON.stringify envelope, null, 2
+    messageString = envelope?.message?.payload?.msg
     lastTime = debugInfo.timestamp unless lastTime?
     timeDiff = debugInfo.timestamp - lastTime
     lastTime = debugInfo.timestamp
 
-    "[#{colors.yellow metadata.transactionId}] " +
-    "#{debugInfo.fromNode?.config.name || metadata.fromNodeId} #{colors.gray debugInfo.fromNode?.config.type} : " +
-    "--> " +
-    "#{debugInfo.toNode?.config.name || metadata.toNodeId} #{colors.green debugInfo.nanocyteType} (#{debugInfo.toNode?.config.type})" +
-    " #{colors.green messageString}"
+
+    # "[#{colors.yellow metadata.transactionId}] " +
+    # "#{debugInfo.fromNodeName || metadata.fromNodeId} #{colors.gray debugInfo.fromNodeType} : " +
+    # "--> " +
+    # "#{debugInfo.toNodeName || metadata.toNodeId} #{colors.green debugInfo.nanocyteType} (#{debugInfo.toNodeType})\n" +
+    " #{colors.green messageString}" if messageString
 
   @printStats: (messages) =>
     debug "\nINCOMING:"
