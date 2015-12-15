@@ -3,7 +3,7 @@ _ = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:engine-output')
 
 class EngineOutput extends Transform
-  constructor: (options={}, dependencies={})->
+  constructor: (@metadata={}, dependencies={})->
     super objectMode: true
 
     {@MeshbluHttp} = dependencies
