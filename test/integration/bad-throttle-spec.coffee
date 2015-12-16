@@ -49,7 +49,7 @@ describe 'BadThrottle', ->
       @throttleTimes = 0
       @startTime = Date.now()
 
-    describe.only "and messaged sequentially #{MAX_TIMES} times", =>
+    describe "and messaged sequentially #{MAX_TIMES} times", =>
       beforeEach (done) =>
         isFinishedSync = =>
           return done() or true if @throttleTimes == MAX_TIMES
@@ -63,7 +63,7 @@ describe 'BadThrottle', ->
       it "Should have the messages in order", =>
         expect(@throttleMessages.join('')).to.equals 'ab'.repeat(MAX_TIMES/2)
 
-    describe "and messaged async #{MAX_TIMES} times", =>
+    describe.only "and messaged async #{MAX_TIMES} times", =>
       beforeEach (done) =>
         debug "trigger initializing sut #{@times}"
         @sut.initialize =>

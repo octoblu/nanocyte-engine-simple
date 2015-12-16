@@ -39,8 +39,8 @@ class MessageProcessQueue
     #   @errorHandler.handleError error, envelope
 
     node.stream.on 'finish', =>
-      @lockManager.unlock transactionGroupId
       callback()
+      @lockManager.unlock transactionGroupId
 
     node.stream.on 'readable', =>
       receivedEnvelope = node.stream.read()

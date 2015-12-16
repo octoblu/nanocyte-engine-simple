@@ -6,7 +6,7 @@ EngineOutputNode = require './engine-output-node'
 class EngineBatcher
   constructor: (@options, @dependencies) ->
     @batches = {}
-    @interval = setInterval @_flushAll, 50, 'interval'
+    @flushAllInterval = setInterval @flushAll, 50
     @processing = {}
     @callbacks = {}
 
@@ -15,30 +15,24 @@ class EngineBatcher
     @batches[key] ?= metadata: metadata, messages: []
     @batches[key].messages.push message
 
-  flush: (key, callback) =>
-    debug 'flush', key
-    @_sendMessage key, callback
+  _shutdownFlushAll: (callback) =>
+    unless @flushing
+      clearInterval @shutdownInterval
+      @flushAll callback
 
-  clearFlushAll: (callback=->) =>
-    @shutdown = true
-    clearInterval @interval
-    @_flushAll 'shutdown', callback, true
+  shutdownFlushAll: (callback=->) =>
+    clearInterval @flushAllInterval
+    @shutdownInterval = setInterval @_shutdownFlushAll, 50, callback
+    @_shutdownFlushAll callback
 
-  _flushAll: (msg, callback=(->), shutdown=false) =>
-    console.log msg if msg?
+  flushAll: (callback=->) =>
+    return callback() if @flushing
+    @flushing = true
     async.eachSeries _.keys(@batches), (key, done) =>
-      if shutdown and @processing[key]
-        @shutdownCallback = callback
-        return done()
-      @processing[key] = true
-      console.log 'sending key', key, shutdown
-      @_sendMessage key, =>
-        delete @processing[key]
-        done()
+      @_sendMessage key, done
     , =>
-      return if shutdown and @shutdownCallback?
+      @flushing = false
       callback()
-      @shutdownCallback() if @shutdownCallback?
 
   _sendMessage: (key, callback) =>
     data = @batches[key]
@@ -59,10 +53,6 @@ class EngineBatcher
     stream = engineOutputNode.sendEnvelope metadata: metadata, message: message
     stream.on 'finish', =>
       debug 'engine-output finish', key
-      if @batches[key]? and @shutdown
-        console.log 'found more data to process'
-        return setImmediate @_sendMessage, key, callback
       callback()
-      @shutdownCallback() if @shutdownCallback?
 
 module.exports = EngineBatcher

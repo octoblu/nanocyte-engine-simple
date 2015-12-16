@@ -1,6 +1,7 @@
 async = require 'async'
 EngineRouterNode = require './engine-router-node'
 debug = require('debug')('nanocyte-engine-simple:message-route-queue')
+_ = require 'lodash'
 
 class MessageRouteQueue
   constructor: (@options, @dependencies) ->
@@ -28,7 +29,7 @@ class MessageRouteQueue
     {envelope} = task
     {transactionGroupId} = envelope.metadata
     node.stream.on 'finish', (error) =>
-      @lockManager.unlock transactionGroupId
       callback()
+      @lockManager.unlock transactionGroupId
 
 module.exports = MessageRouteQueue

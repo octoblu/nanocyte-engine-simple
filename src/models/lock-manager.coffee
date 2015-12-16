@@ -7,7 +7,7 @@ class LockManager
   constructor: (options, dependencies={}) ->
     {@redlock, @client, @instanceCount, @messageCounter} = dependencies
     @client ?= require '../handlers/redis-handler'
-    @redlock ?= new Redlock [@client], {retryCount:60*60*100,retryDelay:50}
+    @redlock ?= new Redlock [@client], {retryCount:60*100,retryDelay:0}
     @activeLocks = {}
 
   canLock: (transactionGroupId, transactionId) =>
@@ -49,6 +49,7 @@ class LockManager
 
     return if @activeLocks[transactionGroupId].count != 0
     @activeLocks[transactionGroupId].lockObject?.unlock()
+
     delete @activeLocks[transactionGroupId]
 
     debug "#{@instanceCount} unlocked: ", @getInfo transactionGroupId
