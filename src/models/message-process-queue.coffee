@@ -14,35 +14,36 @@ class MessageProcessQueue
     @queue.kill()
 
   push: (task) =>
-    {metadata} = task.envelope
-    {transactionGroupId, transactionId} = metadata
-    @messageCounter.add()
+    {transactionGroupId, transactionId} = task.envelope.metadata
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
-      metadata.transactionId = transactionId
+      throw error if error?
+      task.envelope.metadata.transactionId = transactionId
       @queue.push task
 
-  _processMessage: ({nodeType, envelope}, callback) =>
-    ToNodeClass = @nodes[nodeType]
-    node = new ToNodeClass @options, @dependencies
-    
+  _processMessage: (task, callback) =>
+    {nodeType, envelope} = task
+    {transactionGroupId, transactionId} = envelope.metadata
+    debug 'sending message:', envelope
+    NodeClass = @nodes[nodeType]
+    node = new NodeClass @options, @dependencies
+    @_addStreamCallbacks task, node, callback
+    node.sendEnvelope envelope
+
+  _addStreamCallbacks: (task, node, callback) ->
+    {envelope} = task
+    {transactionGroupId} = envelope.metadata
+
     node.stream.on 'error', (error) =>
       @errorHandler.handleError error, envelope
 
     node.stream.on 'finish', =>
-      {transactionGroupId} = envelope.metadata
       @lockManager.unlock transactionGroupId
-      @messageCounter.subtract()
       callback()
 
     node.stream.on 'readable', =>
-      @messageCounter.add()
       receivedEnvelope = node.stream.read()
       debug 'processed envelope:', receivedEnvelope
-
-      unless receivedEnvelope?
-        @messageCounter.subtract()
-        return
-
+      return unless receivedEnvelope?
       {metadata, message} = receivedEnvelope
       {toNodeId} = metadata
 
@@ -55,9 +56,5 @@ class MessageProcessQueue
         message: message
 
       @messageRouteQueue.push envelope: newEnvelope
-      @messageCounter.subtract()
-
-    debug 'sending message:', envelope
-    node.sendEnvelope envelope
 
 module.exports = MessageProcessQueue

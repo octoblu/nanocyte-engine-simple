@@ -11,10 +11,10 @@ class Engine
 
   @populateDependencies: (options={},depends={}) ->
     depends.instanceCount        = ++Engine.instanceCount
+    depends.messageCounter      ?= new (require './message-counter') options, depends
     depends.lockManager         ?= new (require './lock-manager') options, depends
     depends.errorHandler        ?= new (require './error-handler') options, depends
     depends.engineBatcher       ?= new (require './engine-batcher') options, depends
-    depends.messageCounter      ?= new (require './message-counter') options, depends
     depends.messageRouteQueue   ?= new (require './message-route-queue') options, depends
     depends.messageProcessQueue ?= new (require './message-process-queue') options, depends
     depends.errorHandler.updateDependencies depends

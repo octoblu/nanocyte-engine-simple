@@ -4,10 +4,12 @@ debug = require('debug')('bad-throttle')
 fs = require 'fs'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
-MAX_TIMES = 20
+MAX_TIMES = 100
 TIMEOUT = 300000
+
 describe 'BadThrottle', ->
   @timeout TIMEOUT
+
   describe 'when instantiated with a flow', =>
 
     before =>
@@ -26,6 +28,7 @@ describe 'BadThrottle', ->
         @throttleTimes++
         throttleStream = sut.messageEngine @throttleId, timestamp: Date.now(), undefined, (error, messages) =>
           throw error if error?
+          # debug 'messages:', messages
           debugId = @_findId 'Debug-Throttle'
           filter = message:{topic:'debug',payload:{node:debugId}}
           debugs = _.filter messages, filter
@@ -38,7 +41,7 @@ describe 'BadThrottle', ->
     beforeEach =>
       @sut = new EngineInAVat
         flowName: 'bad-throttle'
-        instanceId: 'bad-throttle-instance'
+        # instanceId: 'bad-throttle-instance'
         flowData: @flow
         flowTime:
           maxTime: MAX_TIMES*TIMEOUT
@@ -46,11 +49,10 @@ describe 'BadThrottle', ->
       @throttleTimes = 0
       @startTime = Date.now()
 
-    describe "and messaged sequentially #{MAX_TIMES} times", =>
+    describe.only "and messaged sequentially #{MAX_TIMES} times", =>
       beforeEach (done) =>
         isFinishedSync = =>
-          return done(new Error 'missed a sync message') if @throttleTimes != @throttleMessages.length
-          return done() if @throttleTimes == MAX_TIMES
+          return done() or true if @throttleTimes == MAX_TIMES
 
         debug "trigger initializing sut #{@times}"
         @sut.initialize =>
@@ -59,15 +61,10 @@ describe 'BadThrottle', ->
             @_sendThrottle isFinishedSync, @_sendThrottle
 
       it "Should have the messages in order", =>
-        expect(@throttleMessages.length).to.equals MAX_TIMES
         expect(@throttleMessages.join('')).to.equals 'ab'.repeat(MAX_TIMES/2)
 
     describe "and messaged async #{MAX_TIMES} times", =>
       beforeEach (done) =>
-        isFinishedASync = =>
-          return done() if @throttleMessages.length == MAX_TIMES
-          return done(new Error 'missed an async message')
-
         debug "trigger initializing sut #{@times}"
         @sut.initialize =>
           debug 'sut initialized'
@@ -75,9 +72,8 @@ describe 'BadThrottle', ->
             async.times MAX_TIMES, (n, next) =>
               debug "sending Throttle message ##{n}"
               @_sendThrottle next
-            , isFinishedASync
+            , done
 
-      it "Should have the right number length of debugs", =>
-        expect(@throttleMessages.length).to.equals MAX_TIMES
-        console.log 'ab'.repeat(MAX_TIMES/2)
-        console.log @throttleMessages.join('')
+      it "Should have the right number of 'a' and 'b' debugs", =>
+        expectString = 'a'.repeat(MAX_TIMES/2) + 'b'.repeat(MAX_TIMES/2)
+        expect(@throttleMessages.sort().join('')).to.equals expectString

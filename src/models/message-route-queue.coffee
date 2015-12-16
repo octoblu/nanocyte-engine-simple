@@ -11,24 +11,24 @@ class MessageRouteQueue
     @queue.kill()
 
   push: (task) =>
-    {metadata} = task.envelope
-    {transactionGroupId, transactionId} = metadata
-    @messageCounter.add()
+    {transactionGroupId, transactionId} = task.envelope.metadata
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
-      metadata.transactionId = transactionId
+      throw error if error?
+      task.envelope.metadata.transactionId = transactionId
       @queue.push task
 
-  _routeEnvelope: ({envelope, stream}, callback) =>
-    {transactionGroupId} = envelope.metadata
-
-    router = new EngineRouterNode @options, @dependencies
-
-    router.stream.on 'finish', (error) =>
-      @lockManager.unlock transactionGroupId
-      @messageCounter.subtract()
-      callback()
-
+  _routeEnvelope: (task, callback) =>
+    {envelope} = task
     debug 'routing envelope:', envelope
-    router.sendEnvelope envelope
+    node = new EngineRouterNode @options, @dependencies
+    @_addStreamCallbacks task, node, callback
+    node.sendEnvelope envelope
+
+  _addStreamCallbacks: (task, node, callback) ->
+    {envelope} = task
+    {transactionGroupId} = envelope.metadata
+    node.stream.on 'finish', (error) =>
+      @lockManager.unlock transactionGroupId
+      callback()
 
 module.exports = MessageRouteQueue

@@ -14,7 +14,6 @@ class EnginePulse extends Transform
         node: nodeId
 
     @push null
-
-    next()
+    next() if next?
 
 module.exports = EnginePulse

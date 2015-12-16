@@ -10,25 +10,22 @@ class EngineInput extends Transform
     PulseSubscriber ?= require './pulse-subscriber'
     @pulseSubscriber ?= new PulseSubscriber null, dependencies
 
+  _done: (next, error) =>
+    @push null
+    next(error) if next?
+
   _transform: ({config, data, message}, enc, next) =>
     debug 'config', config
     if message.topic == 'subscribe:pulse'
       @pulseSubscriber.subscribe @flowId, =>
-        return @push null
-
+        return @_done next
     fromNodeIds = @_getFromNodeIds message, config
-
-    return @push null if _.isEmpty fromNodeIds
-
-    @_sendEnvelopes fromNodeIds, message
-
+    @_sendEnvelopes fromNodeIds, message unless _.isEmpty fromNodeIds
+    @_done next
 
   _sendEnvelopes:(fromNodeIds, config) =>
     _.each fromNodeIds, (fromNodeId) =>
-       @_sendEnvelope fromNodeId, config
-
-    @push null
-
+      @_sendEnvelope fromNodeId, config
 
   _sendEnvelope: (fromNodeId, message) =>
     envelope = @_getEngineEnvelope message, fromNodeId

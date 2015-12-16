@@ -10,25 +10,27 @@ class EngineToNanocyteStream extends Transform
     {@datastore} = dependencies
     @datastore ?= new (require './datastore') options, dependencies
 
+  _done: (next, error) =>
+    @push null
+    next(error) if next?
+
   _transform: (message, enc, next) =>
-    return @push null unless message?
+    return @_done next, new Error 'missing message' unless message?
 
     @datastore.hget @flowId, "#{@instanceId}/engine-data/config", (error, dataConfig) =>
-      return @push null if error?
+      return @_done next, error if error?
       dataConfig ?= {}
 
       @datastore.hget @flowId, "#{@instanceId}/#{@toNodeId}/config", (error, config) =>
-        return @push null if error?
+        return @_done next, error if error?
         config ?= {}
         nodeId = dataConfig[@toNodeId]?.nodeId
         nodeId ?= @toNodeId
 
         @datastore.hget @flowId, "#{@instanceId}/#{nodeId}/data", (error, data) =>
-          return @push null if error?
+          return @_done next, error if error?
           data ?= {}
           @push message: message, config: config, data: data
-          next()
-    return
-
+          next() if next?
 
 module.exports = EngineToNanocyteStream

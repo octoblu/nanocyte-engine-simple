@@ -13,6 +13,6 @@ class EngineOutput extends Transform
     meshbluHttp = new @MeshbluHttp config
     meshbluHttp.message message, (error) =>
       @push null
-      next error if error?
+      next error if next?
 
 module.exports = EngineOutput

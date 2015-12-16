@@ -7,6 +7,10 @@ class AddNodeInfoStream extends Transform
     super objectMode: true
     @on 'finish', => debug "I'm dead now, so grateful"
 
+  _flush: (callback) =>
+    console.log 'should flush the infoStream!'
+    callback()
+
   _transform: (envelope, enc, next) =>
     fromNode = @nanocyteConfig[envelope?.metadata?.fromNodeId]
     toNode = @nanocyteConfig[envelope?.metadata?.toNodeId]

@@ -6,9 +6,13 @@ class EngineDebug extends Transform
     {@fromNodeId, @msgType} = metadata
     super objectMode: true
 
+  _done: (next, error) =>
+    @push null
+    next(error) if next?
+
   _transform: ({config, data, message}, enc, next) =>
     debug "incoming message from #{@fromNodeId}", config, data, message
-    return @push null unless config?[@fromNodeId]?
+    return @_done next unless config?[@fromNodeId]?
     {nodeId} = config[@fromNodeId]
 
     message =
@@ -22,7 +26,6 @@ class EngineDebug extends Transform
     debug "sending message", message
 
     @push message
-    @push null
-    next()
+    @_done next
 
 module.exports = EngineDebug

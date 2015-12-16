@@ -12,16 +12,17 @@ class NanocyteToEngineStream extends Transform
     @metadata.fromNodeId = @metadata.toNodeId
     delete @metadata.toNodeId
 
+  _done: (next, error) =>
+    @push null
+    next(error) if next?
+
   _transform: (message, enc, next) =>
     _.defer =>
-      return @push null unless message?
-
+      return @_done next unless message?
       @push
         message: message
         metadata: @metadata
-
       debug "NanocyteToEngineStream sending message", message, "with metadata", @metadata
-
-      next()
+      next() if next?
 
 module.exports = NanocyteToEngineStream

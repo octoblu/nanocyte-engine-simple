@@ -10,22 +10,22 @@ class EngineData extends Transform
     {@datastore} = dependencies
     @datastore ?= new Datastore null, dependencies
 
-  _transform: ({message, data, config}, enc, next) =>
-    unless config?
-      console.error "engine-data.coffee: config not found for '#{@fromNodeId}'"
-      @push null
-      return next()
+  _done: (next, error) =>
+    @push null
+    next(error) if next?
 
+  _logError: (message, next) =>
+    console.error message
+    @_done next, new Error message
+
+  _transform: ({message, data, config}, enc, next) =>
+    return _logError "engine-data.coffee: config not found for '#{@fromNodeId}'", next unless config?
     nodeId = config[@fromNodeId]?.nodeId
-    unless nodeId?
-      console.error "engine-data.coffee: Node config not found for '#{@fromNodeId}'"
-      @push null
-      return next()
+    return _logError "engine-data.coffee: Node config not found for '#{@fromNodeId}'", next unless nodeId?
 
     debug "setting data for #{nodeId} to", message
     @datastore.hset @flowId, "#{@instanceId}/#{nodeId}/data", message, (error, result) =>
       debug "datastore responded with", error, result
-      @push null
-      next error
+      @_done next, error
 
 module.exports = EngineData

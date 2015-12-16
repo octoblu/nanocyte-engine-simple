@@ -7,7 +7,7 @@ mergeStream = require 'merge-stream'
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->
     super objectMode: true
-    {@messageProcessQueue, @messageCounter} = dependencies
+    {@messageProcessQueue} = dependencies
 
   _transform: ({config, data, message}, enc, next) =>
     config = @_setupEngineNodeRoutes config
@@ -23,27 +23,22 @@ class EngineRouter extends Transform
 
     debug "  from: #{fromNodeName}(#{@metadata.fromNodeId})"
     debug "  to: #{toNodeNames}(#{toNodeIds})"
+    @_sendMessages toNodeIds, message, config unless toNodeIds.length == 0
 
-    return @push null if toNodeIds.length == 0
-
-    @_sendMessages toNodeIds, message, config
+    @push null
+    next() if next?
 
   _sendMessages: (toNodeIds, message, config) =>
     toNodeIds = _.sortBy toNodeIds, (toNodeId) =>
-        return 0 if _.startsWith toNodeId, 'engine-'
-        return 1
+      return 0 if _.startsWith toNodeId, 'engine-'
+      return 1
 
     _.each toNodeIds, (toNodeId, done) =>
-      @messageCounter.add()
       @_sendMessage toNodeId, message, config
-
-    @push null
 
   _sendMessage: (toNodeId, message, config) =>
     toNodeConfig = config[toNodeId]
-    unless toNodeConfig?
-      @messageCounter.subtract()
-      return console.error "toNodeConfig was not defined for node: #{toNodeId}"
+    return console.error "toNodeConfig was not defined for node: #{toNodeId}" unless toNodeConfig?
 
     transactionGroupId = toNodeConfig.transactionGroupId
     if toNodeId == 'engine-data'
@@ -62,7 +57,6 @@ class EngineRouter extends Transform
       message: message
 
     @messageProcessQueue.push nodeType: toNodeType, envelope: envelope
-    @messageCounter.subtract()
 
   _setupEngineNodeRoutes: (config) =>
     nodesToWireToOutput = _.filter config, (node) =>

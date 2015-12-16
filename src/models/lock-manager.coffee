@@ -5,21 +5,27 @@ debug = require('debug')('nanocyte-engine-simple:lock-manager')
 
 class LockManager
   constructor: (options, dependencies={}) ->
-    {@redlock, @client, @instanceCount} = dependencies
+    {@redlock, @client, @instanceCount, @messageCounter} = dependencies
     @client ?= require '../handlers/redis-handler'
-    @redlock ?= new Redlock [@client], {driftFactor:0.5,retryCount:10,retryDelay:200}
+    @redlock ?= new Redlock [@client], {retryCount:60*60*100,retryDelay:100}
     @activeLocks = {}
 
   canLock: (transactionGroupId, transactionId) =>
     return false unless @activeLocks[transactionGroupId]?
     @activeLocks[transactionGroupId].transactionId == transactionId
 
+  getInfo: (transactionGroupId, transactionId) =>
+    "#{transactionGroupId}- " +
+    if transactionId? then "transactionId: #{transactionId}" else "" +
+    " count: #{@activeLocks[transactionGroupId]?.count}"
+
   lock: (transactionGroupId, transactionId, callback) =>
+    @messageCounter.add()
     return callback() unless transactionGroupId?
+
     if @canLock transactionGroupId, transactionId
       @activeLocks[transactionGroupId].count += 1
-
-      debug "#{@instanceCount} already locked: #{transactionGroupId}. transactionId: #{transactionId} count: #{@activeLocks[transactionGroupId].count}"
+      debug "#{@instanceCount} already locked: ", @getInfo transactionGroupId, transactionId
       return callback null, transactionId
 
     @_acquireLock transactionGroupId, (error, lock) =>
@@ -30,25 +36,26 @@ class LockManager
         transactionId: transactionId
         count: 1
 
-      debug "#{@instanceCount} locked: #{transactionGroupId}. transactionId: #{transactionId} count: #{@activeLocks[transactionGroupId].count}"
+      debug "#{@instanceCount} locked: ", @getInfo transactionGroupId, transactionId
       callback error, transactionId
 
   unlock: (transactionGroupId) =>
+    @messageCounter.subtract()
     return unless transactionGroupId?
     return unless @activeLocks[transactionGroupId]?
 
     @activeLocks[transactionGroupId].count -= 1
-    debug "#{@instanceCount} unlocking: #{transactionGroupId}. #{@activeLocks[transactionGroupId]?.count} locks remaining"
+    debug "#{@instanceCount} unlocking: ", @getInfo transactionGroupId
 
     return if @activeLocks[transactionGroupId].count != 0
     @activeLocks[transactionGroupId].lockObject?.unlock()
     delete @activeLocks[transactionGroupId]
 
-    debug "#{@instanceCount} unlocked: #{transactionGroupId}"
+    debug "#{@instanceCount} unlocked: ", @getInfo transactionGroupId
 
   _acquireLock: (transactionGroupId, callback) =>
     debug "#{@instanceCount} acquireLock", transactionGroupId
-    @redlock.lock "locks:#{transactionGroupId}", 60*1000, (error, lock) =>
+    @redlock.lock "locks:#{transactionGroupId}", 60*60*1000, (error, lock) =>
       debug "#{@instanceCount} redlock #{lock}", error
       return setImmediate @_acquireLock, transactionGroupId, callback if error? or !lock?
       callback error, lock

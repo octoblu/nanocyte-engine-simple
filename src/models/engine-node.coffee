@@ -6,14 +6,14 @@ class EngineNode
   constructor: ->
     @stream = new PassThrough objectMode: true
 
-  sendEnvelope: (envelope) =>
+  sendEnvelope: (envelope, callback=->) =>
     envelopeStream = @_getEnvelopeStream envelope
-    @stream.on 'finish', => envelopeStream.end()
-    
     envelopeStream.on 'error', (error) => @stream.emit 'error', error
     envelopeStream.pipe @stream
+    @stream.on 'finish', => envelopeStream.end()
+
     debug "enginenode is writing", envelope.message
-    envelopeStream.write envelope.message
+    envelopeStream.write envelope.message, callback
 
     return @stream
 

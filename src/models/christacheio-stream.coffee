@@ -11,7 +11,6 @@ class ChristacheioStream extends Transform
     secondPass = @secondPass firstPass, message
     newConfig = JSON.parse secondPass
     @push config: newConfig, data: data, message: message
-
     next()
 
   firstPass: (json, context) =>
