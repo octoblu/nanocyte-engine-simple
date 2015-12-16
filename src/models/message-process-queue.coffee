@@ -33,10 +33,10 @@ class MessageProcessQueue
     {nodeType, envelope} = task
     {transactionGroupId} = envelope.metadata
 
-    node.stream.on 'error', (error) =>
-      console.log 'sending an envelope to ', nodeType
-      throw error
-      @errorHandler.handleError error, envelope
+    # node.stream.on 'error', (error) =>
+    #   console.log 'sending an envelope to ', nodeType
+    #   throw error
+    #   @errorHandler.handleError error, envelope
 
     node.stream.on 'finish', =>
       @lockManager.unlock transactionGroupId

@@ -49,7 +49,7 @@ describe 'BadThrottle', ->
       @throttleTimes = 0
       @startTime = Date.now()
 
-    describe "and messaged sequentially #{MAX_TIMES} times", =>
+    describe.only "and messaged sequentially #{MAX_TIMES} times", =>
       beforeEach (done) =>
         isFinishedSync = =>
           return done() or true if @throttleTimes == MAX_TIMES
