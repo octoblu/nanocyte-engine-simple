@@ -30,10 +30,12 @@ class MessageProcessQueue
     node.sendEnvelope envelope
 
   _addStreamCallbacks: (task, node, callback) ->
-    {envelope} = task
+    {nodeType, envelope} = task
     {transactionGroupId} = envelope.metadata
 
     node.stream.on 'error', (error) =>
+      console.log 'sending an envelope to ', nodeType
+      throw error
       @errorHandler.handleError error, envelope
 
     node.stream.on 'finish', =>
@@ -44,6 +46,7 @@ class MessageProcessQueue
       receivedEnvelope = node.stream.read()
       debug 'processed envelope:', receivedEnvelope
       return unless receivedEnvelope?
+
       {metadata, message} = receivedEnvelope
       {toNodeId} = metadata
 

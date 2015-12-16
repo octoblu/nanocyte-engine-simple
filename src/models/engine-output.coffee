@@ -5,7 +5,6 @@ debug = require('debug')('nanocyte-engine-simple:engine-output')
 class EngineOutput extends Transform
   constructor: (@metadata={}, dependencies={})->
     super objectMode: true
-
     {@MeshbluHttp} = dependencies
     @MeshbluHttp ?= require 'meshblu-http'
 

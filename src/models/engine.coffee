@@ -38,7 +38,7 @@ class Engine
     return if @finished
     @finished = true
     clearTimeout @checkTimedOutIntervalId
-    @engineBatcher.flush @flowId, (flushError) =>
+    @engineBatcher.flushAll (flushError) =>
       console.error flushError if flushError?
       @flowTime.add()
       @callback errorToSend

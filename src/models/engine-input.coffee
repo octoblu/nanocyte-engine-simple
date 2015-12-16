@@ -17,8 +17,7 @@ class EngineInput extends Transform
   _transform: ({config, data, message}, enc, next) =>
     debug 'config', config
     if message.topic == 'subscribe:pulse'
-      @pulseSubscriber.subscribe @flowId, =>
-        return @_done next
+      return @pulseSubscriber.subscribe @flowId, => @_done next
     fromNodeIds = @_getFromNodeIds message, config
     @_sendEnvelopes fromNodeIds, message unless _.isEmpty fromNodeIds
     @_done next

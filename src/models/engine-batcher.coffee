@@ -5,10 +5,12 @@ EngineOutputNode = require './engine-output-node'
 
 class EngineBatcher
   constructor: (@options, @dependencies) ->
+    {@messageCounter} = @dependencies
     @batches = {}
     @interval = setInterval @flushAll, 100
 
   push: (key, envelope) =>
+    @messageCounter.add() unless @batches[key]?
     {metadata, message} = envelope
     @batches[key] ?= metadata: metadata, messages: []
     @batches[key].messages.push message
@@ -40,6 +42,7 @@ class EngineBatcher
 
     stream = engineOutputNode.sendEnvelope metadata: metadata, message: message
     stream.on 'finish', =>
+      @messageCounter.subtract()
       debug 'engine-output finish', key
       callback()
 
