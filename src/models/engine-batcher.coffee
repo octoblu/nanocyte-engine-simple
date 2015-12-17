@@ -6,7 +6,7 @@ EngineOutputNode = require './engine-output-node'
 class EngineBatcher
   constructor: (@options, @dependencies) ->
     @batches = {}
-    @flushAllInterval = setInterval @flushAll, 50
+    @flushAllInterval = setInterval @flushAll, 100
     @processing = {}
     @callbacks = {}
 

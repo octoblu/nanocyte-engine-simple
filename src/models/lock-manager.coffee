@@ -7,7 +7,7 @@ class LockManager
   constructor: (options, dependencies={}) ->
     {@redlock, @client, @instanceCount, @messageCounter} = dependencies
     @client ?= require '../handlers/redis-handler'
-    @redlock ?= new Redlock [@client], {retryCount:60*100,retryDelay:0}
+    @redlock ?= new Redlock [@client], {retryCount:60*60*10,retryDelay:100}
     @activeLocks = {}
 
   canLock: (transactionGroupId, transactionId) =>

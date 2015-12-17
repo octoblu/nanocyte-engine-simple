@@ -63,7 +63,7 @@ describe 'BadThrottle', ->
       it "Should have the messages in order", =>
         expect(@throttleMessages.join('')).to.equals 'ab'.repeat(MAX_TIMES/2)
 
-    describe.only "and messaged async #{MAX_TIMES} times", =>
+    xdescribe "and messaged async #{MAX_TIMES} times", =>
       beforeEach (done) =>
         debug "trigger initializing sut #{@times}"
         @sut.initialize =>
