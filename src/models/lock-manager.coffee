@@ -4,10 +4,14 @@ Redlock = require 'redlock'
 debug = require('debug')('nanocyte-engine-simple:lock-manager')
 
 class LockManager
-  constructor: (options, dependencies={}) ->
+  constructor: (options={}, dependencies={}) ->
     {@redlock, @client, @instanceCount, @messageCounter} = dependencies
+    {redlock:redlockOptions} = options
+    redlockOptions ?= {}
+    redlockOptions.retryCount ?= 60*50
+    redlockOptions.retryDelay ?= 20
     @client ?= require '../handlers/redis-handler'
-    @redlock ?= new Redlock [@client], {retryCount:60*60*10,retryDelay:100}
+    @redlock ?= new Redlock [@client], redlockOptions
     @activeLocks = {}
 
   canLock: (transactionGroupId, transactionId) =>
@@ -56,7 +60,7 @@ class LockManager
 
   _acquireLock: (transactionGroupId, callback) =>
     debug "#{@instanceCount} acquireLock", transactionGroupId
-    @redlock.lock "locks:#{transactionGroupId}", 60*60*1000, (error, lock) =>
+    @redlock.lock "locks:#{transactionGroupId}", 60*1000, (error, lock) =>
       debug "#{@instanceCount} redlock #{lock}", error
       return setImmediate @_acquireLock, transactionGroupId, callback if error? or !lock?
       callback error, lock

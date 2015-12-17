@@ -41,10 +41,12 @@ describe 'BadThrottle', ->
     beforeEach =>
       @sut = new EngineInAVat
         flowName: 'bad-throttle'
-        # instanceId: 'bad-throttle-instance'
+        instanceId: 'bad-throttle-instance'
         flowData: @flow
         flowTime:
           maxTime: MAX_TIMES*TIMEOUT
+        redlock:
+          retryDelay: 0
       @throttleMessages = []
       @throttleTimes = 0
       @startTime = Date.now()
@@ -63,7 +65,7 @@ describe 'BadThrottle', ->
       it "Should have the messages in order", =>
         expect(@throttleMessages.join('')).to.equals 'ab'.repeat(MAX_TIMES/2)
 
-    xdescribe "and messaged async #{MAX_TIMES} times", =>
+    describe "and messaged async #{MAX_TIMES} times", =>
       beforeEach (done) =>
         debug "trigger initializing sut #{@times}"
         @sut.initialize =>
@@ -74,6 +76,9 @@ describe 'BadThrottle', ->
               @_sendThrottle next
             , done
 
-      it "Should have the right number of 'a' and 'b' debugs", =>
-        expectString = 'a'.repeat(MAX_TIMES/2) + 'b'.repeat(MAX_TIMES/2)
-        expect(@throttleMessages.sort().join('')).to.equals expectString
+      it "Should have almost equal a and b elements", =>
+        msgString = @throttleMessages.sort().join('')
+        aSize = msgString.indexOf('b')
+        bSize = msgString.length - aSize
+        console.log "#{msgString} (a:#{aSize}, b:#{bSize})"
+        expect(Math.abs aSize - bSize).to.be.lessThan 2
