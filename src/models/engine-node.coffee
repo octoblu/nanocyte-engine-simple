@@ -8,7 +8,7 @@ class EngineNode
 
   sendEnvelope: (envelope, callback=->) =>
     envelopeStream = @_getEnvelopeStream envelope
-    # envelopeStream.on 'error', (error) => @stream.emit 'error', error
+    envelopeStream.on 'error', (error) => @stream.emit 'error', error
     envelopeStream.pipe @stream
     @stream.on 'finish', => envelopeStream.end()
 
