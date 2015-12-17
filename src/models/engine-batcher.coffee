@@ -6,37 +6,32 @@ EngineOutputNode = require './engine-output-node'
 class EngineBatcher
   constructor: (@options, @dependencies) ->
     @batches = {}
-    @flushAllInterval = setInterval @flushAll, 100
-    @processing = {}
-    @callbacks = {}
+    @flushAllInterval = setInterval @_flushAll, 100
 
   push: (key, envelope) =>
     {metadata, message} = envelope
     @batches[key] ?= metadata: metadata, messages: []
     @batches[key].messages.push message
 
-  _shutdownFlushAll: (callback) =>
-    unless @flushing
-      clearInterval @shutdownInterval
-      @flushAll callback
+  waitFlushAll: (callback) =>
+    return setImmediate @waitFlushAll, callback if @flushing
+    @_flushAll callback
 
-  shutdownFlushAll: (callback=->) =>
+  shutdownFlushAll: (callback) =>
     clearInterval @flushAllInterval
-    @shutdownInterval = setInterval @_shutdownFlushAll, 50, callback
-    @_shutdownFlushAll callback
+    @waitFlushAll callback
 
-  flushAll: (callback=->) =>
+  _flushAll: (callback=->) =>
     return callback() if @flushing
     @flushing = true
-    async.eachSeries _.keys(@batches), (key, done) =>
-      @_sendMessage key, done
-    , =>
+    async.eachSeries _.keys(@batches), @_flush, =>
       @flushing = false
       callback()
 
-  _sendMessage: (key, callback) =>
+  _flush: (key, callback) =>
     data = @batches[key]
     return callback() unless data?
+    delete @batches[key]
 
     engineOutputNode = new EngineOutputNode @options, @dependencies
     message =
@@ -48,11 +43,6 @@ class EngineBatcher
     metadata = _.clone data.metadata
     metadata.toNodeId = 'engine-output'
 
-    delete @batches[key]
-
-    stream = engineOutputNode.sendEnvelope metadata: metadata, message: message
-    stream.on 'finish', =>
-      debug 'engine-output finish', key
-      callback()
+    engineOutputNode.sendEnvelope({metadata,message}).on 'finish', callback
 
 module.exports = EngineBatcher
