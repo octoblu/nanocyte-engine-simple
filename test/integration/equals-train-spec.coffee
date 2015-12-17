@@ -2,7 +2,7 @@ _ = require 'lodash'
 debug = require('debug')('equals-train-spec')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-MAX_TIMES = 2
+MAX_TIMES = 200
 DEBUG_TIMES= 6
 describe 'EqualsTrain', ->
   @timeout 30000
@@ -11,7 +11,12 @@ describe 'EqualsTrain', ->
     describe 'When we instantiate the engine with a flow with 17 equals nodes and a trigger', =>
       before (done) =>
         flow = require './flows/smaller-equals-train.json'
-        @sut = new EngineInAVat flowName: 'equals-train', flowData: flow
+        @sut = new EngineInAVat
+          flowName: 'equals-train'
+          flowData: flow
+          redlock:
+            retryDelay: 0
+
         @sut.initialize done
 
       before (done) =>
