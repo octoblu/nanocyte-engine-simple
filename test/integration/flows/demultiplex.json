@@ -9,7 +9,7 @@
       "id": "f70cb950-8404-11e5-9587-a9ab24234e71",
       "resourceType": "flow-node",
       "output": 1,
-      "func": "if (!_.isString(msg)) {\n    msg = 'l'\n}\n\nreturn msg + Array(1024).join(\"o\")\n",
+      "func": "return 'such amazing demultiplex'",
       "name": "=",
       "class": "function",
       "helpText": "Sends a custom message using javascript",
@@ -138,12 +138,6 @@
       "from": "f70cb950-8404-11e5-9587-a9ab24234e71",
       "fromPort": 0,
       "to": "dedef040-840a-11e5-97a2-11faf115a92f",
-      "toPort": 0
-    },
-    {
-      "from": "dedef040-840a-11e5-97a2-11faf115a92f",
-      "fromPort": 0,
-      "to": "f70cb950-8404-11e5-9587-a9ab24234e71",
       "toPort": 0
     },
     {
