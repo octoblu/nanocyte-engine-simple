@@ -26,7 +26,7 @@ describe 'BadThrottle', ->
 
       @_sendThrottle = (isFinished,next,sut=@sut) =>
         @throttleTimes++
-        throttleStream = sut.messageEngine @throttleId, timestamp: Date.now(), undefined, (error, messages) =>
+        sut.messageEngine @throttleId, timestamp: Date.now(), undefined, (error, messages) =>
           throw error if error?
           # debug 'messages:', messages
           debugId = @_findId 'Debug-Throttle'

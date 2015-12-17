@@ -4,73 +4,53 @@ debug = require('debug')('memory-leak')
 fs = require 'fs'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
-MAX_TIMES = 100
+MAX_TIMES = 250
 describe 'MemoryLeak', ->
-  @timeout 30000
-  describe 'when instantiated with a flow', ->
+  @timeout 120000
+  describe 'when instantiated with a flow', =>
 
-    before ->
+    before =>
       debug 'settup flow and nodes'
       @flow = require './flows/memory-leak.json'
-      @bigBook = fs.readFileSync './test/integration/data/big-book.txt', 'utf-8'
-      @bigBookArray = Array(2).fill @bigBook, 0, 2
-      @nodes = _.map @flow.nodes, (val)=>
-        return _.pick val, ['id','name','uuid']
 
-      @_translate = (id) =>
-        filter = _.filter(@nodes,{id:id})?[0]
-        return filter?.name or id
-
-      @_debugMsg = (msg) =>
-        fromNodeId = @_translate(msg.metadata.fromNodeId)
-        toNodeId = @_translate(msg.metadata.toNodeId)
-        debugFromNodeId = @_translate(msg.metadata.debugInfo?.fromNode?.config.id)
-        debugToNodeId = @_translate(msg.metadata.debugInfo?.toNode?.config.id)
-        debug "  - debugInfo #{debugFromNodeId}(#{fromNodeId})=>#{debugToNodeId}(#{toNodeId})"
-
-      @_pushTriggerDebug = (msg) =>
-        @_debugMsg msg
-        return unless msg?.message?.topic == 'debug'
-        return unless msg?.metadata?.fromNodeId
-        node = @_translate(msg.message?.payload?.node)
-        debug 'checking output to ', node, "(#{msg.message?.payload?.node})"
-        return unless node == 'Debug'
-        @triggerMessages.push msg.message.payload.msg
-
-      @_sendTrigger = (isFinished,next,sut=@sut) =>
-        @triggerTimes++
-        triggerStream = sut.triggerByName name: 'Trigger', message: {timestamp: Date.now(), book: @bigBookArray}
-        triggerStream.on 'data', @_pushTriggerDebug
-        triggerStream.on 'finish', =>
-          debug 'triggerStream finished'
-          return if isFinished? and isFinished()
-          next(isFinished,next) if next?
-
-    beforeEach ->
       @sut = new EngineInAVat flowName: 'memory-leak', flowData: @flow, instanceId: 'memory-leak-instance'
       @triggerMessages = []
       @times = 0
-      @startTime = Date.now()
+      @bigBook = fs.readFileSync './test/integration/data/big-book.txt', 'utf-8'
+      @bigBookArray = Array(2).fill @bigBook, 0, 2
 
-    describe "and messaged sequentially #{MAX_TIMES} times", ->
-      beforeEach (done) ->
+      @nodes = _.map @flow.nodes, (val)=>
+        return _.pick val, ['id','name','uuid']
+
+      @_findId = (name) =>
+        _.filter(@nodes,{name})?[0].id
+
+      @_sendTrigger = (isFinished,next,sut=@sut) =>
+        triggerData = name: 'Trigger', message: {timestamp: Date.now(), book: @bigBookArray}
+        sut.triggerByName triggerData, (error, messages) =>
+          throw error if error?
+          debugId = @_findId 'Debug'
+          filter = message:{topic:'debug',payload:{node:debugId}}
+          debugs = _.filter messages, filter
+          @triggerMessages.push 'debugs' if debugs?
+          return if isFinished? and isFinished()
+          next(isFinished,next) if next?
+
+    describe "and messaged sequentially #{MAX_TIMES} times", =>
+      before (done) =>
         isFinished = =>
-          debug "Time: #{Date.now() - @startTime}"
-          @startTime = Date.now()
-          debug process.memoryUsage()
           @times++
-          debug "#{@times} : #{@triggerMessages.length} "
-          return done(new Error 'missed a message') if @times != @triggerMessages.length
-
-          return done() if @times == MAX_TIMES
+          global.gc()
+          rss = process.memoryUsage().rss
+          debug rss
+          return done(new Error "run #{@times} missed a message") or true if @times != @triggerMessages.length
+          return done(new Error "run #{@times} failed using too much memory: #{rss}") or true if rss > 175*1000*1000
+          return done() or true if @times == MAX_TIMES
 
         debug "trigger initializing sut #{@times}"
         @sut.initialize =>
           debug 'sut initialized'
-          triggerStream = @sut.triggerByName name: 'Trigger', message: book: @bigBookArray
-          triggerStream.on 'finish', =>
-            debug 'responseStream finished'
-            @_sendTrigger(isFinished,@_sendTrigger)
+          @_sendTrigger(isFinished,@_sendTrigger)
 
-      it "Should have the right number length of debugs", ->
+      it "Should have the right number length of debugs", =>
         expect(@triggerMessages.length).to.equals MAX_TIMES
