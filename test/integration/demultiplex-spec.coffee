@@ -11,7 +11,12 @@ describe 'demultiplex', ->
     describe 'When we instantiate the demultiplex', =>
       before (done) =>
         flow = require './flows/demultiplex.json'
-        @sut = new EngineInAVat flowName: 'demultiplex', flowData: flow
+        @sut = new EngineInAVat
+          flowName: 'demultiplex'
+          flowData: flow
+          redlock:
+            retryDelay: 0
+
         @sut.initialize =>
           @sut.triggerByName {name: 'Trigger', message: 1}, (@error, @messages) =>
             done()
