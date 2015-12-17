@@ -31,6 +31,6 @@ class EngineToNanocyteStream extends Transform
           return @_done next, error if error?
           data ?= {}
           @push message: message, config: config, data: data
-          next() if next?
+          @_done next
 
 module.exports = EngineToNanocyteStream

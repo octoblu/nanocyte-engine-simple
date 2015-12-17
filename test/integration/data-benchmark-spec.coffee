@@ -5,17 +5,20 @@ EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 describe 'DataBenchmark', ->
   @timeout 18000
   describe 'When instantiated with a flow', ->
-    beforeEach (done)->
+    before (done)->
       flow = require './flows/data-benchmark.json'
       @sut = new EngineInAVat flowName: 'data-benchmark', flowData: flow
       @sut.initialize done
 
-    beforeEach (done) ->
+    before (done) ->
+      startTime = Date.now()
       intervalId = '9816b370-8313-11e5-8000-3d91638718c3'
-      @sut.messageEngine intervalId, hello: 'world', (error, @stats) => done()
+      @sut.messageEngine intervalId, hello: 'world', undefined, (error, @messages) =>
+        @totalTime = Date.now() - startTime
+        done()
 
     it "Should finish in a reasonable amount of time", ->
-      expect(@stats.total).to.be.at.most 4000
+      expect(@totalTime).to.be.at.most 4000
 
     it "Should finish each message in a reasonable amount of time", ->
-      expect(@stats.mean.upperLimit95).to.be.at.most 60
+      expect(@totalTime/@messages.length).to.be.at.most 60
