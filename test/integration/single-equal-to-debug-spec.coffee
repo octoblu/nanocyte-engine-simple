@@ -3,7 +3,7 @@ debug = require('debug')('equals-train-spec')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
-MAX_TIMES = 25
+MAX_MESSAGES = 4
 DEBUG_MESSAGES = 1
 
 describe 'single-equal-to-debug', ->
@@ -14,33 +14,19 @@ describe 'single-equal-to-debug', ->
     describe 'When we instantiate the single-equal-to-debug', ->
       beforeEach (done) ->
         flow = require './flows/single-equal-to-debug.json'
-        @sut = new EngineInAVat flowName: 'equals-train', flowData: flow
+        @sut = new EngineInAVat flowName: 'single-equal-to-debug', flowData: flow
         @sut.initialize done
 
       beforeEach (done) ->
-        @times = 0
-        @failure = false
-
-        maybeFinish = =>
+        maybeFinish = (error, @messages) =>
           @engineDebugs = _.filter @messages, (message) =>
-            message.metadata.toNodeId == 'engine-debug'
-          if @engineDebugs.length != DEBUG_MESSAGES
-            @failure = true
-            return done()
-          return done() if @times == MAX_TIMES
-          testIt()
+            message?.message?.topic == 'debug'
+          done()
 
-        testIt = =>
-          @times++
-          @messages = []
-          @responseStream = @sut.triggerByName name: 'Trigger', message: 1
-          @responseStream.on 'data', (msg) => @messages.push msg
-          @responseStream.on 'finish', maybeFinish
+        @sut.triggerByName {name: 'Trigger', message: 1}, maybeFinish
 
-        testIt()
-
-      it "Should have passed #{MAX_TIMES} times", ->
-        expect(@times).to.equal MAX_TIMES
+      it "Should send #{MAX_MESSAGES} messages", ->
+        expect(@messages.length).to.equal MAX_MESSAGES
 
       it "Should send #{DEBUG_MESSAGES} messages to engine-debug", ->
         expect(@engineDebugs.length).to.equal DEBUG_MESSAGES
