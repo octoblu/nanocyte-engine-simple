@@ -16,8 +16,11 @@ class FlowTime
   fetchFlowOptions: (callback) =>
     @datastore.hget "flowtime-options-#{@flowId}", "maxTime", (error, maxTime) =>
       return callback error if error?
-      {@maxTime, @expires} = options
-
+      @maxTime = maxTime if maxTime?
+      @datastore.hget "flowtime-options-#{@flowId}", "expires", (error, expires) =>
+        return callback error if error?
+        @expires = expires if expires?
+        callback()
 
   getMinute: (time)=>
     time ?= @Date.now()

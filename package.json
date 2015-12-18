@@ -8,8 +8,7 @@
   },
   "scripts": {
     "test": "mocha --expose-gc",
-    "postinstall": "coffee ./scripts/install-components.coffee",
-    "benchmark": "node ./integration/runner.js"
+    "postinstall": "coffee ./scripts/install-components.coffee"
   },
   "repository": {
     "type": "git",

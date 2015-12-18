@@ -8,7 +8,8 @@ class EngineBatch extends Transform
     {@flowId, instanceId} = @metadata
     {@engineBatcher} = dependencies
 
-  _transform: (message, enc, next) =>
+  _transform: (message, enc, next=->) =>
+    debug 'transforming engineBatch!'
     @engineBatcher.push @flowId, metadata: @metadata, message: message
     @push null
     next()

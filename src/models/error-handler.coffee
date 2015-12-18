@@ -36,18 +36,28 @@ class ErrorHandler
     engineDebugNode = new EngineDebugNode @options, @dependencies
 
     engineDebugNode.stream.on 'readable', =>
+      debug 'got debugNode data'
+
       envelope = engineDebugNode.stream.read()
+      debug "envelope was", envelope
       return unless envelope?
 
       engineBatchNode = new EngineBatchNode @options, @dependencies
       engineBatchNode.stream.on 'finish', =>
+        debug 'calling the callback on stream finish!'
         callback null, error
+
+      engineBatchNode.stream.on 'readable', =>
+        engineBatchNode.stream.read()
 
       outputEnvelope =
         metadata: _.extend {}, debugEnvelope.metadata, toNodeId: 'engine-output'
         message: envelope.message
 
-      engineBatchNode.sendEnvelope outputEnvelope
+      engineBatchNode.sendEnvelope outputEnvelope, =>
+        debug 'calling the callback!'
+        callback null, error
+
 
     engineDebugNode.sendEnvelope debugEnvelope
 

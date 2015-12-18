@@ -28,11 +28,17 @@ class Engine
     @flowId = envelope.metadata.flowId
     @callback new Error 'flowId is not defined, aborting' unless @flowId?
     @flowTime = new @FlowTime _.extend({},@options,{@flowId}), @dependencies
+    @flowTime.fetchFlowOptions (error) =>
+      return @callback error if error?
+      @_checkTimedOut => @_sendMessage envelope
+
+  _sendMessage: (envelope) =>
     @checkTimedOutIntervalId = setInterval @_checkTimedOut, 1000
     @errorHandler.onError (error, errorToSend) =>
       @_finish errorToSend
     @messageProcessQueue.push nodeType: 'engine-input', envelope: envelope
-    @messageCounter.onDone => @_finish null
+    @messageCounter.onDone =>
+      @_finish null
 
   _finish: (errorToSend) =>
     return if @finished
@@ -43,11 +49,12 @@ class Engine
       @flowTime.add()
       @callback errorToSend
 
-  _checkTimedOut: =>
+  _checkTimedOut: (callback=->) =>
     @flowTime.addTimedOut (error, timedOut) =>
-      return unless timedOut
+      return callback() unless error? or timedOut
       errorString = "flow #{@flowId} violated max flow-time of #{@flowTime.maxTime}ms"
       console.error errorString
-      @_finish new Error(errorString)
+      # return @_finish new Error 'ok'
+      @errorHandler.handleError new Error(errorString), {metadata:flowId:@flowId}
 
 module.exports = Engine

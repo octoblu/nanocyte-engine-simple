@@ -1,42 +1,41 @@
 _ = require 'lodash'
 debug = require('debug')('equals-figure-8')
-
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-MAX_TIMES = 10
-DEBUG_TIMES= 6
-xdescribe 'EqualsFigure8', ->
-  @timeout 3000
-  describe 'when instantiated with a flow', ->
 
-    beforeEach ->
-      @flow = require './flows/smaller-equals-train.json'
+FLOW_TIMEOUT = 3000
 
-    beforeEach (done) ->
-      @times = 0
-      @failure = false
+describe 'EqualsFigure8', ->
+  @timeout 30000
+  describe 'when instantiated with a flow', =>
+
+    before (done) =>
+
+      @flow = require './flows/equals-figure-8.json'
 
       maybeFinish = =>
-        @engineDebugs = _.filter @messages, (message) =>
-          message.metadata.toNodeId == 'engine-debug'
-        # if @engineDebugs.length != DEBUG_TIMES
-        #   @failure = true
-        #   return done()
-        return done() if @times == MAX_TIMES
-        testIt()
+        debugs = _.filter @messages, (message) =>
+          message.message.topic == 'debug'
+        pulses = _.filter @messages, (message) =>
+          message.message.topic == 'pulse'
+        console.log @messages.length, pulses.length, debugs.length
+        console.log JSON.stringify debugs, null, 2
+        done()
 
-      testIt = =>
-        debug "initializing sut #{@times}"
-        debug process.memoryUsage()
-        @sut = new EngineInAVat flowName: 'equals-train', flowData: @flow
-        @sut.initialize =>
-          debug 'sut initialized'
-          @times++
-          @messages = []
-          @responseStream = @sut.triggerByName name: 'Trigger', message: 1
-          @responseStream.on 'data', (msg) => @messages.push msg
-          @responseStream.on 'finish', maybeFinish
+      debug "initializing sut"
+      @sut = new EngineInAVat
+        flowName: "equals-figure-8"
+        flowData: @flow
+        flowTime:
+          maxTime: FLOW_TIMEOUT
 
-      testIt()
+      @sut.initialize =>
+        debug 'sut initialized'
+        startTime = Date.now()
+        @sut.triggerByName {name: 'Trigger', message: 1}, (@error, @messages) =>
+          console.log 'got result from trigger!', @messages.length
+          @messageTime = Date.now() - startTime
+          maybeFinish()
 
-    it "Should kill maybe around 1000 messages", ->
-      expect(@messages.length).to.be.at.most 1100
+    it "Should kill after #{FLOW_TIMEOUT} milliseconds", =>
+      console.log (@messageTime)
+      expect(Math.abs @messageTime - FLOW_TIMEOUT).to.be.at.most 100
