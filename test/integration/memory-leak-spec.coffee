@@ -16,7 +16,7 @@ describe 'MemoryLeak', ->
       @sut = new EngineInAVat flowName: 'memory-leak', flowData: @flow, instanceId: 'memory-leak-instance'
       @triggerMessages = []
       @times = 0
-      @bigBook = fs.readFileSync './test/integration/data/big-book.txt', 'utf-8'
+      @bigBook = '01'.repeat 500*1000
       @bigBookArray = Array(2).fill @bigBook, 0, 2
 
       @nodes = _.map @flow.nodes, (val)=>

@@ -1,13 +1,13 @@
 {
   "name": "@octoblu/nanocyte-engine-simple",
-  "version": "3.1.8",
+  "version": "4.0.0",
   "description": "Simple engine for nanocytes",
   "main": "index.js",
   "engines": {
     "node": ">=4.0.0"
   },
   "scripts": {
-    "test": "mocha --expose-gc",
+    "test": "mocha -gc",
     "postinstall": "coffee ./scripts/install-components.coffee"
   },
   "repository": {
