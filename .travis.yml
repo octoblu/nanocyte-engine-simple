@@ -8,9 +8,9 @@ addons:
     repo_token: a26a6abc2006b73cd82323feb30e102b2bfd0d73c6e43f5f52a472b7faeb5a66
 deploy:
   provider: npm
-  email: sqrt@octoblu.com
+  email: serveradmin@octoblu.com
   api_key:
-    secure: UaULSjJNoVUL5f0fov/vJt1g13s+sRPJm1rCqqRNJfvc/iG14/97ojOF4GRrfYYq9cmtteujpBTqxDW7czzbW+wCP40R5qtexWm0H93yzYZUIwAD80qgg5b9FNwJoUDfJJ2+LNZ0K7vY49+HoJMMd9HJgZxpTPPpW9coqNTzMZ0=
+    secure: PTdz4RQlB5+2y3unefA8OFdItX4gADFfJHEmPSlNJTLufynq1xdHZ5eZh6SClChMhnEcX5kiWR6BkR8NO+iZaxMuvNnogLr9VdI1rvPW3r6Y+kRiL8ThJlHlMU9W174HcGuM31yQk9lY/kct7e2rv4wFRsstQBKIZxKZtrAoifu/ec1tbXXppBFFAcPgzSTd0PxM/BBrjZOFU73kts4VWba3TcOasYlknQAHnNYwj50QYBKOrucYlXWlrWHOkIy7KXZgMTfxMlO9Ue+YoLx/fWEQDQ/tpiUoUkGDy7DlE11y3q0x2UmBqTsGelNv63BE35c4Zq3ssBqnwgRhq0DY3l4BA8H7kp7vhbM3Hsjj5fcExIKJ57HbQeGeWJEyTuzXS4/QJLFQdv+/3h2YGz3P+Po6K5QbWAk9Ty/BPPT8Q1p83cu2a+wPRzBEXoQdoo3hWWOC4iJu4xV6BUJgrRpXD8lJb7oZtGkJWybWL9kn/sxb4obMBzOIXhbomE5oR6/Z4eZfBpVynZDVqpJmerCSKGEl84kQSEgarcO6EcKuTQrGwMo9t26e3aFGCHvoYHkbXKtGa8yLM9AIUYHHhUPuFAmZu+x8cwWVRp2b+AH5KFWI4BfFJyOMYwVkUgKFJF5Z2eHV3YX2ld7y+iEQBF4bWh1peoRsIgHL0ch/3n03feQ=
   on:
     tags: true
     all_branches: true
