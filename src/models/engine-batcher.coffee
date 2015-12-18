@@ -8,8 +8,9 @@ class EngineBatcher
     @batches = {}
     @flushAllInterval = setInterval @_flushAll, 100
 
-  push: (key, envelope) =>
+  push: (key, envelope={}) =>
     {metadata, message} = envelope
+    metadata ?= {}
     @batches[key] ?= metadata: metadata, messages: []
     @batches[key].messages.push message
 

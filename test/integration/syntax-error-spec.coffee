@@ -3,7 +3,7 @@ debug = require('debug')('syntax-error-spec')
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
 describe 'syntax-error', ->
-  @timeout 3000
+  @timeout 5000
   ERROR_COUNT = 1
 
   describe 'when instantiated with a flow', ->
@@ -12,22 +12,20 @@ describe 'syntax-error', ->
       before (done) ->
         flow = require './flows/syntax-error.json'
         @sut = new EngineInAVat flowName: 'syntax-error', flowData: flow
-        @sut.initialize done
 
-      before (done) ->
         @messages = []
         @times = 0
         @failure = false
 
         @messages = []
 
-        @responseStream = @sut.triggerByName name: 'Trigger', message: 1
-        @responseStream.on 'data', (msg) => @messages.push msg
-        @responseStream.on 'finish', =>
-          # console.log JSON.stringify @messages, null, 2
-          @engineErrors = _.filter @messages, (message) =>
-            message.metadata.msgType == 'error'
-          done()
+        @sut.initialize =>
+          @sut.triggerByName {name: 'Trigger', message: 1}, (@error, @messages) =>
+            @engineErrors = _.filter @messages, (message) =>
+              message?.message?.payload?.msgType == 'error'
+            # console.log JSON.stringify @messages, null, 2
+            # console.log JSON.stringify @engineErrors, null, 2
+            done()
 
       it "Should send an error message to engine-debug", ->
         expect(@engineErrors.length).to.equal ERROR_COUNT

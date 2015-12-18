@@ -14,6 +14,7 @@ class MessageProcessQueue
     @queue.kill()
 
   push: (task) =>
+    return if @errorHandler.hasFatalError
     {transactionGroupId, transactionId} = task.envelope.metadata
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
       throw error if error?
@@ -33,12 +34,15 @@ class MessageProcessQueue
     {nodeType, envelope} = task
     {transactionGroupId} = envelope.metadata
 
-    node.stream.on 'error', (error) =>
-      @errorHandler.handleError error, envelope
-
-    node.stream.on 'finish', =>
+    finished = =>
       callback()
       @lockManager.unlock transactionGroupId
+
+    node.stream.on 'error', (error) =>
+      @errorHandler.sendError error, envelope
+      finished()
+
+    node.stream.on 'finish', finished
 
     node.stream.on 'readable', =>
       receivedEnvelope = node.stream.read()

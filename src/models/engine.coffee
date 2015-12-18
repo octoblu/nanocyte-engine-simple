@@ -11,9 +11,9 @@ class Engine
 
   @populateDependencies: (options={},depends={}) ->
     depends.instanceCount        = ++Engine.instanceCount
+    depends.errorHandler        ?= new (require './error-handler') options, depends
     depends.messageCounter      ?= new (require './message-counter') options, depends
     depends.lockManager         ?= new (require './lock-manager') options, depends
-    depends.errorHandler        ?= new (require './error-handler') options, depends
     depends.engineBatcher       ?= new (require './engine-batcher') options, depends
     depends.messageRouteQueue   ?= new (require './message-route-queue') options, depends
     depends.messageProcessQueue ?= new (require './message-process-queue') options, depends
@@ -27,18 +27,14 @@ class Engine
     @callback new Error 'aborting stale engine instance' if @flowId?
     @flowId = envelope.metadata.flowId
     @callback new Error 'flowId is not defined, aborting' unless @flowId?
+    @messageCounter.onDone => @_finish null
+    @errorHandler.onFatalError @flowId, (error, errorToSend) => @_finish errorToSend
     @flowTime = new @FlowTime _.extend({},@options,{@flowId}), @dependencies
     @flowTime.fetchFlowOptions (error) =>
       return @callback error if error?
-      @_checkTimedOut => @_sendMessage envelope
-
-  _sendMessage: (envelope) =>
-    @checkTimedOutIntervalId = setInterval @_checkTimedOut, 1000
-    @errorHandler.onError (error, errorToSend) =>
-      @_finish errorToSend
-    @messageProcessQueue.push nodeType: 'engine-input', envelope: envelope
-    @messageCounter.onDone =>
-      @_finish null
+      @_checkTimedOut =>
+        @messageProcessQueue.push nodeType: 'engine-input', envelope: envelope
+        @checkTimedOutIntervalId = setInterval @_checkTimedOut, 1000
 
   _finish: (errorToSend) =>
     return if @finished
@@ -55,6 +51,6 @@ class Engine
       errorString = "flow #{@flowId} violated max flow-time of #{@flowTime.maxTime}ms"
       console.error errorString
       # return @_finish new Error 'ok'
-      @errorHandler.handleError new Error(errorString), {metadata:flowId:@flowId}
+      @errorHandler.fatalError new Error(errorString)
 
 module.exports = Engine

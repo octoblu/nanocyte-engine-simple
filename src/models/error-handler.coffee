@@ -1,63 +1,59 @@
 _ = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:error-handler')
 
-EngineDebugNode = require './engine-debug-node'
-EngineBatchNode = require './engine-batch-node'
-
 class ErrorHandler
 
   constructor: (@options, dependencies) ->
     @updateDependencies dependencies
 
   updateDependencies: (@dependencies) =>
-    {@messageRouteQueue, @messageProcessQueue} = @dependencies
+    { @messageCounter,
+      @messageRouteQueue,
+      @messageProcessQueue,
+      @engineBatcher,
+      @EngineDebugNode } = @dependencies
+    @EngineDebugNode ?= require './engine-debug-node'
 
-  handleError: (error, envelope) =>
+  fatalError: (error, envelope) =>
+    @messageCounter.onDone =>
+    @hasFatalError = true
     @messageRouteQueue.clear()
     @messageProcessQueue.clear()
     @sendError error, envelope, @callback
 
-  onError: (@callback) =>
+  onFatalError: (@flowId, @callback) =>
 
-  sendError: (error, envelope, callback) =>
-    {metadata, message} = envelope
+  sendError: (error, envelope={}, callback=->) =>
+    @messageCounter.add()
+    {metadata, config} = envelope
 
     debugEnvelope =
       metadata:
         toNodeId: 'engine-debug'
-        fromNodeId: metadata.toNodeId
-        flowId: metadata.flowId
-        instanceId: metadata.instanceId
+        fromNodeId: metadata?.toNodeId or @flowId
+        flowId: metadata?.flowId or @flowId
+        instanceId: metadata?.instanceId
         msgType: 'error'
       message: error.message
 
     debug "sending this error envelope", debugEnvelope
-
-    engineDebugNode = new EngineDebugNode @options, @dependencies
+    engineDebugNode = new @EngineDebugNode @options, @dependencies
 
     engineDebugNode.stream.on 'readable', =>
       debug 'got debugNode data'
 
       envelope = engineDebugNode.stream.read()
       debug "envelope was", envelope
-      return unless envelope?
 
-      engineBatchNode = new EngineBatchNode @options, @dependencies
-      engineBatchNode.stream.on 'finish', =>
-        debug 'calling the callback on stream finish!'
+      unless envelope?
         callback null, error
-
-      engineBatchNode.stream.on 'readable', =>
-        engineBatchNode.stream.read()
+        return @messageCounter.subtract()
 
       outputEnvelope =
         metadata: _.extend {}, debugEnvelope.metadata, toNodeId: 'engine-output'
         message: envelope.message
 
-      engineBatchNode.sendEnvelope outputEnvelope, =>
-        debug 'calling the callback!'
-        callback null, error
-
+      @engineBatcher.push @flowId, outputEnvelope
 
     engineDebugNode.sendEnvelope debugEnvelope
 

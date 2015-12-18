@@ -1,41 +1,55 @@
 _ = require 'lodash'
 debug = require('debug')('equals-figure-8')
+async = require 'async'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
-FLOW_TIMEOUT = 3000
+ASYNC_TIMES = 60
+FLOW_TIMEOUT = 120000
+FLOW_TIMEOUT_CHECK = (FLOW_TIMEOUT/ASYNC_TIMES)*5
 
 describe 'EqualsFigure8', ->
-  @timeout 30000
+  @timeout FLOW_TIMEOUT_CHECK*2
   describe 'when instantiated with a flow', =>
 
     before (done) =>
 
       @flow = require './flows/equals-figure-8.json'
+      @flowName = "equals-figure-8-#{Date.now()}"
+      @messages = []
 
       maybeFinish = =>
-        debugs = _.filter @messages, (message) =>
+        @debugs = _.filter @messages, (message) =>
           message.message.topic == 'debug'
-        pulses = _.filter @messages, (message) =>
+        @pulses = _.filter @messages, (message) =>
           message.message.topic == 'pulse'
-        console.log @messages.length, pulses.length, debugs.length
-        console.log JSON.stringify debugs, null, 2
+        # console.log @messages.length, @pulses.length, @debugs.length
+        # console.log JSON.stringify @debugs[0], null, 2
+        # console.log (@messageTime)
         done()
 
       debug "initializing sut"
       @sut = new EngineInAVat
-        flowName: "equals-figure-8"
+        flowName: @flowName
         flowData: @flow
         flowTime:
           maxTime: FLOW_TIMEOUT
+        redlock:
+          retryDelay: 0
 
       @sut.initialize =>
         debug 'sut initialized'
         startTime = Date.now()
-        @sut.triggerByName {name: 'Trigger', message: 1}, (@error, @messages) =>
-          console.log 'got result from trigger!', @messages.length
+        async.times ASYNC_TIMES, (n, next) =>
+          debug "sending Throttle message ##{n}"
+          @sut.triggerByName {name: 'Trigger', message: 1}, (error, messages) =>
+            @messages = @messages.concat(messages)
+            next()
+        , =>
           @messageTime = Date.now() - startTime
           maybeFinish()
 
-    it "Should kill after #{FLOW_TIMEOUT} milliseconds", =>
-      console.log (@messageTime)
-      expect(Math.abs @messageTime - FLOW_TIMEOUT).to.be.at.most 100
+    it "Should kill before #{FLOW_TIMEOUT_CHECK/1000} seconds", =>
+      errorString = "flow #{@flowName} violated max flow-time"
+      expect(@messageTime).to.be.at.most FLOW_TIMEOUT_CHECK
+      expect(@debugs.length).to.equal ASYNC_TIMES
+      expect(@debugs[0].message.payload.msg.startsWith errorString).to.equal true

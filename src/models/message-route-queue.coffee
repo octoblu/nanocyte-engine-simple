@@ -5,13 +5,14 @@ _ = require 'lodash'
 
 class MessageRouteQueue
   constructor: (@options, @dependencies) ->
-    {@lockManager, @messageCounter} = @dependencies
+    {@lockManager, @messageCounter, @errorHandler} = @dependencies
     @queue = async.queue @_routeEnvelope, 1
 
   clear: =>
     @queue.kill()
 
   push: (task) =>
+    return if @errorHandler.hasFatalError
     {transactionGroupId, transactionId} = task.envelope.metadata
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
       throw error if error?

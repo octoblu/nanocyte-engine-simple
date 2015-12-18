@@ -6,11 +6,11 @@ class EngineBatch extends Transform
   constructor: (@metadata, dependencies) ->
     super objectMode: true
     {@flowId, instanceId} = @metadata
-    {@engineBatcher} = dependencies
+    {@engineBatcher, @errorHandler} = dependencies
 
   _transform: (message, enc, next=->) =>
     debug 'transforming engineBatch!'
-    @engineBatcher.push @flowId, metadata: @metadata, message: message
+    @engineBatcher.push @flowId, {@metadata, message} unless @errorHandler.hasFatalError
     @push null
     next()
 

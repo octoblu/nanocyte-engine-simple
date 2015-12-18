@@ -1,4 +1,4 @@
-debugStream = require('debug-stream')('nanocyte-engine-simple:engine-debug-node')
+debugStream = require('debug-stream')('nanocyte-engine-simple:engine-input-node')
 combine = require 'stream-combiner2'
 EngineNode = require './engine-node'
 
