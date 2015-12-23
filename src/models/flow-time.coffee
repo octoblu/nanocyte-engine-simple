@@ -6,8 +6,8 @@ class FlowTime
     {@flowId, flowTime} = options
     flowTime ?= {}
     {@maxTime, @expires} = flowTime
-    @maxTime ?= 1000*60*2
-    @expires ?= 60*60
+    @maxTime ?= Number.parseInt(process.env.FLOW_TIME_MAX) or 1000*60*10
+    @expires ?= Number.parseInt(process.env.FLOW_TIME_EXPIRES) or 60*60
     {@datastore, @Date} = dependencies
     @datastore ?= new (require './datastore') options, dependencies
     @Date ?= Date
