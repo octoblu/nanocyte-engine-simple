@@ -21,7 +21,9 @@ class ErrorHandler
     @messageProcessQueue.clear()
     @sendError error, envelope, @callback
 
-  onFatalError: (@flowId, @callback) =>
+  setFlowInfo: (@flowId, @instanceId) =>
+
+  onFatalError: (@callback) =>
 
   sendError: (error, envelope={}, callback=->) =>
     @messageCounter.add()
@@ -31,8 +33,8 @@ class ErrorHandler
       metadata:
         toNodeId: 'engine-debug'
         fromNodeId: metadata?.toNodeId or @flowId
-        flowId: metadata?.flowId or @flowId
-        instanceId: metadata?.instanceId
+        flowId: @flowId
+        instanceId: @instanceId
         msgType: 'error'
       message: error.message
 
