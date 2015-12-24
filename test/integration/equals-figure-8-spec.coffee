@@ -49,7 +49,7 @@ describe 'EqualsFigure8', ->
           maybeFinish()
 
     it "Should kill before #{FLOW_TIMEOUT_CHECK/1000} seconds", =>
-      errorString = "flow #{@flowName} violated max flow-time"
+      errorString = "flow violated max flow-time of #{FLOW_TIMEOUT}ms (#{@flowName})"
       expect(@messageTime).to.be.at.most FLOW_TIMEOUT_CHECK
       expect(@debugs.length).to.equal ASYNC_TIMES
       expect(@debugs[0].message.payload.msg.startsWith errorString).to.equal true

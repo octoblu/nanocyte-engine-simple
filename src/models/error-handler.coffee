@@ -32,7 +32,7 @@ class ErrorHandler
     debugEnvelope =
       metadata:
         toNodeId: 'engine-debug'
-        fromNodeId: metadata?.toNodeId or @flowId
+        fromNodeId: metadata?.toNodeId
         flowId: @flowId
         instanceId: @instanceId
         msgType: 'error'

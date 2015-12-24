@@ -54,7 +54,7 @@ class Engine
   _checkTimedOut: (callback=->) =>
     @flowTime.addTimedOut (error, timedOut) =>
       return callback() unless error? or timedOut
-      errorString = "flow #{@flowId} violated max flow-time of #{@flowTime.maxTime}ms"
+      errorString = "flow violated max flow-time of #{@flowTime.maxTime}ms (#{@flowId})"
       @errorHandler.fatalError new Error(errorString)
 
 module.exports = Engine
