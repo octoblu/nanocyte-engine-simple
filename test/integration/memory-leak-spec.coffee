@@ -3,7 +3,7 @@ async = require 'async'
 debug = require('debug')('memory-leak')
 fs = require 'fs'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-# heapdump = require 'heapdump'
+heapdump = require 'heapdump'
 
 MAX_TIMES = 1000
 xdescribe 'MemoryLeak', ->
@@ -43,7 +43,7 @@ xdescribe 'MemoryLeak', ->
         isFinished = =>
           @times++
           global.gc()
-          # heapdump.writeSnapshot()
+          heapdump.writeSnapshot()
           rss = process.memoryUsage().rss
           debug rss
           return done(new Error "run #{@times} missed a message") or true if @times != @triggerMessages.length
