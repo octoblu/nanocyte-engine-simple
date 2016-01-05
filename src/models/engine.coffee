@@ -2,11 +2,12 @@ _ = require 'lodash'
 debug = require('debug')('nanocyte-engine-simple:engine')
 
 class Engine
-
   constructor: (@options={}, @dependencies={}) ->
     {@FlowTime} = @dependencies
     @FlowTime ?= require './flow-time'
     Engine.populateDependencies @options, @dependencies
+    {@timeoutSeconds} = @options
+    @timeoutSeconds ?= 90
     {@errorHandler, @messageProcessQueue, @messageCounter, @engineBatcher} = @dependencies
 
   @populateDependencies: (options={},depends={}) ->
@@ -32,29 +33,41 @@ class Engine
     @messageCounter.onDone => @_finish null
     @errorHandler.setFlowInfo @flowId, @instanceId
     @errorHandler.onFatalError (error, errorToSend) => @_finish errorToSend
-
+    @_setupEngineTimeout()
     @flowTime = new @FlowTime _.extend({},@options,{@flowId}), @dependencies
     @flowTime.fetchFlowOptions (error) =>
       return @callback error if error?
-      @_checkTimedOut =>
+      @_checkFlowTimedOut =>
         @messageProcessQueue.push nodeType: 'engine-input', envelope: envelope
-        @checkTimedOutIntervalId = setInterval @_checkTimedOut, 1000
+        @checkFlowTimedOutIntervalId = setInterval @_checkFlowTimedOut, 1000
 
   _finish: (errorToSend) =>
     console.log errorToSend.message if errorToSend?
     return if @finished
     @finished = true
-    clearTimeout @checkTimedOutIntervalId
+    clearTimeout @checkFlowTimedOutIntervalId
+    @_clearEngineTimeout()
     @engineBatcher.shutdownFlushAll (flushError) =>
       console.error flushError if flushError?
       @flowTime.add()
       # @callback errorToSend
       @callback()
 
-  _checkTimedOut: (callback=->) =>
+  _checkFlowTimedOut: (callback=->) =>
     @flowTime.addTimedOut (error, timedOut) =>
       return callback() unless error? or timedOut
       errorString = "flow violated max flow-time of #{@flowTime.maxTime}ms (#{@flowId})"
       @errorHandler.fatalError new Error(errorString)
+
+  _setupEngineTimeout: =>
+    @engineTimeout = setTimeout =>
+      error = new Error "flow instance timeout of #{@timeoutSeconds} seconds exceeded, exiting (#{@flowId})"
+      error.flowId = @flowId
+      @errorHandler.fatalError error
+    , (@timeoutSeconds * 1000)
+
+  _clearEngineTimeout: =>
+    clearTimeout @engineTimeout
+    delete @engineTimeout
 
 module.exports = Engine
