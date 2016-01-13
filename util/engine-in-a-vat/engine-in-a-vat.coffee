@@ -58,6 +58,7 @@ class EngineInAVat
     message:
       payload: payload
       topic: topic
+      fromUuid: 'engine-in-a-vat'
 
   messageEngine: (nodeId, message, topic, callback=->) =>
     startTime = Date.now()
@@ -80,5 +81,19 @@ class EngineInAVat
     newMessage = @createMessage 'subscribe:pulse'
     engine = new Engine @options, @getEngineDependencies()
     engine.run newMessage, callback
+
+  sendPing: (callback) =>
+    messages = []
+
+    outputStream = new AddNodeInfoStream flowData: @flowData, nanocyteConfig: @configuration
+    outputStream.on 'data', (envelope) =>
+      debug MessageUtil.print envelope
+      messages.push envelope
+
+    newMessage = @createMessage 'ping'
+    engine = new Engine @options, @getEngineDependencies(outputStream)
+    engine.run newMessage, (error) =>
+      outputStream.end()
+      callback error, messages
 
 module.exports = EngineInAVat

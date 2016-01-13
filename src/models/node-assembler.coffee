@@ -9,6 +9,7 @@ class NodeAssembler
     @EngineBatchNode     ?= require './engine-batch-node'
     @EngineDataNode      ?= require './engine-data-node'
     @EngineDebugNode     ?= require './engine-debug-node'
+    @EnginePingNode      ?= require './engine-ping-node'
     @EngineBatchNode     ?= require './engine-batch-node'
     @EngineOutputNode    ?= require './engine-output-node'
     @EngineInputNode     ?= require './engine-input-node'
@@ -27,6 +28,7 @@ class NodeAssembler
       'engine-pulse' : @EnginePulseNode
       'engine-batch' : @EngineBatchNode
       'engine-input' : @EngineInputNode
+      'engine-ping'  : @EnginePingNode
 
     componentMap = @componentLoader.getComponentMap()
 

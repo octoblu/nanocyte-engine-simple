@@ -33,7 +33,7 @@ class EngineRouter extends Transform
       return 0 if _.startsWith toNodeId, 'engine-'
       return 1
 
-    _.each toNodeIds, (toNodeId, done) =>
+    _.each toNodeIds, (toNodeId) =>
       @_sendMessage toNodeId, message, config
 
   _sendMessage: (toNodeId, message, config) =>
@@ -66,6 +66,16 @@ class EngineRouter extends Transform
       nodeToWireToOutput.linkedTo.push 'engine-batch'
 
     config['engine-batch'] = type: 'engine-batch'
+    @_setupPing config
+
+  _setupPing: (config) =>
+    config['engine-ping'] =
+      type: 'engine-ping'
+      linkedTo: ['engine-output']
+
+    config['engine-ping-input'] =
+      linkedTo: ['engine-ping']
+
     return config
 
 module.exports = EngineRouter
