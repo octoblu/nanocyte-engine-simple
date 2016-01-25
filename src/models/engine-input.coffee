@@ -18,8 +18,9 @@ class EngineInput extends Transform
     debug 'config', config
     if message.topic == 'subscribe:pulse'
       return @pulseSubscriber.subscribe @flowId, => @_done next
+
     if message.topic == 'ping'
-      @_sendEnvelopes ['engine-ping-input'], message
+      @_sendEnvelopes(['engine-ping-input'], message) unless _.isEmpty config
       return @_done next
 
     fromNodeIds = @_getFromNodeIds message, config
