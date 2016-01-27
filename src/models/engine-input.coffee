@@ -23,6 +23,9 @@ class EngineInput extends Transform
       @_sendEnvelopes(['engine-ping-input'], message) unless _.isEmpty config
       return @_done next
 
+    if message.topic == 'message-batch'
+      return @_done next
+
     fromNodeIds = @_getFromNodeIds message, config
     @_sendEnvelopes fromNodeIds, message unless _.isEmpty fromNodeIds
     @_done next
