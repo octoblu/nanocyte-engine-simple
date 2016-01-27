@@ -1,6 +1,6 @@
 {
   "name": "@octoblu/nanocyte-engine-simple",
-  "version": "4.1.5",
+  "version": "4.1.6",
   "description": "Simple engine for nanocytes",
   "main": "index.js",
   "engines": {
@@ -47,6 +47,7 @@
     "meshblu-http": "^3.4.1",
     "moment": "^2.10.6",
     "morgan": "^1.6.1",
+    "nanocyte-configuration-generator": "^2.0.0",
     "node-uuid": "^1.4.3",
     "npm": "^3.3.5",
     "redis": "^1.0.0",
