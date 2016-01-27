@@ -18,8 +18,8 @@ class VatChannelConfig
 
 class EngineInAVat
   constructor: (@options) ->
+    @options.instanceId ?= uuid.v4()
     {@flowName, @flowData, @instanceId} = @options
-    @instanceId ?= uuid.v4()
     @triggers = @findTriggers()
     client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
     @configurationGenerator = new ConfigurationGenerator {}, channelConfig: new VatChannelConfig
@@ -40,7 +40,6 @@ class EngineInAVat
       return console.error "config generator had an error!", error if error?
       debug 'configured'
       @configuration = configuration
-
       @configurationSaver.save flowId: @flowName, instanceId: @instanceId, flowData: configuration, (error, result)=>
         return console.error "config saver had an error!", error if error?
         debug 'saved'
@@ -55,6 +54,7 @@ class EngineInAVat
     metadata:
       flowId: @flowName
       instanceId: @instanceId
+      toNodeId: 'engine-input'
     message:
       payload: payload
       topic: topic

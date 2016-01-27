@@ -34,3 +34,4 @@ nanocyte-node-registry.json
 public-key.json
 channels.json
 /tmp
+*.heapsnapshot
