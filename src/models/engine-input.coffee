@@ -50,9 +50,19 @@ class EngineInput extends Transform
     message: message
 
   _getFromNodeIds: (message, config) =>
-    fromNodeId = message.payload?.from
-    return [fromNodeId] if fromNodeId?
+    from = message.payload?.from
+
+    if from?
+      alias = @_getNodeIdFromAlias from, config
+      debug "alias is", alias
+      return [alias || from]
+
     return [] unless config?
     _.pluck config[message.fromUuid], 'nodeId'
+
+  _getNodeIdFromAlias: (alias, config) =>
+    #there is absolutely no way this has bugs.
+    aliasRecord = _.first _.find config, (aConfig) =>  _.find aConfig, alias: alias
+    return aliasRecord?.nodeId
 
 module.exports = EngineInput
