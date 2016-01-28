@@ -1,4 +1,4 @@
-DEFAULT_NANOCYTE_NODE_REGISTRY_URL = 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
+DEFAULT_NANOCYTE_NODE_REGISTRY_URL = 'https://s3-us-west-2.amazonaws.com/nanocyte-registry/latest/registry.json'
 debug = require('debug')('nanocyte-engine-simple:component-installer')
 class ComponentInstaller
   constructor: (options={}, dependencies={}) ->
