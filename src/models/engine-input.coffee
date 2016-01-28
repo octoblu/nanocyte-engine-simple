@@ -61,8 +61,11 @@ class EngineInput extends Transform
     _.pluck config[message.fromUuid], 'nodeId'
 
   _getNodeIdFromAlias: (alias, config) =>
-    #there is absolutely no way this has bugs.
-    aliasRecord = _.first _.find config, (aConfig) =>  _.find aConfig, alias: alias
-    return aliasRecord?.nodeId
+    #definitely does not have bugs this time. For real.
+    return _.reduce(config, (result, value) =>
+      nodeData = _.find value, alias: alias
+      return nodeData.nodeId if nodeData?.nodeId?
+      return result
+    , null)
 
 module.exports = EngineInput
