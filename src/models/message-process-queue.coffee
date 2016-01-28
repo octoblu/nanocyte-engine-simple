@@ -26,6 +26,7 @@ class MessageProcessQueue
     {transactionGroupId, transactionId} = envelope.metadata
     debug 'sending message:', envelope
     NodeClass = @nodes[nodeType]
+    return @errorHandler.fatalError new Error("#{nodeType} is not a valid nanocyte node") unless _.isFunction NodeClass
     node = new NodeClass @options, @dependencies
     @_addStreamCallbacks task, node, callback
     node.sendEnvelope envelope
