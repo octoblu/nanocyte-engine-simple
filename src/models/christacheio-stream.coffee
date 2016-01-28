@@ -3,7 +3,7 @@ _ = require 'lodash'
 christacheio = require 'christacheio'
 
 class ChristacheioStream extends Transform
-  constructor: (options={}) ->
+  constructor: ({@flowId}) ->
     super objectMode: true
 
   _transform: ({config, data, message}, enc, next) =>
@@ -14,12 +14,12 @@ class ChristacheioStream extends Transform
     next()
 
   firstPass: (json, context) =>
-    context = _.defaults {msg: context}, context
+    context = _.defaults {msg: context, @flowId}, context
     options = {tags: ['"{{', '}}"'], transformation: JSON.stringify}
     christacheio JSON.stringify(json), context, options
 
   secondPass: (str,context) =>
-    context = _.defaults {msg: context}, context
+    context = _.defaults {msg: context, @flowId}, context
     christacheio str, context, transformation: @escapeDoubleQuote
 
   escapeDoubleQuote: (data) =>
