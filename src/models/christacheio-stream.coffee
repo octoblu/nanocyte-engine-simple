@@ -3,11 +3,15 @@ _ = require 'lodash'
 christacheio = require 'christacheio'
 
 class ChristacheioStream extends Transform
-  constructor: ({@flowId}) ->
+  constructor: ({@flowId, @originalMessage}) ->
     super objectMode: true
 
   _transform: ({config, data, message}, enc, next) =>
-    firstPass = @firstPass config, message
+    if config.templateOriginalMessage      
+      firstPass = @firstPass config, @originalMessage
+    else
+      firstPass = @firstPass config, message
+
     secondPass = @secondPass firstPass, message
     newConfig = JSON.parse secondPass
     @push config: newConfig, data: data, message: message

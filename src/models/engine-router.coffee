@@ -52,6 +52,8 @@ class EngineRouter extends Transform
       fromNodeId: @metadata.fromNodeId
       transactionGroupId: transactionGroupId
 
+    newMetadata.originalMessage = message if config[@metadata.fromNodeId]?.linkedToNext
+
     envelope =
       metadata: _.extend {}, @metadata, newMetadata
       message: message

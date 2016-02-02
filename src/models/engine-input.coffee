@@ -47,6 +47,7 @@ class EngineInput extends Transform
       flowId: @flowId
       instanceId: @instanceId
       fromNodeId: fromNodeId
+      originalMessage: message
     message: message
 
   _getFromNodeIds: (message, config) =>
