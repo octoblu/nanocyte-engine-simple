@@ -9,7 +9,7 @@
       "id": "f70cb950-8404-11e5-9587-a9ab24234e71",
       "resourceType": "flow-node",
       "output": 1,
-      "func": "return 'such amazing demultiplex'",
+      "func": "return _.times(100)",
       "name": "=",
       "class": "function",
       "helpText": "Sends a custom message using javascript",
