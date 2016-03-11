@@ -16,13 +16,23 @@ class Datastore
     debug 'hget', key, field
     @client.hget key, field, (error, data) =>
       debug benchmark.toString()
-      callback error, JSON.parse data
+      return callback error if error?
+      try
+        parsedData = JSON.parse data
+      catch error
+        return callback error if error?
+      callback null, parsedData
 
   get: (key, callback) =>
     benchmark = new Benchmark label: 'datastore.get'
     @client.get key, (error, data) =>
       debug benchmark.toString()
-      callback error, JSON.parse data
+      return callback error if error?
+      try
+        parsedData = JSON.parse data
+      catch error
+        return callback error if error?
+      callback null, parsedData
 
   hset: (key, field, value, callback) =>
     benchmark = new Benchmark label: 'datastore.hset'
