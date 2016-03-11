@@ -2,8 +2,8 @@ _ = require 'lodash'
 debug = require('debug')('equals-train-spec')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-MAX_TIMES = 50
-DEBUG_TIMES= 6
+MAX_TIMES = 1
+DEBUG_TIMES= 12
 describe 'EqualsTrain', ->
   @timeout 60000
   describe 'when instantiated with a flow', =>
@@ -39,8 +39,8 @@ describe 'EqualsTrain', ->
 
         testIt()
 
-      it "Should have passed #{MAX_TIMES} times", =>
-        expect(@times).to.equal MAX_TIMES
-
       it "Should send 6 messages to engine-debug", =>
         expect(@engineDebugs.length).to.equal DEBUG_TIMES
+
+      it "Should have passed #{MAX_TIMES} times", =>
+        expect(@times).to.equal MAX_TIMES
