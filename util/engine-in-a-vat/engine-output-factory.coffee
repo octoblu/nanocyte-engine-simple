@@ -5,18 +5,18 @@ _ = require 'lodash'
 class EngineOutputFactory
 
   @createStreamEngineOutput: (outputStream) ->
+    class VatMeshbluHttp
+      constructor: (@config) ->
+
+      message: (message, callback) =>
+        messages = message?.payload?.messages if message?.topic == 'message-batch'
+        async.each messages or [message], (message, next) =>
+          outputStream.write _.merge({},{@config}, {message}), next
+        , callback
 
     class StreamEngineOutput extends EngineOutput
-      _done: (next, error) =>
-        @push null
-        next(error) if next?
-
-      _transform: (envelope, enc, next) =>
-        return @_done(next) unless outputStream?
-        {metadata,message} = envelope
-        messages = message?.payload?.messages if message?.topic == 'message-batch'
-        async.each messages or [message], (message, callback) =>
-          outputStream.write _.merge({},{@metadata},{metadata},{message}), enc, callback
-        , => @_done(next)
+      constructor: (@metadata, dependencies={}) ->
+        dependencies.MeshbluHttp = VatMeshbluHttp
+        super(@metadata, dependencies)
 
 module.exports = EngineOutputFactory
