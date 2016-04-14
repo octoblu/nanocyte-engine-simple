@@ -1,0 +1,375 @@
+{
+  "flowId": "2dcd9beb-aa2b-4cc5-af88-30ba52bfb041",
+  "token": "5fa8db15648b9b65e2860f26e10eb467914a6480",
+  "name": "Metadata Forwarding Flow",
+  "description": null,
+  "hash": "60d2f8fb",
+  "nodes": [
+    {
+      "id": "36839100-0275-11e6-a9ae-d9599f178690",
+      "resourceType": "flow-node",
+      "type": "device:device-discoverer",
+      "owner": "c753a1c2-2ef4-478d-84a6-6cf26f86c203",
+      "name": "humans-love-flow-metadata",
+      "octoblu": {
+        "flow": {
+          "forwardMetadata": true
+        }
+      },
+      "metadata": "isnt-it-the-best",
+      "discoverWhitelist": [
+        "*"
+      ],
+      "configureWhitelist": [
+        "*"
+      ],
+      "receiveWhitelist": [
+        "*"
+      ],
+      "sendWhitelist": [
+        "*"
+      ],
+      "uuid": "b2e17d9f-0b2c-48a8-88fb-325bc927c5a6",
+      "online": false,
+      "meshblu": {
+        "createdAt": "2016-04-14T12:14:55-07:00",
+        "hash": "5UWokLf38HY6Cs6GVP1EL2qvN009xAbA+/FyRrqWYAg=",
+        "updatedAt": "2016-04-14T12:15:03-07:00"
+      },
+      "category": "device",
+      "staticMessage": {},
+      "useStaticMessage": true,
+      "nodeType": {
+        "_id": "55ba98c4fa3829d26c3db5cb",
+        "category": "device",
+        "categories": [
+          "Facilities Automation"
+        ],
+        "description": "Device Discoverer",
+        "helpText": "Use this device to discover hues light bulbs and bridges, lifx, and chromecast.",
+        "enabled": true,
+        "name": "Device Discoverer",
+        "skynet": {
+          "type": "device",
+          "subtype": "device-discoverer"
+        },
+        "connector": "meshblu-device-discoverer",
+        "type": "device:device-discoverer"
+      },
+      "class": "device-device-discoverer",
+      "defaults": {
+        "type": "device:device-discoverer",
+        "owner": "c753a1c2-2ef4-478d-84a6-6cf26f86c203",
+        "name": "humans-love-flow-metadata",
+        "octoblu": {
+          "flow": {
+            "forwardMetadata": true
+          }
+        },
+        "metadata": "isnt-it-the-best",
+        "discoverWhitelist": [
+          "*"
+        ],
+        "configureWhitelist": [
+          "*"
+        ],
+        "receiveWhitelist": [
+          "*"
+        ],
+        "sendWhitelist": [
+          "*"
+        ],
+        "uuid": "b2e17d9f-0b2c-48a8-88fb-325bc927c5a6",
+        "online": false,
+        "token": "$2a$08$YtnrclXSiWHdHr7pHlCU2uWdSZmcKdFrXy1uIrFzfTFE4N1NTSENq",
+        "meshblu": {
+          "createdAt": "2016-04-14T12:14:55-07:00",
+          "hash": "5UWokLf38HY6Cs6GVP1EL2qvN009xAbA+/FyRrqWYAg=",
+          "updatedAt": "2016-04-14T12:15:03-07:00"
+        },
+        "category": "device",
+        "staticMessage": {},
+        "useStaticMessage": true,
+        "nodeType": {
+          "_id": "55ba98c4fa3829d26c3db5cb",
+          "category": "device",
+          "categories": [
+            "Facilities Automation"
+          ],
+          "description": "Device Discoverer",
+          "helpText": "Use this device to discover hues light bulbs and bridges, lifx, and chromecast.",
+          "enabled": true,
+          "name": "Device Discoverer",
+          "skynet": {
+            "type": "device",
+            "subtype": "device-discoverer"
+          },
+          "connector": "meshblu-device-discoverer",
+          "type": "device:device-discoverer"
+        }
+      },
+      "input": 1,
+      "output": 1,
+      "helpText": "Use this device to discover hues light bulbs and bridges, lifx, and chromecast.",
+      "formTemplatePath": "/pages/node_forms/device_form.html",
+      "logo": "https://ds78apnml6was.cloudfront.net/device/device-discoverer.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 618.1852416992188,
+      "y": 91.00936126708984,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "39c41600-0275-11e6-a9ae-d9599f178690",
+      "resourceType": "flow-node",
+      "type": "device:discovery-master",
+      "name": "vampires-hate-flow-metadata",
+      "online": false,
+      "metadata": "who-needs-it",
+      "owner": "c753a1c2-2ef4-478d-84a6-6cf26f86c203",
+      "discoverWhitelist": [
+        "*"
+      ],
+      "configureWhitelist": [
+        "*"
+      ],
+      "receiveWhitelist": [
+        "*"
+      ],
+      "sendWhitelist": [
+        "*"
+      ],
+      "uuid": "4a275371-03b1-458c-8b3b-6d756c567202",
+      "meshblu": {
+        "createdAt": "2016-04-14T12:14:55-07:00",
+        "hash": "Eqhj/URUNQus6h8luBP3oYOL6LmayseOFPCxuOw446c="
+      },
+      "category": "device",
+      "staticMessage": {},
+      "useStaticMessage": true,
+      "nodeType": {
+        "_id": "55cca8a64ecd5f14931c479f",
+        "category": "device",
+        "categories": [
+          "Facilities Automation"
+        ],
+        "description": "Discovery Master",
+        "helpText": "Use this device to discover hue lightbulbs, lifx and chromecast then automatically add them to your account and gateblu.",
+        "enabled": true,
+        "name": "Discovery Master",
+        "skynet": {
+          "type": "device",
+          "subtype": "discovery-master"
+        },
+        "connector": "meshblu-discovery-master",
+        "type": "device:discovery-master"
+      },
+      "class": "device-discovery-master",
+      "defaults": {
+        "type": "device:discovery-master",
+        "name": "vampires-hate-flow-metadata",
+        "online": false,
+        "metadata": "who-needs-it",
+        "owner": "c753a1c2-2ef4-478d-84a6-6cf26f86c203",
+        "discoverWhitelist": [
+          "*"
+        ],
+        "configureWhitelist": [
+          "*"
+        ],
+        "receiveWhitelist": [
+          "*"
+        ],
+        "sendWhitelist": [
+          "*"
+        ],
+        "uuid": "4a275371-03b1-458c-8b3b-6d756c567202",
+        "token": "$2a$08$gQJ6bV89QOLZ0xoC9T.p7uuPW/lkfzGsbRgg9/2GorRokMMZ3JY5m",
+        "meshblu": {
+          "createdAt": "2016-04-14T12:14:55-07:00",
+          "hash": "Eqhj/URUNQus6h8luBP3oYOL6LmayseOFPCxuOw446c="
+        },
+        "category": "device",
+        "staticMessage": {},
+        "useStaticMessage": true,
+        "nodeType": {
+          "_id": "55cca8a64ecd5f14931c479f",
+          "category": "device",
+          "categories": [
+            "Facilities Automation"
+          ],
+          "description": "Discovery Master",
+          "helpText": "Use this device to discover hue lightbulbs, lifx and chromecast then automatically add them to your account and gateblu.",
+          "enabled": true,
+          "name": "Discovery Master",
+          "skynet": {
+            "type": "device",
+            "subtype": "discovery-master"
+          },
+          "connector": "meshblu-discovery-master",
+          "type": "device:discovery-master"
+        }
+      },
+      "input": 1,
+      "output": 1,
+      "helpText": "Use this device to discover hue lightbulbs, lifx and chromecast then automatically add them to your account and gateblu.",
+      "formTemplatePath": "/pages/node_forms/device_form.html",
+      "logo": "https://ds78apnml6was.cloudfront.net/device/discovery-master.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 618.3311767578125,
+      "y": -70.98920059204102,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "3ed0a870-0275-11e6-a9ae-d9599f178690",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "once": false,
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger"
+      },
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 378.0268249511719,
+      "y": 5.6311187744140625,
+      "needsConfiguration": false,
+      "needsSetup": false
+    }
+  ],
+  "links": [
+    {
+      "from": "3ed0a870-0275-11e6-a9ae-d9599f178690",
+      "fromPort": 0,
+      "to": "39c41600-0275-11e6-a9ae-d9599f178690",
+      "toPort": 0
+    },
+    {
+      "from": "3ed0a870-0275-11e6-a9ae-d9599f178690",
+      "fromPort": 0,
+      "to": "36839100-0275-11e6-a9ae-d9599f178690",
+      "toPort": 0
+    }
+  ],
+  "deployed": true,
+  "selectedLink": null,
+  "selectedFlowNode": {
+    "id": "39c41600-0275-11e6-a9ae-d9599f178690",
+    "resourceType": "flow-node",
+    "type": "device:discovery-master",
+    "name": "vampires-hate-flow-metadata",
+    "online": false,
+    "metadata": "who-needs-it",
+    "owner": "c753a1c2-2ef4-478d-84a6-6cf26f86c203",
+    "discoverWhitelist": [
+      "*"
+    ],
+    "configureWhitelist": [
+      "*"
+    ],
+    "receiveWhitelist": [
+      "*"
+    ],
+    "sendWhitelist": [
+      "*"
+    ],
+    "uuid": "4a275371-03b1-458c-8b3b-6d756c567202",
+    "meshblu": {
+      "createdAt": "2016-04-14T12:14:55-07:00",
+      "hash": "Eqhj/URUNQus6h8luBP3oYOL6LmayseOFPCxuOw446c="
+    },
+    "category": "device",
+    "staticMessage": {},
+    "useStaticMessage": true,
+    "nodeType": {
+      "_id": "55cca8a64ecd5f14931c479f",
+      "category": "device",
+      "categories": [
+        "Facilities Automation"
+      ],
+      "description": "Discovery Master",
+      "helpText": "Use this device to discover hue lightbulbs, lifx and chromecast then automatically add them to your account and gateblu.",
+      "enabled": true,
+      "name": "Discovery Master",
+      "skynet": {
+        "type": "device",
+        "subtype": "discovery-master"
+      },
+      "connector": "meshblu-discovery-master",
+      "type": "device:discovery-master"
+    },
+    "class": "device-discovery-master",
+    "defaults": {
+      "type": "device:discovery-master",
+      "name": "vampires-hate-flow-metadata",
+      "online": false,
+      "metadata": "who-needs-it",
+      "owner": "c753a1c2-2ef4-478d-84a6-6cf26f86c203",
+      "discoverWhitelist": [
+        "*"
+      ],
+      "configureWhitelist": [
+        "*"
+      ],
+      "receiveWhitelist": [
+        "*"
+      ],
+      "sendWhitelist": [
+        "*"
+      ],
+      "uuid": "4a275371-03b1-458c-8b3b-6d756c567202",
+      "token": "$2a$08$gQJ6bV89QOLZ0xoC9T.p7uuPW/lkfzGsbRgg9/2GorRokMMZ3JY5m",
+      "meshblu": {
+        "createdAt": "2016-04-14T12:14:55-07:00",
+        "hash": "Eqhj/URUNQus6h8luBP3oYOL6LmayseOFPCxuOw446c="
+      },
+      "category": "device",
+      "staticMessage": {},
+      "useStaticMessage": true,
+      "nodeType": {
+        "_id": "55cca8a64ecd5f14931c479f",
+        "category": "device",
+        "categories": [
+          "Facilities Automation"
+        ],
+        "description": "Discovery Master",
+        "helpText": "Use this device to discover hue lightbulbs, lifx and chromecast then automatically add them to your account and gateblu.",
+        "enabled": true,
+        "name": "Discovery Master",
+        "skynet": {
+          "type": "device",
+          "subtype": "discovery-master"
+        },
+        "connector": "meshblu-discovery-master",
+        "type": "device:discovery-master"
+      }
+    },
+    "input": 1,
+    "output": 1,
+    "helpText": "Use this device to discover hue lightbulbs, lifx and chromecast then automatically add them to your account and gateblu.",
+    "formTemplatePath": "/pages/node_forms/device_form.html",
+    "logo": "https://ds78apnml6was.cloudfront.net/device/discovery-master.svg",
+    "inputLocations": [],
+    "outputLocations": [],
+    "x": 618.3311767578125,
+    "y": -70.98920059204102,
+    "needsConfiguration": false,
+    "needsSetup": false
+  }
+}
