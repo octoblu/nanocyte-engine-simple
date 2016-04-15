@@ -6,15 +6,15 @@ shmock = require 'shmock'
 
 describe 'meshblu-device', ->
   @timeout 5000
-  beforeEach (done) ->
+  before (done) ->
     @meshblu = shmock done
     @searchRequest = @meshblu.post('/search/devices')
     @searchRequest.reply 201, []
 
-  afterEach (done) ->
+  after (done) ->
     @meshblu.close done
 
-  beforeEach ->
+  before ->
     console.log 'hif'
     @meshbluJSON =
       uuid: 'uuid'
@@ -25,7 +25,7 @@ describe 'meshblu-device', ->
 
   describe 'when instantiated with a flow', ->
     describe 'When we instantiate the meshblu-device', ->
-      beforeEach (done) ->
+      before (done) ->
         flow = require './flows/meshblu-device.json'
         @sut = new EngineInAVat
           flowName: 'meshblu-device', flowData: flow, meshbluJSON: @meshbluJSON
