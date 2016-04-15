@@ -20,10 +20,10 @@ class VatChannelConfig
 class EngineInAVat
   constructor: (@options) ->
     @options.instanceId ?= uuid.v4()
-    {@flowName, @flowData, @instanceId} = @options
+    {@flowName, @flowData, @instanceId, @meshbluJSON} = @options
     @triggers = @findTriggers()
     client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
-    @configurationGenerator = new ConfigurationGenerator {}, channelConfig: new VatChannelConfig
+    @configurationGenerator = new ConfigurationGenerator {@meshbluJSON}, channelConfig: new VatChannelConfig
     @configurationSaver = new ConfigurationSaver client
     debug 'created an EngineInAVat with flowName', @flowName, 'instanceId', @instanceId
 
