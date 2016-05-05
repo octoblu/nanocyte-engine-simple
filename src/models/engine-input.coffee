@@ -6,6 +6,7 @@ class EngineInput extends Transform
   constructor: (metadata, dependencies={}) ->
     super objectMode: true
     {@flowId, @instanceId, @toNodeId, @fromNodeId} = metadata
+    {@route, @forwardedRoutes} = metadata.metadata
     {PulseSubscriber, @pulseSubscriber, @messageRouteQueue} = dependencies
     PulseSubscriber ?= require './pulse-subscriber'
     @pulseSubscriber ?= new PulseSubscriber null, dependencies
@@ -48,6 +49,9 @@ class EngineInput extends Transform
       instanceId: @instanceId
       fromNodeId: fromNodeId
       originalMessage: message
+      metadata:
+        route: @route
+        forwardedRoutes: @forwardedRoutes
     message: message
 
   _getFromNodeIds: (message, config) =>

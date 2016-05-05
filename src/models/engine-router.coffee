@@ -1,8 +1,6 @@
 {Transform} = require 'stream'
 _ = require 'lodash'
-async = require 'async'
 debug = require('debug')('nanocyte-engine-simple:engine-router')
-mergeStream = require 'merge-stream'
 
 class EngineRouter extends Transform
   constructor: (@metadata, dependencies={})->

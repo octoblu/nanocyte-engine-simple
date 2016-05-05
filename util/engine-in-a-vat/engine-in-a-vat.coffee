@@ -56,6 +56,9 @@ class EngineInAVat
       flowId: @flowName
       instanceId: @instanceId
       toNodeId: 'engine-input'
+      metadata:
+        route: []
+        forwardedRoutes: []
     message:
       payload: payload
       topic: topic

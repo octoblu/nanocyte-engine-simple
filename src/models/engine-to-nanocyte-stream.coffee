@@ -5,7 +5,7 @@ debug = require('debug')('nanocyte-engine-simple:engine-to-nanocyte-stream')
 class EngineToNanocyteStream extends Transform
   constructor: (options, dependencies={}) ->
     super objectMode: true
-    {@flowId, @instanceId, @toNodeId} = options
+    {@flowId, @instanceId, @toNodeId, @metadata} = options
 
     {@datastore} = dependencies
     @datastore ?= new (require './datastore') options, dependencies
@@ -30,7 +30,7 @@ class EngineToNanocyteStream extends Transform
         @datastore.hget @flowId, "#{@instanceId}/#{nodeId}/data", (error, data) =>
           return @_done next, error if error?
           data ?= {}
-          @push message: message, config: config, data: data
+          @push {message, config, data, @metadata}
           @_done next
 
 module.exports = EngineToNanocyteStream
