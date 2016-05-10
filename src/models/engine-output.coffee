@@ -17,11 +17,14 @@ class EngineOutput extends Transform
       next error if next?
 
   _insertMetadata: (message, config) =>
+    {fromNodeId}        = @metadata
+    return unless config.nodeMap?[fromNodeId]?
+
+    {nodeId}            = config.nodeMap[fromNodeId]
     {devices}           = message
     {forwardMetadataTo} = config
-    {fromNodeId}        = @metadata
 
     return if _.isEmpty _.intersection devices, forwardMetadataTo
-    _.set message, 'metadata.flow.fromNodeId', fromNodeId
+    _.set message, 'metadata.flow.fromNodeId', nodeId
 
 module.exports = EngineOutput
