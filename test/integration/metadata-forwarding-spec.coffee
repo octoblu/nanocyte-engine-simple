@@ -1,6 +1,7 @@
 _ = require 'lodash'
-debug = require('debug')('equals-train-spec')
 shmock = require 'shmock'
+{afterEach,beforeEach,context,describe,it} = global
+{expect} = require 'chai'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 
 describe 'metadata-forwarding', ->
@@ -37,7 +38,7 @@ describe 'metadata-forwarding', ->
       {@message} = _.find @messages, ({message}) =>
         _.includes message.devices, @noMetadataDeviceUuid
 
-    it "Should send a message to the device that does not want metadata", ->
+    it "Should not send a message to the device that does not want metadata", ->
       expect(@message.metadata).not.to.exist
 
   context "A message to a device that wants flow metadata", ->
@@ -45,5 +46,5 @@ describe 'metadata-forwarding', ->
       {@message} = _.find @messages, ({message}) =>
         _.includes message.devices, @metadataDeviceUuid
 
-    it "Should send a message to the device that does not want metadata", ->
+    it "Should send a message to the device that does want metadata", ->
       expect(@message.metadata).to.exist

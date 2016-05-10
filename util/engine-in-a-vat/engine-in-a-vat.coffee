@@ -16,6 +16,7 @@ MessageUtil = require './message-util'
 class VatChannelConfig
   fetch: (callback) => callback null, {}
   get: => {}
+  update: (callback) => callback null
 
 class EngineInAVat
   constructor: (@options) ->
