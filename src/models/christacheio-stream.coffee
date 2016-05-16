@@ -13,9 +13,16 @@ class ChristacheioStream extends Transform
       firstPass = @firstPass config, message
 
     secondPass = @secondPass firstPass, message
-    newConfig = JSON.parse secondPass
+
+    try
+      newConfig = JSON.parse secondPass
+    catch error
+      @emit 'error', error
+      return @push null
+
     @push config: newConfig, data: data, message: message, metadata: @metadata
     next()
+
 
   firstPass: (json, context) =>
     context = _.defaults {msg: context, @flowId, @metadata}, context
