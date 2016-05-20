@@ -15,7 +15,6 @@ describe 'meshblu-device', ->
     @meshblu.close done
 
   before ->
-    console.log 'hif'
     @meshbluJSON =
       uuid: 'uuid'
       token: 'token'

@@ -29,5 +29,5 @@ describe 'syntax-error', ->
 
       it "Should send an error message to engine-debug", ->
         expect(@engineErrors.length).to.equal ERROR_COUNT
-        expect(@engineErrors[0].message.payload.msg).to.equal "Function took too long"
+        expect(@engineErrors[0].message.payload.msg).to.equal "fdkjshfksdjhfdskjh is not defined"
         expect(@engineErrors[0].message.payload.node).to.equal "69226c50-7ea7-11e5-b898-cf755933df9a"
