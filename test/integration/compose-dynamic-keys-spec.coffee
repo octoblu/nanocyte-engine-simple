@@ -2,7 +2,7 @@ _ = require 'lodash'
 debug = require('debug')('compose-dynamic-keys-spec')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-describe 'ComposeRaceCondition', ->
+xdescribe 'ComposeDynamicKeys', ->
   @timeout 15000
   describe 'when instantiated with a flow', =>
     before (done) =>
@@ -13,11 +13,11 @@ describe 'ComposeRaceCondition', ->
         return _.filter messages, (message) =>
           message.message.topic == 'debug'
 
-    describe 'when we send half of the object the compose node needs', =>
+    describe 'when we send a compose node with dynamic keys', =>
       before (done) =>
         @sut.triggerByName {name: 'Tigger', message: 1}, (error, @messages) => done()
 
-      it "Shouldn't send a message to engine-debug basically", =>
+      it "Should output the correct debug message", =>
         expect(@getDebugs()).to.containSubset [
           message:
             payload:
