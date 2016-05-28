@@ -17,20 +17,22 @@ class EngineToNanocyteStream extends Transform
   _transform: (message, enc, next) =>
     return @_done next, new Error 'missing message' unless message?
 
-    @datastore.hget @flowId, "#{@instanceId}/engine-data/config", (error, dataConfig) =>
+    fields = [
+      "#{@instanceId}/engine-data/config"
+      "#{@instanceId}/#{@toNodeId}/config"
+    ]
+
+    @datastore.hmget @flowId, fields, (error, [dataConfig, config]) =>
       return @_done next, error if error?
       dataConfig ?= {}
+      config ?= {}
+      nodeId = dataConfig[@toNodeId]?.nodeId
+      nodeId ?= @toNodeId
 
-      @datastore.hget @flowId, "#{@instanceId}/#{@toNodeId}/config", (error, config) =>
+      @datastore.hget @flowId, "#{@instanceId}/#{nodeId}/data", (error, data) =>
         return @_done next, error if error?
-        config ?= {}
-        nodeId = dataConfig[@toNodeId]?.nodeId
-        nodeId ?= @toNodeId
-
-        @datastore.hget @flowId, "#{@instanceId}/#{nodeId}/data", (error, data) =>
-          return @_done next, error if error?
-          data ?= {}
-          @push {message, config, data, @metadata}
-          @_done next
+        data ?= {}
+        @push {message, config, data, @metadata}
+        @_done next
 
 module.exports = EngineToNanocyteStream

@@ -1,6 +1,6 @@
 {Transform,PassThrough} = require 'stream'
 _ = require 'lodash'
-redis = require 'redis'
+redis = require 'ioredis'
 debug = require('debug')('engine-in-a-vat')
 uuid = require 'node-uuid'
 
@@ -23,7 +23,7 @@ class EngineInAVat
     @options.instanceId ?= uuid.v4()
     {@flowName, @flowData, @instanceId, @meshbluJSON} = @options
     @triggers = @findTriggers()
-    client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
+    client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD, dropBufferSupport: true
     @configurationGenerator = new ConfigurationGenerator {@meshbluJSON}, channelConfig: new VatChannelConfig
     @configurationSaver = new ConfigurationSaver client
     debug 'created an EngineInAVat with flowName', @flowName, 'instanceId', @instanceId

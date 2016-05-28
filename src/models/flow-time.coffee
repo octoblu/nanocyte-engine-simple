@@ -14,13 +14,15 @@ class FlowTime
     @lastTime = @Date.now()
 
   fetchFlowOptions: (callback) =>
-    @datastore.hget "flowtime-options-#{@flowId}", "maxTime", (error, maxTime) =>
+    fields = [
+      "maxTime"
+      "expires"
+    ]
+    @datastore.hmget "flowtime-options-#{@flowId}", fields, (error, [maxTime, expires]) =>
       return callback error if error?
       @maxTime = maxTime if maxTime?
-      @datastore.hget "flowtime-options-#{@flowId}", "expires", (error, expires) =>
-        return callback error if error?
-        @expires = expires if expires?
-        callback()
+      @expires = expires if expires?
+      callback()
 
   getMinute: (time)=>
     time ?= @Date.now()
