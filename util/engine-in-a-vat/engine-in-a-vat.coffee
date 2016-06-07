@@ -65,7 +65,7 @@ class EngineInAVat
       topic: topic
       fromUuid: 'engine-in-a-vat'
 
-  messageEngine: (nodeId, message, topic, callback=->) =>
+  messageEngine: (nodeId, otherStuff, topic, callback=->) =>
     startTime = Date.now()
     messages = []
 
@@ -74,7 +74,7 @@ class EngineInAVat
       debug MessageUtil.print envelope
       messages.push envelope
 
-    newMessage = @createMessage topic, {message, from: nodeId}
+    newMessage = @createMessage topic, _.extend {from: nodeId}, otherStuff
     engine = new Engine @options, @getEngineDependencies(outputStream)
     engine.run newMessage, (error) =>
       outputStream.end()
