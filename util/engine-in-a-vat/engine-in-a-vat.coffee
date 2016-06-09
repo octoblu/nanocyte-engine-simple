@@ -49,11 +49,11 @@ class EngineInAVat
         @subscribeToPulses =>
           callback(null, configuration)
 
-  @makeIotApp: ({flowId, instanceId, appName, version, configSchema, config}, callback) =>
+  @makeIotApp: ({flowId, instanceId, appId, version, configSchema, config}, callback) =>
     client =
       redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
 
-    client.hset flowId, "#{instanceId}/iot-app/config", JSON.stringify({appName, version, configSchema, config}), callback
+    client.hset flowId, "#{instanceId}/iot-app/config", JSON.stringify({appId, version, configSchema, config}), callback
 
   getEngineDependencies: (outputStream) =>
     return EngineOutput: EngineOutputFactory.createStreamEngineOutput(outputStream)

@@ -30,7 +30,7 @@ describe 'iot-app', ->
       iotAppConfig =
         flowId: 'empty-flow'
         instanceId: 'hi'
-        appName: 'iot-app'
+        appId: 'iot-app'
         version: '1.0.0'
         configSchema: configSchema,
         config: config
@@ -47,9 +47,9 @@ describe 'iot-app', ->
         message: payload: msg: payload: ""
       ]
 
-  describe '', ->
+  describe 'changing values in species-greeting', ->
     before 'deploy the iot-app', (done) ->
-      flow = require './flows/trigger-to-debug.json'
+      flow = require './flows/broadcast-species-greeting.json'
       @iotAppEngine = new EngineInAVat
         flowName: 'iot-app', instanceId: '1.0.0', flowData: flow
       @iotAppEngine.initialize done
@@ -58,17 +58,19 @@ describe 'iot-app', ->
       configSchema =
         type: 'object'
         properties:
-          whatKindaTriggerDoYouWant:
+          greeting:
             type: 'string'
             "x-node-map": [
-              {id: '1418a3c0-2dd2-11e6-9598-13e1d65cd653', property: 'payloadType'}
+              {id: '46b72292-e288-4bc4-855c-019fb241c1ad', property: 'compose.1.1'}
             ]
 
-      config = whatKindaTriggerDoYouWant: 'none'
+      config =
+        greeting: 'hello'
+
       iotAppConfig =
         flowId: 'empty-flow'
         instanceId: 'hi'
-        appName: 'iot-app'
+        appId: 'iot-app'
         version: '1.0.0'
         configSchema: configSchema,
         config: config

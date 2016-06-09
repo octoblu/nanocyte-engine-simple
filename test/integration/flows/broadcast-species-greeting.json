@@ -2,12 +2,9 @@
   "flowId": "5620ed06-b588-461d-9c39-1dcd68e4baae",
   "name": "broadcast-species-greeting",
   "description": null,
-  "hash": "831b55a3",
+  "hash": "66f262e9",
   "nodes": [
     {
-      "id": "d79b32f0-2e76-11e6-9b9b-57e1c0397b24",
-      "payloadType": "date",
-      "once": false,
       "name": "Trigger",
       "class": "trigger",
       "helpText": "Send a static message. Can also be triggered from other flows",
@@ -26,7 +23,9 @@
       },
       "logo": "https://icons.octoblu.com/operation/trigger.svg",
       "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
-      "$$hashKey": "object:136",
+      "id": "d79b32f0-2e76-11e6-9b9b-57e1c0397b24",
+      "payloadType": "date",
+      "once": false,
       "inputLocations": [],
       "outputLocations": [],
       "x": 497.210205078125,
@@ -36,7 +35,6 @@
       "needsSetup": false
     },
     {
-      "id": "e9d6b5c0-2e76-11e6-9b9b-57e1c0397b24",
       "name": "Template",
       "class": "template",
       "helpText": "Sends a custom message using handlebars (e.g. {{msg.text}})",
@@ -52,24 +50,23 @@
       },
       "logo": "https://icons.octoblu.com/operation/template.svg",
       "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "id": "e9d6b5c0-2e76-11e6-9b9b-57e1c0397b24",
       "inputLocations": [],
       "outputLocations": [],
-      "x": 728.0078735351562,
-      "y": 806.9259643554688,
+      "x": 751.4991455078125,
+      "y": 805.4551391601562,
       "staticMessage": {},
       "needsConfiguration": false,
       "needsSetup": false,
       "key": "text",
-      "template": "What's up my {{msg.species}}?"
+      "template": "{{msg.greeting}} my {{msg.species}}?"
     },
     {
-      "id": "f63e8590-2e76-11e6-9b9b-57e1c0397b24",
-      "uuid": "2be62b90-6519-11e4-867f-276797c27ed6",
-      "topic": "message",
       "name": "Broadcast",
       "class": "broadcast",
       "helpText": "Broadcast message to any meshblu device or Octoblu flow",
       "category": "operation",
+      "uuid": "2be62b90-6519-11e4-867f-276797c27ed6",
       "type": "operation:broadcast",
       "defaults": {
         "uuid": "*",
@@ -82,20 +79,18 @@
       "formTemplatePath": "/pages/node_forms/output_form.html",
       "logo": "https://icons.octoblu.com/operation/broadcast.svg",
       "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "id": "f63e8590-2e76-11e6-9b9b-57e1c0397b24",
+      "topic": "message",
       "inputLocations": [],
       "outputLocations": [],
-      "x": 853.8452758789062,
-      "y": 807.1669921875,
+      "x": 870.5906982421875,
+      "y": 806.864501953125,
       "staticMessage": {},
       "needsConfiguration": false,
       "needsSetup": false,
       "debug": true
     },
     {
-      "id": "12c6e770-2e77-11e6-9b9b-57e1c0397b24",
-      "composeKeys": [
-        ""
-      ],
       "name": "Compose",
       "class": "compose",
       "helpText": "Wait for all values to be received before sending the message",
@@ -115,6 +110,10 @@
       },
       "logo": "https://icons.octoblu.com/operation/compose.svg",
       "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "id": "12c6e770-2e77-11e6-9b9b-57e1c0397b24",
+      "composeKeys": [
+        ""
+      ],
       "inputLocations": [],
       "outputLocations": [],
       "x": 625.9370727539062,
@@ -126,6 +125,10 @@
         [
           "species",
           "glib-globs"
+        ],
+        [
+          "greeting",
+          "What's up"
         ]
       ]
     }
@@ -198,11 +201,9 @@
       "permissions": {
         "messageToFlow": true
       },
-      "$$hashKey": "object:2660"
+      "$$hashKey": "object:503"
     }
   ],
   "devicesNeedingPermission": [],
-  "pendingPermissions": false,
-  "selectedFlowNode": null,
-  "selectedLink": null
+  "pendingPermissions": false
 }
