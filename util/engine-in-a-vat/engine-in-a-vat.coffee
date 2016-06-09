@@ -25,7 +25,7 @@ class EngineInAVat
     @triggers = @findTriggers()
     client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD, dropBufferSupport: true
     @configurationGenerator = new ConfigurationGenerator {@meshbluJSON}, channelConfig: new VatChannelConfig
-    @configurationSaver = new ConfigurationSaver client
+    @configurationSaver     = new ConfigurationSaver client
     debug 'created an EngineInAVat with flowName', @flowName, 'instanceId', @instanceId
 
   findTriggers: =>
@@ -48,6 +48,12 @@ class EngineInAVat
 
         @subscribeToPulses =>
           callback(null, configuration)
+
+  @makeIotApp: ({flowId, instanceId, appName, version, configSchema, config}, callback) =>
+    client =
+      redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD
+
+    client.hset flowId, "#{instanceId}/iot-app/config", JSON.stringify({appName, version, configSchema, config}), callback
 
   getEngineDependencies: (outputStream) =>
     return EngineOutput: EngineOutputFactory.createStreamEngineOutput(outputStream)

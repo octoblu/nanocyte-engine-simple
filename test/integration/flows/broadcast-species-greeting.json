@@ -1,0 +1,208 @@
+{
+  "flowId": "5620ed06-b588-461d-9c39-1dcd68e4baae",
+  "name": "broadcast-species-greeting",
+  "description": null,
+  "hash": "831b55a3",
+  "nodes": [
+    {
+      "id": "d79b32f0-2e76-11e6-9b9b-57e1c0397b24",
+      "payloadType": "date",
+      "once": false,
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger"
+      },
+      "logo": "https://icons.octoblu.com/operation/trigger.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "$$hashKey": "object:136",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 497.210205078125,
+      "y": 804.972900390625,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "e9d6b5c0-2e76-11e6-9b9b-57e1c0397b24",
+      "name": "Template",
+      "class": "template",
+      "helpText": "Sends a custom message using handlebars (e.g. {{msg.text}})",
+      "category": "operation",
+      "uuid": "8f2e02ff-08da-446d-ab50-e5115f511cba",
+      "type": "operation:template",
+      "defaults": {},
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/template_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-template"
+      },
+      "logo": "https://icons.octoblu.com/operation/template.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 728.0078735351562,
+      "y": 806.9259643554688,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false,
+      "key": "text",
+      "template": "What's up my {{msg.species}}?"
+    },
+    {
+      "id": "f63e8590-2e76-11e6-9b9b-57e1c0397b24",
+      "uuid": "2be62b90-6519-11e4-867f-276797c27ed6",
+      "topic": "message",
+      "name": "Broadcast",
+      "class": "broadcast",
+      "helpText": "Broadcast message to any meshblu device or Octoblu flow",
+      "category": "operation",
+      "type": "operation:broadcast",
+      "defaults": {
+        "uuid": "*",
+        "topic": "message"
+      },
+      "nanocyte": {
+        "name": "nanocyte-node-broadcast"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/output_form.html",
+      "logo": "https://icons.octoblu.com/operation/broadcast.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 853.8452758789062,
+      "y": 807.1669921875,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false,
+      "debug": true
+    },
+    {
+      "id": "12c6e770-2e77-11e6-9b9b-57e1c0397b24",
+      "composeKeys": [
+        ""
+      ],
+      "name": "Compose",
+      "class": "compose",
+      "helpText": "Wait for all values to be received before sending the message",
+      "category": "operation",
+      "uuid": "46b72292-e288-4bc4-855c-019fb241c1ad",
+      "type": "operation:compose",
+      "defaults": {
+        "composeKeys": [
+          ""
+        ]
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/compose_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-compose"
+      },
+      "logo": "https://icons.octoblu.com/operation/compose.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 625.9370727539062,
+      "y": 805.782470703125,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false,
+      "compose": [
+        [
+          "species",
+          "glib-globs"
+        ]
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "e9d6b5c0-2e76-11e6-9b9b-57e1c0397b24",
+      "fromPort": 0,
+      "to": "f63e8590-2e76-11e6-9b9b-57e1c0397b24",
+      "toPort": 0
+    },
+    {
+      "from": "d79b32f0-2e76-11e6-9b9b-57e1c0397b24",
+      "fromPort": 0,
+      "to": "12c6e770-2e77-11e6-9b9b-57e1c0397b24",
+      "toPort": 0
+    },
+    {
+      "from": "12c6e770-2e77-11e6-9b9b-57e1c0397b24",
+      "fromPort": 0,
+      "to": "e9d6b5c0-2e76-11e6-9b9b-57e1c0397b24",
+      "toPort": 0
+    }
+  ],
+  "mergedFlowNodeTypes": true,
+  "devicesWithPermissions": [
+    {
+      "device": {
+        "configureWhitelist": [],
+        "discoverWhitelist": [
+          "*"
+        ],
+        "geo": {
+          "range": [
+            1221166080,
+            1221167103
+          ],
+          "country": "US",
+          "region": "AZ",
+          "city": "Chandler",
+          "ll": [
+            33.3062,
+            -111.8413
+          ],
+          "metro": 753
+        },
+        "ipAddress": "72.201.135.91",
+        "meshblu": {
+          "tokens": {
+            "PwSE41vM8mR/6YtpYkVVFDkeokuapJUD8dDCDxhRjJs=": {
+              "createdAt": "2015-07-13T23:53:37.883Z"
+            }
+          },
+          "updatedAt": "2016-05-03T22:31:23+00:00",
+          "hash": "9FnkPVhA5uUdGt2zxF0nNVKXd/xV9QLDg7GpX7P9Ee8="
+        },
+        "online": false,
+        "owner": "9b47c2f1-9d9b-11e3-a443-ab1cdce04787",
+        "receiveWhitelist": [],
+        "socketid": "4Q0Ml42nJmH8N4VcAAGr",
+        "timestamp": "2015-07-13T23:53:37.848Z",
+        "token": "$2a$08$dQudltz8WLKeQB/CxeEcJuyQTOVEYqka8f1nZDzqPbpO026AlDa.m",
+        "tokens": [],
+        "type": "trigger-service",
+        "uuid": "b560b6ee-c264-4ed9-b98e-e3376ce6ce64",
+        "name": "Trigger Service",
+        "sendWhitelist": [],
+        "logo": "https://icons.octoblu.com/trigger-service.svg"
+      },
+      "permissions": {
+        "messageToFlow": true
+      },
+      "$$hashKey": "object:2660"
+    }
+  ],
+  "devicesNeedingPermission": [],
+  "pendingPermissions": false,
+  "selectedFlowNode": null,
+  "selectedLink": null
+}
