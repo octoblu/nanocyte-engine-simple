@@ -10,7 +10,7 @@ describe 'IotApp', ->
           whatKindaTriggerDoYouWant:
             type: 'string'
             "x-node-map": [
-              {id: '37f0a74a-2f17-11e4-9617-a6c5e4d22fb7', property: 'payloadType'}
+              {id: '2bcc3810-29cc-11e6-9a5e-732530c82857', property: 'payloadType'}
             ]
 
       config =

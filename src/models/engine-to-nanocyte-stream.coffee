@@ -20,14 +20,14 @@ class EngineToNanocyteStream extends Transform
 
     @datastore.hget @flowId, "#{@instanceId}/iot-app/config", (error, iotAppConfig) =>
       return @_done next, error if error?
-      return @_rehydrate({message, iotAppConfig, next}) if iotAppConfig?
+      return @_moisten({message, iotAppConfig, next}) if iotAppConfig?
       @_sendNodeConfig {message, next}
 
-  _rehydrate: ({message, iotAppConfig, next}) =>
+  _moisten: ({message, iotAppConfig, next}) =>
     {appName, version, configSchema} = iotAppConfig
     iotApp = new IotApp
 
-    @datastore.hget @flowId, "#{@instanceId}/engine-data/config", (error, dataConfig) =>
+    @datastore.hget appName, "#{version}/engine-data/config", (error, dataConfig) =>
       return @_done next, error if error?
       dataConfig ?= {}
 
@@ -36,11 +36,13 @@ class EngineToNanocyteStream extends Transform
         config ?= {}
         nodeId = dataConfig[@toNodeId]?.nodeId
         nodeId ?= @toNodeId
+
         config = iotApp.applyConfigToRuntime {
           runtime: config
           configSchema: configSchema
           config: iotAppConfig.config
         }
+
         @datastore.hget @flowId, "#{@instanceId}/#{nodeId}/data", (error, data) =>
           return @_done next, error if error?
           data ?= {}

@@ -23,7 +23,7 @@ describe 'iot-app', ->
             {id: '1418a3c0-2dd2-11e6-9598-13e1d65cd653', property: 'payloadType'}
           ]
 
-    config = whatKindaTriggerDoYouWant: 'date'
+    config = whatKindaTriggerDoYouWant: 'none'
     iotAppConfig =
       flowId: 'empty-flow'
       instanceId: 'hi'
@@ -41,4 +41,6 @@ describe 'iot-app', ->
 
   it "Should send a message to the meshblu device", ->
     console.log JSON.stringify @messages, null, 2
-    expect(@messages).to.not.be.empty
+    expect(@messages).to.containSubset [
+      message: payload: msg: payload: ""
+    ]
