@@ -1,0 +1,217 @@
+{
+  "flowId": "a66466af-26e6-4f67-a5d0-254262f54712",
+  "name": "Trigger-to-debug",
+  "description": null,
+  "hash": "d8133c3c",
+  "nodes": [
+    {
+      "id": "1418a3c0-2dd2-11e6-9598-13e1d65cd653",
+      "payloadType": "blank",
+      "once": false,
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger"
+      },
+      "logo": "https://icons.octoblu.com/operation/trigger.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": -87.30477142333984,
+      "y": 788.1358032226562,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "174838d0-2dd2-11e6-9598-13e1d65cd653",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "name": "Debug",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-debug"
+      },
+      "logo": "https://icons.octoblu.com/operation/debug.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 107.08747863769531,
+      "y": 744.0670776367188,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false
+    }
+  ],
+  "links": [
+    {
+      "from": "1418a3c0-2dd2-11e6-9598-13e1d65cd653",
+      "fromPort": 0,
+      "to": "174838d0-2dd2-11e6-9598-13e1d65cd653",
+      "toPort": 0
+    }
+  ],
+  "mergedFlowNodeTypes": true,
+  "devicesWithPermissions": [
+    {
+      "device": {
+        "configureWhitelist": [],
+        "discoverWhitelist": [
+          "*"
+        ],
+        "geo": {
+          "range": [
+            1221166080,
+            1221167103
+          ],
+          "country": "US",
+          "region": "AZ",
+          "city": "Chandler",
+          "ll": [
+            33.3062,
+            -111.8413
+          ],
+          "metro": 753
+        },
+        "ipAddress": "72.201.135.91",
+        "meshblu": {
+          "tokens": {
+            "PwSE41vM8mR/6YtpYkVVFDkeokuapJUD8dDCDxhRjJs=": {
+              "createdAt": "2015-07-13T23:53:37.883Z"
+            }
+          },
+          "updatedAt": "2016-05-03T22:31:23+00:00",
+          "hash": "9FnkPVhA5uUdGt2zxF0nNVKXd/xV9QLDg7GpX7P9Ee8="
+        },
+        "online": false,
+        "owner": "9b47c2f1-9d9b-11e3-a443-ab1cdce04787",
+        "receiveWhitelist": [],
+        "socketid": "4Q0Ml42nJmH8N4VcAAGr",
+        "timestamp": "2015-07-13T23:53:37.848Z",
+        "token": "$2a$08$dQudltz8WLKeQB/CxeEcJuyQTOVEYqka8f1nZDzqPbpO026AlDa.m",
+        "tokens": [],
+        "type": "trigger-service",
+        "uuid": "b560b6ee-c264-4ed9-b98e-e3376ce6ce64",
+        "name": "Trigger Service",
+        "sendWhitelist": [],
+        "logo": "https://icons.octoblu.com/trigger-service.svg"
+      },
+      "permissions": {
+        "messageToFlow": false
+      },
+      "$$hashKey": "object:1476"
+    }
+  ],
+  "devicesNeedingPermission": [
+    {
+      "device": {
+        "configureWhitelist": [],
+        "discoverWhitelist": [
+          "*"
+        ],
+        "geo": {
+          "range": [
+            1221166080,
+            1221167103
+          ],
+          "country": "US",
+          "region": "AZ",
+          "city": "Chandler",
+          "ll": [
+            33.3062,
+            -111.8413
+          ],
+          "metro": 753
+        },
+        "ipAddress": "72.201.135.91",
+        "meshblu": {
+          "tokens": {
+            "PwSE41vM8mR/6YtpYkVVFDkeokuapJUD8dDCDxhRjJs=": {
+              "createdAt": "2015-07-13T23:53:37.883Z"
+            }
+          },
+          "updatedAt": "2016-05-03T22:31:23+00:00",
+          "hash": "9FnkPVhA5uUdGt2zxF0nNVKXd/xV9QLDg7GpX7P9Ee8="
+        },
+        "online": false,
+        "owner": "9b47c2f1-9d9b-11e3-a443-ab1cdce04787",
+        "receiveWhitelist": [],
+        "socketid": "4Q0Ml42nJmH8N4VcAAGr",
+        "timestamp": "2015-07-13T23:53:37.848Z",
+        "token": "$2a$08$dQudltz8WLKeQB/CxeEcJuyQTOVEYqka8f1nZDzqPbpO026AlDa.m",
+        "tokens": [],
+        "type": "trigger-service",
+        "uuid": "b560b6ee-c264-4ed9-b98e-e3376ce6ce64",
+        "name": "Trigger Service",
+        "sendWhitelist": [],
+        "logo": "https://icons.octoblu.com/trigger-service.svg"
+      },
+      "permissions": {
+        "messageToFlow": false
+      },
+      "$$hashKey": "object:1476"
+    }
+  ],
+  "pendingPermissions": true,
+  "selectedFlowNode": {
+    "id": "174838d0-2dd2-11e6-9598-13e1d65cd653",
+    "active": true,
+    "debug": true,
+    "complete": false,
+    "name": "Debug",
+    "class": "debug",
+    "helpText": "Display the contents of the messages it receives in the debug panel",
+    "category": "operation",
+    "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+    "type": "operation:debug",
+    "defaults": {
+      "active": true,
+      "debug": true,
+      "complete": false
+    },
+    "color": "#87a980",
+    "input": 1,
+    "output": 0,
+    "align": "right",
+    "formTemplatePath": "/pages/node_forms/debug_form.html",
+    "nanocyte": {
+      "name": "nanocyte-node-debug"
+    },
+    "logo": "https://icons.octoblu.com/operation/debug.svg",
+    "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+    "inputLocations": [],
+    "outputLocations": [],
+    "x": 107.08747863769531,
+    "y": 744.0670776367188,
+    "staticMessage": {},
+    "needsConfiguration": false,
+    "needsSetup": false
+  },
+  "selectedLink": null
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Trigger",
+  "class": "trigger",
+  "category": "operation",
+  "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+  "type": "operation:trigger",
+  "nanocyte": {
+    "name": "nanocyte-node-trigger",
+    "nonce": "84362f16-9131-4aac-b0ee-ae6a1d14111e"
+  },
+  "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+  "id": "2bcc3810-29cc-11e6-9a5e-732530c82857",
+  "payloadType": "",
+  "once": false,
+  "inputLocations": [],
+  "outputLocations": [],
+  "x": 107.03305053710938,
+  "y": 715.4296264648438,
+  "staticMessage": {},
+  "needsConfiguration": false,
+  "needsSetup": false
+}

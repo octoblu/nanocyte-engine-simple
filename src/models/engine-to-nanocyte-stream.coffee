@@ -1,6 +1,7 @@
-_ = require 'lodash'
-debug = require('debug')('nanocyte-engine-simple:engine-to-nanocyte-stream')
+_           = require 'lodash'
+debug       = require('debug')('nanocyte-engine-simple:engine-to-nanocyte-stream')
 {Transform} = require 'stream'
+IotApp      = require './iot-app'
 
 class EngineToNanocyteStream extends Transform
   constructor: (options, dependencies={}) ->
@@ -17,6 +18,36 @@ class EngineToNanocyteStream extends Transform
   _transform: (message, enc, next) =>
     return @_done next, new Error 'missing message' unless message?
 
+    @datastore.hget @flowId, "#{@instanceId}/iot-app/config", (error, iotAppConfig) =>
+      return @_done next, error if error?
+      return @_rehydrate({message, iotAppConfig, next}) if iotAppConfig?
+      @_sendNodeConfig {message, next}
+
+  _rehydrate: ({message, iotAppConfig, next}) =>
+    {appName, version, configSchema} = iotAppConfig
+    iotApp = new IotApp
+
+    @datastore.hget @flowId, "#{@instanceId}/engine-data/config", (error, dataConfig) =>
+      return @_done next, error if error?
+      dataConfig ?= {}
+
+      @datastore.hget appName, "#{version}/#{@toNodeId}/config", (error, config) =>
+        return @_done next, error if error?
+        config ?= {}
+        nodeId = dataConfig[@toNodeId]?.nodeId
+        nodeId ?= @toNodeId
+        config = iotApp.applyConfigToRuntime {
+          runtime: config
+          configSchema: configSchema
+          config: iotAppConfig.config
+        }
+        @datastore.hget @flowId, "#{@instanceId}/#{nodeId}/data", (error, data) =>
+          return @_done next, error if error?
+          data ?= {}
+          @push {message, config, data, @metadata}
+          @_done next
+
+  _sendNodeConfig: ({message, next}) =>
     @datastore.hget @flowId, "#{@instanceId}/engine-data/config", (error, dataConfig) =>
       return @_done next, error if error?
       dataConfig ?= {}
