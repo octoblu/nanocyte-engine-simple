@@ -40,8 +40,7 @@ class EngineInput extends Transform
     @messageRouteQueue.push envelope: envelope
 
   _getEngineEnvelope: (message, fromNodeId) =>
-    delete message.payload?.from
-    message = _.omit message, 'devices', 'flowId', 'instanceId'
+    message = @_formatMessage message
 
     metadata:
       toNodeId: 'router'
@@ -53,6 +52,12 @@ class EngineInput extends Transform
         route: @route
         forwardedRoutes: @forwardedRoutes
     message: message
+
+  _formatMessage: (message) =>
+    delete message.payload?.from
+    message = _.omit message, 'devices', 'flowId', 'instanceId'
+    return message unless message.payload?.replacePayload?
+    return _.defaults {payload: message.payload[message.payload.replacePayload]}, message
 
   _getFromNodeIds: (message, config) =>
     from = message.payload?.from

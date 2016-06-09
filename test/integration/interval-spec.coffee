@@ -32,7 +32,7 @@ describe 'Interval', ->
           filter = message:{topic:'debug',payload:{node:debugId}}
           debugs = _.filter messages, filter
           msgs = _.map debugs, (debug) =>
-            debug.message.payload.msg.payload.message.timestamp
+            debug.message.payload.msg.payload.timestamp
           @intervalMessages = @intervalMessages.concat msgs
           return if isFinished? and isFinished()
           next(isFinished,next) if next? and @intervalTimes < MAX_TIMES

@@ -3,14 +3,16 @@ shmock = require 'shmock'
 {afterEach,beforeEach,context,describe,it} = global
 {expect} = require 'chai'
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
+enableDestroy = require 'server-destroy'
 
 describe 'metadata-forwarding', ->
   beforeEach (done) ->
     @meshblu = shmock done
+    enableDestroy @meshblu
     @searchRequest = @meshblu.post('/search/devices')
 
   afterEach (done) ->
-    @meshblu.close done
+    @meshblu.destroy done
 
   beforeEach ->
     @meshbluJSON =

@@ -3,16 +3,18 @@ debug = require('debug')('meshblu-device-spec')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
 shmock = require 'shmock'
+enableDestroy = require 'server-destroy'
 
 describe 'meshblu-device', ->
   @timeout 5000
   before (done) ->
     @meshblu = shmock done
+    enableDestroy @meshblu
     @searchRequest = @meshblu.post('/search/devices')
     @searchRequest.reply 201, []
 
   after (done) ->
-    @meshblu.close done
+    @meshblu.destroy done
 
   before ->
     @meshbluJSON =

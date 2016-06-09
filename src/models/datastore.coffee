@@ -17,10 +17,24 @@ class Datastore
     @client.hget key, field, (error, data) =>
       debug benchmark.toString()
       return callback error if error?
+      return callback null, data unless data?
       try
         parsedData = JSON.parse data
       catch error
         return callback error if error?
+      callback null, parsedData
+
+  hmget: (key, fields, callback) =>
+    benchmark = new Benchmark label: 'datastore.hmget'
+    debug 'hmget', key, fields
+    @client.hmget key, fields, (error, results) =>
+      debug benchmark.toString()
+      return callback error if error?
+      parsedData = _.map results, (data) =>
+        return data unless data?
+        try
+          JSON.parse data
+        catch error
       callback null, parsedData
 
   get: (key, callback) =>
@@ -28,6 +42,7 @@ class Datastore
     @client.get key, (error, data) =>
       debug benchmark.toString()
       return callback error if error?
+      return callback null, data unless data?
       try
         parsedData = JSON.parse data
       catch error
@@ -48,12 +63,8 @@ class Datastore
     @client.setex key, timeout, value, callback
 
   getAndIncrementCount: (key, increment, expirationTime, callback) =>
-    @client
-      .multi()
-      .incrby key, increment
-      .expire key, expirationTime
-      .exec (error, results) =>
-        count = _.first results
-        callback error, count
+    @client.expire key, expirationTime, (error) =>
+      return callback error if error?
+      @client.incrby key, increment, callback
 
 module.exports = Datastore
