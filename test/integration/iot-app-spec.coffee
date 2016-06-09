@@ -1,19 +1,20 @@
-_ = require 'lodash'
-debug = require('debug')('iot-app-spec')
+_             = require 'lodash'
+debug         = require('debug')('iot-app-spec')
 
-EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-shmock = require 'shmock'
+EngineInAVat  = require '../../util/engine-in-a-vat/engine-in-a-vat'
+shmock        = require 'shmock'
 
-flow = require './flows/empty-flow.json'
+emptyFlow     = require './flows/empty-flow.json'
+triggerFlow   = require './flows/trigger-to-debug.json'
+broadcastFlow = require './flows/broadcast-species-greeting.json'
 
 describe 'iot-app', ->
   @timeout 10000
 
   describe 'trigger-to-debug', ->
     before 'deploy the iot-app', (done) ->
-      flow = require './flows/trigger-to-debug.json'
       @iotAppEngine = new EngineInAVat
-        flowName: 'iot-app', instanceId: '1.0.0', flowData: flow
+        flowName: 'iot-app', instanceId: '1.0.0', flowData: triggerFlow
       @iotAppEngine.initialize done
 
     before 'deploy the empty', (done) ->
@@ -37,7 +38,7 @@ describe 'iot-app', ->
 
       EngineInAVat.makeIotApp iotAppConfig, =>
         @sut = new EngineInAVat
-          flowName: 'empty-flow', instanceId: 'hi', flowData: flow
+          flowName: 'empty-flow', instanceId: 'hi', flowData: emptyFlow
 
         @sut.initialize =>
           @sut.messageEngine '1418a3c0-2dd2-11e6-9598-13e1d65cd653', {}, "button", (error, @messages) => done()
@@ -48,10 +49,11 @@ describe 'iot-app', ->
       ]
 
   describe 'changing values in species-greeting', ->
+
     before 'deploy the iot-app', (done) ->
-      flow = require './flows/broadcast-species-greeting.json'
       @iotAppEngine = new EngineInAVat
-        flowName: 'iot-app', instanceId: '1.0.0', flowData: flow
+        flowName: 'iot-app', instanceId: '1.0.0', flowData: broadcastFlow
+
       @iotAppEngine.initialize done
 
     before 'deploy the empty', (done) ->
@@ -61,7 +63,7 @@ describe 'iot-app', ->
           greeting:
             type: 'string'
             "x-node-map": [
-              {id: '46b72292-e288-4bc4-855c-019fb241c1ad', property: 'compose.1.1'}
+              {id: '12c6e770-2e77-11e6-9b9b-57e1c0397b24', property: 'compose.1.1'}
             ]
 
       config =
@@ -77,12 +79,17 @@ describe 'iot-app', ->
 
       EngineInAVat.makeIotApp iotAppConfig, =>
         @sut = new EngineInAVat
-          flowName: 'empty-flow', instanceId: 'hi', flowData: flow
+          flowName: 'empty-flow', instanceId: 'hi', flowData: emptyFlow
 
         @sut.initialize =>
-          @sut.messageEngine '1418a3c0-2dd2-11e6-9598-13e1d65cd653', {}, "button", (error, @messages) => done()
+          @sut.messageEngine 'd79b32f0-2e76-11e6-9b9b-57e1c0397b24', {}, "button", (error, @messages) => done()
 
-    xit "Should send a message to the meshblu device", ->
+    it "Should template the message", ->
       expect(@messages).to.containSubset [
-        message: payload: msg: payload: ""
+        message: payload: msg: text: "hello my glib-globs?"
+      ]
+
+    it "Should broadcast the message as the empty flow", ->
+      expect(@messages).to.containSubset [
+        config: uuid: "a66466af-26e6-4f67-a5d0-254262f54712"
       ]

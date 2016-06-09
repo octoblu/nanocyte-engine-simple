@@ -20,6 +20,8 @@ class EngineToNanocyteStream extends Transform
 
     @datastore.hget @flowId, "#{@instanceId}/iot-app/config", (error, iotAppConfig) =>
       return @_done next, error if error?
+      return @_sendNodeConfig {message, next} if @toNodeId == 'engine-output'
+
       return @_moisten({message, iotAppConfig, next}) if iotAppConfig?
       @_sendNodeConfig {message, next}
 
