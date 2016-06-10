@@ -23,7 +23,6 @@ describe 'meshblu-device', ->
       server: 'localhost'
       port: @meshblu.address().port
 
-
   describe 'when instantiated with a flow', ->
     describe 'When we instantiate the meshblu-device', ->
       before (done) ->
