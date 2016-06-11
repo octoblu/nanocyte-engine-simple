@@ -1,7 +1,7 @@
-IotApp         = require '../src/models/iot-app'
+Bluprint         = require '../src/models/bluprint'
 triggerRuntime = require './data/trigger-runtime.json'
 
-describe 'IotApp', ->
+describe 'Bluprint', ->
   context 'applyConfigToRuntime', ->
     it 'should return the new runtime', ->
       configSchema =
@@ -16,7 +16,7 @@ describe 'IotApp', ->
       config =
         whatKindaTriggerDoYouWant: 'warning'
 
-      sut = new IotApp
+      sut = new Bluprint
       newRuntime = sut.applyConfigToRuntime {
         runtime: triggerRuntime,
         configSchema: configSchema,

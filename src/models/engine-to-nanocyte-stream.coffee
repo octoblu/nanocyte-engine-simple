@@ -1,7 +1,7 @@
 _           = require 'lodash'
 debug       = require('debug')('nanocyte-engine-simple:engine-to-nanocyte-stream')
 {Transform} = require 'stream'
-IotApp      = require './iot-app'
+Bluprint    = require './bluprint'
 
 class EngineToNanocyteStream extends Transform
   constructor: (options, dependencies={}) ->
@@ -19,14 +19,14 @@ class EngineToNanocyteStream extends Transform
     return @_done next, new Error 'missing message' unless message?
     return @_sendNodeConfig {message, next} if @toNodeId == 'engine-output'
 
-    @datastore.hget @flowId, "#{@instanceId}/iot-app/config", (error, iotAppConfig) =>
+    @datastore.hget @flowId, "#{@instanceId}/bluprint/config", (error, bluprintConfig) =>
       return @_done next, error if error?
-      return @_moisten({message, iotAppConfig, next}) if iotAppConfig?
+      return @_moisten({message, bluprintConfig, next}) if bluprintConfig?
       @_sendNodeConfig {message, next}
 
-  _moisten: ({message, iotAppConfig, next}) =>
-    {appId, version, configSchema} = iotAppConfig
-    iotApp = new IotApp
+  _moisten: ({message, bluprintConfig, next}) =>
+    {appId, version, configSchema} = bluprintConfig
+    bluprint = new Bluprint
 
     fields = [
       "#{version}/engine-data/config"
@@ -39,10 +39,10 @@ class EngineToNanocyteStream extends Transform
       config ?= {}
       nodeId = dataConfig[@toNodeId]?.nodeId
       nodeId ?= @toNodeId
-      config = iotApp.applyConfigToRuntime {
+      config = bluprint.applyConfigToRuntime {
         runtime: config
         configSchema: configSchema
-        config: iotAppConfig.config
+        config: bluprintConfig.config
       }
 
       @datastore.hget @flowId, "#{@instanceId}/#{nodeId}/data", (error, data) =>

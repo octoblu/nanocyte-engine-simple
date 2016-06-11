@@ -1,6 +1,6 @@
 _ = require 'lodash'
 
-class IotApp
+class Bluprint
 
   applyConfigToRuntime: ({runtime, configSchema, config}) =>
     _.each configSchema.properties, (value, key) =>
@@ -10,4 +10,4 @@ class IotApp
 
     runtime
 
-module.exports = IotApp
+module.exports = Bluprint

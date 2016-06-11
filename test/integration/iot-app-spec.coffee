@@ -1,5 +1,5 @@
 _             = require 'lodash'
-debug         = require('debug')('iot-app-spec')
+debug         = require('debug')('bluprint-spec')
 
 EngineInAVat  = require '../../util/engine-in-a-vat/engine-in-a-vat'
 shmock        = require 'shmock'
@@ -8,13 +8,13 @@ emptyFlow     = require './flows/empty-flow.json'
 triggerFlow   = require './flows/trigger-to-debug.json'
 broadcastFlow = require './flows/broadcast-species-greeting.json'
 
-describe 'iot-app', ->
+describe 'bluprint', ->
   @timeout 10000
 
   describe 'trigger-to-debug', ->
-    before 'deploy the iot-app', (done) ->
+    before 'deploy the bluprint', (done) ->
       @iotAppEngine = new EngineInAVat
-        flowName: 'iot-app', instanceId: '1.0.0', flowData: triggerFlow
+        flowName: 'bluprint', instanceId: '1.0.0', flowData: triggerFlow
       @iotAppEngine.initialize done
 
     before 'deploy the empty', (done) ->
@@ -31,7 +31,7 @@ describe 'iot-app', ->
       iotAppConfig =
         flowId: 'empty-flow'
         instanceId: 'hi'
-        appId: 'iot-app'
+        appId: 'bluprint'
         version: '1.0.0'
         configSchema: configSchema,
         config: config
@@ -50,9 +50,9 @@ describe 'iot-app', ->
 
   describe 'changing values in species-greeting', ->
 
-    before 'deploy the iot-app', (done) ->
+    before 'deploy the bluprint', (done) ->
       @iotAppEngine = new EngineInAVat
-        flowName: 'iot-app', instanceId: '1.0.0', flowData: broadcastFlow
+        flowName: 'bluprint', instanceId: '1.0.0', flowData: broadcastFlow
 
       @iotAppEngine.initialize done
 
@@ -72,7 +72,7 @@ describe 'iot-app', ->
       iotAppConfig =
         flowId: 'empty-flow'
         instanceId: 'hi'
-        appId: 'iot-app'
+        appId: 'bluprint'
         version: '1.0.0'
         configSchema: configSchema,
         config: config

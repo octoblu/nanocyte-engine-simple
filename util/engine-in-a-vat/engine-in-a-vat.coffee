@@ -53,7 +53,7 @@ class EngineInAVat
     client =
       redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD, dropBufferSupport: true
 
-    client.hset flowId, "#{instanceId}/iot-app/config", JSON.stringify({appId, version, configSchema, config}), callback
+    client.hset flowId, "#{instanceId}/bluprint/config", JSON.stringify({appId, version, configSchema, config}), callback
 
   getEngineDependencies: (outputStream) =>
     return EngineOutput: EngineOutputFactory.createStreamEngineOutput(outputStream)
