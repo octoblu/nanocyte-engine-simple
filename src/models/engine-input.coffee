@@ -60,11 +60,11 @@ class EngineInput extends Transform
     return _.defaults {payload: message.payload[message.payload.replacePayload]}, message
 
   _getFromNodeIds: (message, config) =>
-    from = message.payload?.from
+    from = _.get message, 'metadata.to.nodeId'
+    from ?= message.payload?.from
 
     if from?
       alias = @_getNodeIdFromAlias from, config
-      debug "alias is", alias
       return [alias || from]
 
     return [] unless config?
