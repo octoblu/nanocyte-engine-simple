@@ -6,7 +6,9 @@ class EnginePulse extends Transform
     super objectMode: true
 
   _transform: ({config, data, message}, enc, next) =>
-    {nodeId} = config[@fromNodeId]
+    node  = config[@fromNodeId]
+    node ?= {}
+    {nodeId} =  node
     @push
       devices: ['*']
       topic: 'pulse'
