@@ -62,6 +62,9 @@ class Datastore
   setex: (key, timeout, value, callback) =>
     @client.setex key, timeout, value, callback
 
+  set: (key, value, callback) =>
+    @client.set key, value, callback
+
   getAndIncrementCount: (key, increment, expirationTime, callback) =>
     @client.expire key, expirationTime, (error) =>
       return callback error if error?

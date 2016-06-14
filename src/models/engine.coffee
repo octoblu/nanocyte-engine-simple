@@ -58,6 +58,7 @@ class Engine
       return callback() unless error? or timedOut
       errorString = "flow violated max flow-time of #{@flowTime.maxTime}ms (#{@flowId})"
       @errorHandler.fatalError new Error(errorString)
+      @flowTime.blackhole()
 
   _setupEngineTimeout: =>
     @engineTimeout = setTimeout =>

@@ -24,6 +24,9 @@ class FlowTime
       @expires = expires if expires?
       callback()
 
+  blackhole: (callback=->) =>
+    @datastore.set "request-queue-name:#{@flowId}", "request:blackhole", callback
+
   getMinute: (time)=>
     time ?= @Date.now()
     @startMinute = Math.floor(time / (1000*60))
