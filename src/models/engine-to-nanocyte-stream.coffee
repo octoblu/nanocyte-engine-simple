@@ -33,7 +33,7 @@ class EngineToNanocyteStream extends Transform
       "#{version}/#{@toNodeId}/config"
     ]
 
-    @datastore.hmget appId, fields, (error, [dataConfig, config]) =>
+    @datastore.hmget "bluprint/#{appId}", fields, (error, [dataConfig, config]) =>
       return @_done next, error if error?
       dataConfig ?= {}
       config ?= {}

@@ -12,10 +12,10 @@ describe 'bluprint', ->
   @timeout 10000
 
   describe 'trigger-to-debug', ->
-    before 'deploy the bluprint', (done) ->
+    before 'publish the bluprint', (done) ->
       @iotAppEngine = new EngineInAVat
-        flowName: 'bluprint', instanceId: '1.0.0', flowData: triggerFlow
-      @iotAppEngine.initialize done
+        flowName: 'parent-flow', version: '1.0.0', flowData: triggerFlow
+      @iotAppEngine.publishIotApp done
 
     before 'deploy the empty', (done) ->
       configSchema =
@@ -31,7 +31,7 @@ describe 'bluprint', ->
       iotAppConfig =
         flowId: 'empty-flow'
         instanceId: 'hi'
-        appId: 'bluprint'
+        appId: 'parent-flow'
         version: '1.0.0'
         configSchema: configSchema,
         config: config
@@ -52,9 +52,9 @@ describe 'bluprint', ->
 
     before 'deploy the bluprint', (done) ->
       @iotAppEngine = new EngineInAVat
-        flowName: 'bluprint', instanceId: '1.0.0', flowData: broadcastFlow
+        flowName: 'something-senseical', version: '1.0.0', flowData: broadcastFlow
 
-      @iotAppEngine.initialize done
+      @iotAppEngine.publishIotApp done
 
     before 'deploy the empty', (done) ->
       configSchema =
@@ -72,7 +72,7 @@ describe 'bluprint', ->
       iotAppConfig =
         flowId: 'empty-flow'
         instanceId: 'hi'
-        appId: 'bluprint'
+        appId: 'something-senseical'
         version: '1.0.0'
         configSchema: configSchema,
         config: config

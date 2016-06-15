@@ -7,7 +7,6 @@ mongojs                 = require 'mongojs'
 Datastore               = require 'meshblu-core-datastore'
 ConfigurationGenerator  = require 'nanocyte-configuration-generator'
 ConfigurationSaver      = require 'nanocyte-configuration-saver-redis'
-
 Engine                  = require '../../src/models/engine'
 
 EngineOutputFactory     = require './engine-output-factory'
@@ -22,11 +21,11 @@ class VatChannelConfig
 class EngineInAVat
   constructor: (@options) ->
     @options.instanceId ?= uuid.v4()
-    {@flowName, @flowData, @instanceId, @meshbluJSON} = @options
+    {@flowName, @flowData, @instanceId, @meshbluJSON, @version} = @options
     @triggers = @findTriggers()
 
     @configurationGenerator = @_createConfigurationGenerator()
-    @configurationSaver = @_createConfigurationSaver()
+    @configurationSaver     = @_createConfigurationSaver()
 
     debug 'created an EngineInAVat with flowName', @flowName, 'instanceId', @instanceId
 
@@ -60,6 +59,17 @@ class EngineInAVat
 
         @subscribeToPulses =>
           callback(null, configuration)
+
+  publishIotApp: (callback=->) =>
+    debug 'publishing IoT App'
+    @configurationGenerator.configure flowData: @flowData, userData: {}, (error, configuration) =>
+      return console.error "config generator had an error!", error if error?
+      debug "publishIotApp configured"
+      @configuration = configuration
+      @configurationSaver.saveIotApp appId: @flowName, version: @version, flowData: configuration, (error, result)=>
+        return console.error "config saver had an error!", error if error?
+        debug "publishIotApp saved"
+        callback()
 
   @makeIotApp: ({flowId, instanceId, appId, version, configSchema, config}, callback) =>
     client =
