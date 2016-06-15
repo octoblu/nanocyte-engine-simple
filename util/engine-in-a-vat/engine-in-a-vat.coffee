@@ -1,17 +1,18 @@
 {Transform,PassThrough} = require 'stream'
-_ = require 'lodash'
-redis = require 'ioredis'
-debug = require('debug')('engine-in-a-vat')
-uuid = require 'node-uuid'
+_                       = require 'lodash'
+redis                   = require 'ioredis'
+debug                   = require('debug')('engine-in-a-vat')
+uuid                    = require 'node-uuid'
+mongojs                 = require 'mongojs'
+Datastore               = require 'meshblu-core-datastore'
+ConfigurationGenerator  = require 'nanocyte-configuration-generator'
+ConfigurationSaver      = require 'nanocyte-configuration-saver-redis'
 
-ConfigurationGenerator = require 'nanocyte-configuration-generator'
-ConfigurationSaver = require 'nanocyte-configuration-saver-redis'
+Engine                  = require '../../src/models/engine'
 
-Engine = require '../../src/models/engine'
-
-EngineOutputFactory = require './engine-output-factory'
-AddNodeInfoStream = require './add-node-info-stream'
-MessageUtil = require './message-util'
+EngineOutputFactory     = require './engine-output-factory'
+AddNodeInfoStream       = require './add-node-info-stream'
+MessageUtil             = require './message-util'
 
 class VatChannelConfig
   fetch: (callback) => callback null, {}
@@ -23,10 +24,21 @@ class EngineInAVat
     @options.instanceId ?= uuid.v4()
     {@flowName, @flowData, @instanceId, @meshbluJSON} = @options
     @triggers = @findTriggers()
-    client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD, dropBufferSupport: true
-    @configurationGenerator = new ConfigurationGenerator {@meshbluJSON}, channelConfig: new VatChannelConfig
-    @configurationSaver     = new ConfigurationSaver client
+
+    @configurationGenerator = @_createConfigurationGenerator()
+    @configurationSaver = @_createConfigurationSaver()
+
     debug 'created an EngineInAVat with flowName', @flowName, 'instanceId', @instanceId
+
+  _createConfigurationGenerator: =>
+    return new ConfigurationGenerator {@meshbluJSON}, channelConfig: new VatChannelConfig
+
+  _createConfigurationSaver: =>
+      client    = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD, dropBufferSupport: true
+      db        = mongojs 'localhost/engine-in-a-vat', ['deploys']
+      datastore = new Datastore database: db, collection: 'deploys'
+
+      return new ConfigurationSaver {client, datastore}
 
   findTriggers: =>
     _.indexBy _.filter(@flowData.nodes, type: 'operation:trigger'), 'name'
