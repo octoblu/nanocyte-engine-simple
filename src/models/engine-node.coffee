@@ -1,5 +1,4 @@
-{Readable, PassThrough} = require 'stream'
-_ = require 'lodash'
+{PassThrough} = require 'stream'
 debug = require('debug')('nanocyte-engine-simple:engine-node')
 
 class EngineNode
@@ -13,7 +12,11 @@ class EngineNode
     @stream.on 'finish', => envelopeStream.end()
 
     debug "enginenode is writing", envelope.message
-    envelopeStream.write envelope.message, callback
+    try
+      envelopeStream.write envelope.message, callback
+    catch error
+      console.error 'envelopeStream.write error:', JSON.stringify(envelope)
+      throw error
 
     return @stream
 
