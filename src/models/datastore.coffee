@@ -52,7 +52,7 @@ class Datastore
   hset: (key, field, value, callback) =>
     benchmark = new Benchmark label: 'datastore.hset'
     valueStr = JSON.stringify(value)
-    if valueStr.length >= 1024 * 1024 * 10
+    if valueStr.length >= 1024 * 512
       messageTooLargeError = new Error('Message was too large')
       valueStr = JSON.stringify null
     @client.hset key, field, valueStr, (error) =>
