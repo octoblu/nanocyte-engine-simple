@@ -22,6 +22,7 @@ class EngineInAVat
   constructor: (@options) ->
     @options.instanceId ?= uuid.v4()
     {@flowName, @flowData, @instanceId, @meshbluJSON, @version} = @options
+    @meshbluJSON ?= {}
     @triggers = @findTriggers()
 
     @configurationGenerator = @_createConfigurationGenerator()
