@@ -1,8 +1,7 @@
-_ = require 'lodash'
-async = require 'async'
+_             = require 'lodash'
+async         = require 'async'
 NodeAssembler = require './node-assembler'
-
-debug = require('debug')('nanocyte-engine-simple:message-process-queue')
+debug         = require('debug')('nanocyte-engine-simple:message-process-queue')
 
 class MessageProcessQueue
   constructor: (@options, @dependencies) ->
@@ -35,7 +34,7 @@ class MessageProcessQueue
     {nodeType, envelope} = task
     {transactionGroupId} = envelope.metadata
 
-    finished = =>
+    finished = _.once =>
       callback()
       @lockManager.unlock transactionGroupId
 
