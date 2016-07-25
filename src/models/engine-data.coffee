@@ -19,9 +19,9 @@ class EngineData extends Transform
     @_done next, new Error message
 
   _transform: ({message, data, config}, enc, next) =>
-    return _logError "engine-data.coffee: config not found for '#{@fromNodeId}'", next unless config?
+    return @_logError "engine-data.coffee: config not found for '#{@fromNodeId}'", next unless config?
     nodeId = config[@fromNodeId]?.nodeId
-    return _logError "engine-data.coffee: Node config not found for '#{@fromNodeId}'", next unless nodeId?
+    return @_logError "engine-data.coffee: Node config not found for '#{@fromNodeId}'", next unless nodeId?
 
     debug "setting data for #{nodeId} to", message
     @datastore.hset @flowId, "#{@instanceId}/#{nodeId}/data", message, (error, result) =>
