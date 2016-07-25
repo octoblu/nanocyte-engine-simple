@@ -29,6 +29,8 @@ class ErrorHandler
     @messageCounter.add()
     {metadata, config} = envelope
 
+    console.error "Nanocyte Engine", error.stack
+
     debugEnvelope =
       metadata:
         toNodeId: 'engine-debug'
