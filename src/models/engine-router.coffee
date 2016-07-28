@@ -8,23 +8,21 @@ class EngineRouter extends Transform
     {@messageProcessQueue} = dependencies
 
   _transform: ({config, data, message}, enc, next) =>
-    config = @_setupEngineNodeRoutes config
-    fromNodeConfig = config[@metadata.fromNodeId]
+    config          = @_setupEngineNodeRoutes config
+    fromNodeConfig  = config[@metadata.fromNodeId]
+    toNodeIds       = @_getToNodeIds fromNodeConfig
+    fromNodeName    = fromNodeConfig?.type
 
-    toNodeIds = fromNodeConfig?.linkedTo || []
-    toNodeIds = ['engine-debug'] if @metadata.msgType == 'error' and @metadata.fromNodeId != 'engine-debug'
-
-    fromNodeName = fromNodeConfig?.type
-    toNodeNames = _.map toNodeIds, (toNodeId) =>
-      toNodeConfig = config[toNodeId]
-      "#{toNodeConfig?.type}(#{toNodeId})"
-
-    debug "  from: #{fromNodeName}(#{@metadata.fromNodeId})"
-    debug "  to: #{toNodeNames}(#{toNodeIds})"
     @_sendMessages toNodeIds, message, config unless toNodeIds.length == 0
 
     @push null
     next() if next?
+
+  _getToNodeIds: (fromNodeConfig) =>
+    return ['engine-debug'] if @metadata.msgType == 'error' and @metadata.fromNodeId != 'engine-debug'
+    return [] unless fromNodeConfig?
+    return fromNodeConfig.linkedTo || [] unless fromNodeConfig.eventLinks?
+    return fromNodeConfig.eventLinks[@metadata.messageType] || []
 
   _sendMessages: (toNodeIds, message, config) =>
     toNodeIds = _.sortBy toNodeIds, (toNodeId) =>
