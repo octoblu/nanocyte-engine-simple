@@ -13,16 +13,17 @@ class EngineRouter extends Transform
     toNodeIds       = @_getToNodeIds fromNodeConfig
     fromNodeName    = fromNodeConfig?.type
 
+    debug @metadata
+
     @_sendMessages toNodeIds, message, config unless toNodeIds.length == 0
 
     @push null
     next() if next?
 
   _getToNodeIds: (fromNodeConfig) =>
+    eventType = _.first(@metadata.metadata.route).type
     return ['engine-debug'] if @metadata.msgType == 'error' and @metadata.fromNodeId != 'engine-debug'
-    return [] unless fromNodeConfig?
-    return fromNodeConfig.linkedTo || [] unless fromNodeConfig.eventLinks?
-    return fromNodeConfig.eventLinks[@metadata.eventType] || []
+    return [].concat(fromNodeConfig?.linkedTo, fromNodeConfig?.eventLinks?[eventType])
 
   _sendMessages: (toNodeIds, message, config) =>
     toNodeIds = _.sortBy toNodeIds, (toNodeId) =>
