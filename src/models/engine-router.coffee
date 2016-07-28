@@ -21,9 +21,9 @@ class EngineRouter extends Transform
     next() if next?
 
   _getToNodeIds: (fromNodeConfig) =>
-    eventType = _.first(@metadata.metadata.route).type
+    eventType = _.first(@metadata.metadata.route)?.type
     return ['engine-debug'] if @metadata.msgType == 'error' and @metadata.fromNodeId != 'engine-debug'
-    return [].concat(fromNodeConfig?.linkedTo, fromNodeConfig?.eventLinks?[eventType])
+    return _.compact [].concat(fromNodeConfig?.linkedTo, fromNodeConfig?.eventLinks?[eventType])
 
   _sendMessages: (toNodeIds, message, config) =>
     toNodeIds = _.sortBy toNodeIds, (toNodeId) =>
