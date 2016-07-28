@@ -22,7 +22,7 @@ class EngineRouter extends Transform
     return ['engine-debug'] if @metadata.msgType == 'error' and @metadata.fromNodeId != 'engine-debug'
     return [] unless fromNodeConfig?
     return fromNodeConfig.linkedTo || [] unless fromNodeConfig.eventLinks?
-    return fromNodeConfig.eventLinks[@metadata.messageType] || []
+    return fromNodeConfig.eventLinks[@metadata.eventType] || []
 
   _sendMessages: (toNodeIds, message, config) =>
     toNodeIds = _.sortBy toNodeIds, (toNodeId) =>
