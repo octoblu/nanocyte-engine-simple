@@ -87,7 +87,7 @@ class EngineInAVat
       instanceId: @instanceId
       toNodeId: 'engine-input'
       metadata:
-        route: []
+        route: [ type: 'message.received']
         forwardedRoutes: []
     message:
       payload: payload
