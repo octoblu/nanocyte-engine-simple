@@ -12,6 +12,7 @@ class NodeAssembler
     @EnginePingNode      ?= require './engine-ping-node'
     @EngineBatchNode     ?= require './engine-batch-node'
     @EngineOutputNode    ?= require './engine-output-node'
+    @EngineUpdateNode    ?= require './engine-update-node'
     @EngineInputNode     ?= require './engine-input-node'
     @EnginePulseNode     ?= require './engine-pulse-node'
     @nanocyteNodeWrapper ?= new (require './nanocyte-node-wrapper') options, dependencies
@@ -25,6 +26,7 @@ class NodeAssembler
       'engine-data'  : @EngineDataNode
       'engine-debug' : @EngineDebugNode
       'engine-output': @EngineOutputNode
+      'engine-update': @EngineUpdateNode
       'engine-pulse' : @EnginePulseNode
       'engine-batch' : @EngineBatchNode
       'engine-input' : @EngineInputNode
