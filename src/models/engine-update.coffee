@@ -1,4 +1,3 @@
-_ = require 'lodash'
 {Transform} = require 'stream'
 debug = require('debug')('nanocyte-engine-simple:engine-update')
 
@@ -12,7 +11,7 @@ class EngineUpdate extends Transform
     debug {@metadata, config, message}
     {device, update} = message
     meshbluHttp = new @MeshbluHttp config
-    meshbluHttp.update device, update, (error) =>
+    meshbluHttp.updateDangerously device, update, (error) =>
       @push null
       next(error)
 
