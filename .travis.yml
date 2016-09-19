@@ -23,3 +23,6 @@ deploy:
     all_branches: true
 after_success:
 - bash <(curl -s https://codecov.io/bash) -t c3567964-474f-456a-97bf-6800ef65b3de
+branches:
+  only:
+  - "/^v[0-9]/"
