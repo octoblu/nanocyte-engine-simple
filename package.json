@@ -7,7 +7,7 @@
     "node": ">=4.0.0"
   },
   "scripts": {
-    "test": "mocha -gc",
+    "test": "istanbul cover _mocha -- -R spec --require coffee-coverage/register-istanbul && mocha --reporter json > coverage/mocha.json",
     "postinstall": "coffee ./scripts/install-components.coffee"
   },
   "repository": {
