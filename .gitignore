@@ -35,3 +35,4 @@ public-key.json
 channels.json
 /tmp
 *.heapsnapshot
+.nyc_output

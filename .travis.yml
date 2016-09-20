@@ -21,8 +21,11 @@ deploy:
   on:
     tags: true
     all_branches: true
-after_success:
-- bash <(curl -s https://codecov.io/bash) -t c3567964-474f-456a-97bf-6800ef65b3de
 branches:
   only:
   - "/^v[0-9]/"
+after_success:
+- npm run coverage
+- npm run mocha:json
+- bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.octoblu.com/bash)
