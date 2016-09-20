@@ -1,0 +1,12 @@
+{
+  "flowId": "7cccef20-0143-4068-8a8d-8fa01f04ed60",
+  "name": "Empty 2",
+  "description": null,
+  "hash": "b150ee4",
+  "nodes": [],
+  "links": [],
+  "mergedFlowNodeTypes": true,
+  "devicesWithPermissions": [],
+  "devicesNeedingPermission": [],
+  "pendingPermissions": false
+}

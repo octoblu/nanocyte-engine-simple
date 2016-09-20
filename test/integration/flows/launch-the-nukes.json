@@ -1,0 +1,364 @@
+{
+  "flowId": "ed83dd04-aa1f-424b-89de-3467a505c1b3",
+  "name": "iot-app-compose",
+  "description": null,
+  "hash": "79c9da97",
+  "nodes": [
+    {
+      "id": "c3c76bd0-2e95-11e6-b0c9-9338ae23bb3c",
+      "payloadType": "date",
+      "once": false,
+      "name": "General A",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger"
+      },
+      "logo": "https://icons.octoblu.com/operation/trigger.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "$$hashKey": "object:757",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 48.2659912109375,
+      "y": -90.01546859741211,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "caa00bb0-2e95-11e6-b0c9-9338ae23bb3c",
+      "payloadType": "date",
+      "once": false,
+      "name": "General B",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger"
+      },
+      "logo": "https://icons.octoblu.com/operation/trigger.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 52.982086181640625,
+      "y": 73.76167297363281,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "d4ca6ea0-2e95-11e6-b0c9-9338ae23bb3c",
+      "composeKeys": [
+        ""
+      ],
+      "name": "General A Approves",
+      "class": "compose",
+      "helpText": "Wait for all values to be received before sending the message",
+      "category": "operation",
+      "uuid": "46b72292-e288-4bc4-855c-019fb241c1ad",
+      "type": "operation:compose",
+      "defaults": {
+        "composeKeys": [
+          ""
+        ]
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/compose_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-compose"
+      },
+      "logo": "https://icons.octoblu.com/operation/compose.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 178.17298889160156,
+      "y": 73.76167297363281,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false,
+      "compose": [
+        [
+          "generalA",
+          "true"
+        ]
+      ]
+    },
+    {
+      "id": "1a0de870-2e96-11e6-b0c9-9338ae23bb3c",
+      "composeKeys": [
+        ""
+      ],
+      "name": "General B Approves",
+      "class": "compose",
+      "helpText": "Wait for all values to be received before sending the message",
+      "category": "operation",
+      "uuid": "46b72292-e288-4bc4-855c-019fb241c1ad",
+      "type": "operation:compose",
+      "defaults": {
+        "composeKeys": [
+          ""
+        ]
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/compose_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-compose"
+      },
+      "logo": "https://icons.octoblu.com/operation/compose.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false,
+      "compose": [
+        [
+          "generalB",
+          "true"
+        ]
+      ],
+      "x": 173.45689392089844,
+      "y": -90.01546859741211
+    },
+    {
+      "id": "2f2b7c90-2e96-11e6-b0c9-9338ae23bb3c",
+      "composeKeys": [
+        ""
+      ],
+      "name": "Both Sign Off",
+      "class": "compose",
+      "helpText": "Wait for all values to be received before sending the message",
+      "category": "operation",
+      "uuid": "46b72292-e288-4bc4-855c-019fb241c1ad",
+      "type": "operation:compose",
+      "defaults": {
+        "composeKeys": [
+          ""
+        ]
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/compose_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-compose"
+      },
+      "logo": "https://icons.octoblu.com/operation/compose.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 331.66046142578125,
+      "y": -13.271728515625,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false,
+      "compose": [
+        [
+          "generalA",
+          "{{msg.generalA}}"
+        ],
+        [
+          "generalB",
+          "{{msg.generalB}}"
+        ]
+      ]
+    },
+    {
+      "id": "5a96c060-2e96-11e6-b0c9-9338ae23bb3c",
+      "name": "Launch The Nukes",
+      "class": "template",
+      "helpText": "Sends a custom message using handlebars (e.g. {{msg.text}})",
+      "category": "operation",
+      "uuid": "8f2e02ff-08da-446d-ab50-e5115f511cba",
+      "type": "operation:template",
+      "defaults": {},
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/template_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-template"
+      },
+      "logo": "https://icons.octoblu.com/operation/template.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 480.431884765625,
+      "y": -12.842992782592773,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false,
+      "key": "text",
+      "template": "Gentlemen, we must LAUNCH THE NUKES!!!"
+    },
+    {
+      "id": "6c1fe320-2e96-11e6-b0c9-9338ae23bb3c",
+      "uuid": "2be62b90-6519-11e4-867f-276797c27ed6",
+      "topic": "message",
+      "name": "Broadcast",
+      "class": "broadcast",
+      "helpText": "Broadcast message to any meshblu device or Octoblu flow",
+      "category": "operation",
+      "type": "operation:broadcast",
+      "defaults": {
+        "uuid": "*",
+        "topic": "message"
+      },
+      "nanocyte": {
+        "name": "nanocyte-node-broadcast"
+      },
+      "input": 1,
+      "formTemplatePath": "/pages/node_forms/output_form.html",
+      "logo": "https://icons.octoblu.com/operation/broadcast.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 636.8916625976562,
+      "y": -14.057470321655273,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false,
+      "debug": false
+    }
+  ],
+  "links": [
+    {
+      "from": "caa00bb0-2e95-11e6-b0c9-9338ae23bb3c",
+      "fromPort": 0,
+      "to": "d4ca6ea0-2e95-11e6-b0c9-9338ae23bb3c",
+      "toPort": 0
+    },
+    {
+      "from": "c3c76bd0-2e95-11e6-b0c9-9338ae23bb3c",
+      "fromPort": 0,
+      "to": "1a0de870-2e96-11e6-b0c9-9338ae23bb3c",
+      "toPort": 0
+    },
+    {
+      "from": "1a0de870-2e96-11e6-b0c9-9338ae23bb3c",
+      "fromPort": 0,
+      "to": "2f2b7c90-2e96-11e6-b0c9-9338ae23bb3c",
+      "toPort": 0
+    },
+    {
+      "from": "d4ca6ea0-2e95-11e6-b0c9-9338ae23bb3c",
+      "fromPort": 0,
+      "to": "2f2b7c90-2e96-11e6-b0c9-9338ae23bb3c",
+      "toPort": 0
+    },
+    {
+      "from": "2f2b7c90-2e96-11e6-b0c9-9338ae23bb3c",
+      "fromPort": 0,
+      "to": "5a96c060-2e96-11e6-b0c9-9338ae23bb3c",
+      "toPort": 0
+    },
+    {
+      "from": "5a96c060-2e96-11e6-b0c9-9338ae23bb3c",
+      "fromPort": 0,
+      "to": "6c1fe320-2e96-11e6-b0c9-9338ae23bb3c",
+      "toPort": 0
+    }
+  ],
+  "mergedFlowNodeTypes": true,
+  "devicesWithPermissions": [
+    {
+      "device": {
+        "configureWhitelist": [],
+        "discoverWhitelist": [
+          "*"
+        ],
+        "geo": {
+          "range": [
+            1221166080,
+            1221167103
+          ],
+          "country": "US",
+          "region": "AZ",
+          "city": "Chandler",
+          "ll": [
+            33.3062,
+            -111.8413
+          ],
+          "metro": 753
+        },
+        "ipAddress": "72.201.135.91",
+        "meshblu": {
+          "tokens": {
+            "PwSE41vM8mR/6YtpYkVVFDkeokuapJUD8dDCDxhRjJs=": {
+              "createdAt": "2015-07-13T23:53:37.883Z"
+            }
+          },
+          "updatedAt": "2016-05-03T22:31:23+00:00",
+          "hash": "9FnkPVhA5uUdGt2zxF0nNVKXd/xV9QLDg7GpX7P9Ee8="
+        },
+        "online": false,
+        "owner": "9b47c2f1-9d9b-11e3-a443-ab1cdce04787",
+        "receiveWhitelist": [],
+        "socketid": "4Q0Ml42nJmH8N4VcAAGr",
+        "timestamp": "2015-07-13T23:53:37.848Z",
+        "token": "$2a$08$dQudltz8WLKeQB/CxeEcJuyQTOVEYqka8f1nZDzqPbpO026AlDa.m",
+        "tokens": [],
+        "type": "trigger-service",
+        "uuid": "b560b6ee-c264-4ed9-b98e-e3376ce6ce64",
+        "name": "Trigger Service",
+        "sendWhitelist": [],
+        "logo": "https://icons.octoblu.com/trigger-service.svg"
+      },
+      "permissions": {
+        "messageToFlow": true
+      },
+      "$$hashKey": "object:4389"
+    }
+  ],
+  "devicesNeedingPermission": [],
+  "pendingPermissions": false,
+  "selectedLink": null,
+  "selectedFlowNode": {
+    "id": "6c1fe320-2e96-11e6-b0c9-9338ae23bb3c",
+    "uuid": "2be62b90-6519-11e4-867f-276797c27ed6",
+    "topic": "message",
+    "name": "Broadcast",
+    "class": "broadcast",
+    "helpText": "Broadcast message to any meshblu device or Octoblu flow",
+    "category": "operation",
+    "type": "operation:broadcast",
+    "defaults": {
+      "uuid": "*",
+      "topic": "message"
+    },
+    "nanocyte": {
+      "name": "nanocyte-node-broadcast"
+    },
+    "input": 1,
+    "formTemplatePath": "/pages/node_forms/output_form.html",
+    "logo": "https://icons.octoblu.com/operation/broadcast.svg",
+    "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+    "inputLocations": [],
+    "outputLocations": [],
+    "x": 636.8916625976562,
+    "y": -14.057470321655273,
+    "staticMessage": {},
+    "needsConfiguration": false,
+    "needsSetup": false,
+    "debug": false
+  }
+}

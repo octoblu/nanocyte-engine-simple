@@ -18,6 +18,7 @@ class EngineToNanocyteStream extends Transform
   _transform: (message, enc, next) =>
     return @_done next, new Error 'missing message' unless message?
     return @_sendNodeConfig {message, next} if @toNodeId == 'engine-output'
+    return @_sendNodeConfig {message, next} if @toNodeId == 'engine-update'
 
     @datastore.hget @flowId, "#{@instanceId}/bluprint/config", (error, bluprintConfig) =>
       return @_done next, error if error?
