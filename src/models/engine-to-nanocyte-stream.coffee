@@ -41,6 +41,7 @@ class EngineToNanocyteStream extends Transform
       nodeId = dataConfig[@toNodeId]?.nodeId
       nodeId ?= @toNodeId
       config = bluprint.applyConfigToRuntime {
+        toNodeId: @toNodeId
         runtime: config
         configSchema: configSchema
         config: bluprintConfig.config

@@ -24,3 +24,44 @@ describe 'Bluprint', ->
       }
 
       expect(newRuntime).to.containSubset payloadType: 'warning'
+
+
+  context '->_applyConfigToEngineInput', ->
+    it 'should return the new runtime', ->
+      engineInputRuntime =
+        'old-device-1': [
+          { nodeId: 'wrong-one' }
+          { nodeId: 'the-node-id' }
+        ]
+        'old-device-2':[
+          { nodeId: 'differ' }
+        ]
+
+      configSchema =
+        type: 'object'
+        properties:
+          hueLight:
+            type: 'string'
+            "x-node-map": [
+              {id: 'the-node-id', property: 'uuid'}
+              {id: 'wrong-one', property: 'uuid'}
+            ]
+
+      config =
+        hueLight: 'the-device-uuid'
+
+      sut = new Bluprint
+      newRuntime = sut._applyConfigToEngineInput {
+        runtime: engineInputRuntime,
+        configSchema: configSchema,
+        config: config
+      }
+      expected =
+        'the-device-uuid': [
+          { nodeId: 'wrong-one' }
+          { nodeId: 'the-node-id' }
+        ]
+        'old-device-2':[
+          { nodeId: 'differ' }
+        ]
+      expect(newRuntime).to.deep.equal expected

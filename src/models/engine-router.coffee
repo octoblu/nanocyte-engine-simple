@@ -13,8 +13,6 @@ class EngineRouter extends Transform
     toNodeIds       = @_getToNodeIds fromNodeConfig
     fromNodeName    = fromNodeConfig?.type
 
-    debug @metadata
-
     @_sendMessages toNodeIds, message, config unless toNodeIds.length == 0
 
     @push null
@@ -23,6 +21,7 @@ class EngineRouter extends Transform
   _getToNodeIds: (fromNodeConfig) =>
     eventType = _.first(@metadata.metadata.route)?.type
     return ['engine-debug'] if @metadata.msgType == 'error' and @metadata.fromNodeId != 'engine-debug'
+    debug "getToNodeIds", {fromNodeId: @metadata.fromNodeId, eventType, linkedTo: fromNodeConfig?.linkedTo, eventLinks: fromNodeConfig?.eventLinks}
     return _.compact [].concat(fromNodeConfig?.linkedTo, fromNodeConfig?.eventLinks?[eventType])
 
   _sendMessages: (toNodeIds, message, config) =>
