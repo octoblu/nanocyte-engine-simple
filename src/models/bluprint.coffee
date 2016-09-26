@@ -13,15 +13,20 @@ class Bluprint
 
   _applyConfigToEngineInput: ({runtime, configSchema, config}) =>
     return runtime if _.isEmpty config || _.isEmpty configSchema
+    newRuntime = {}
+    _.each configSchema.properties, (property, key) =>
+      newDevice = config[key]
+      schemaNodeIds = _.map _.filter(property['x-node-map'], property: 'uuid'), ({id}) => nodeId: id
+      newRuntime[newDevice] = _.union newRuntime[newDevice], schemaNodeIds
 
-    newRuntime = _.mapKeys runtime, (runtimeNodeList, device) =>
-      runtimeNodeIds = _.map runtimeNodeList, 'nodeId'
-      newDevice = _.first _.flatten _.map configSchema.properties, (property, key) =>
-        return null unless property?
-        schemaNodeIds = _.map _.filter(property['x-node-map'], property: 'uuid'), 'id'
-        return config[key] if _.isEmpty _.difference runtimeNodeIds, schemaNodeIds
+    replacedNodeIds = _.union _.flatten _.values newRuntime
+    oldRuntime = _.mapValues runtime, (nodeIds, device) =>
+      _.reject nodeIds, (nodeId) => _.find replacedNodeIds, nodeId
 
-      return newDevice || device
+    newAndOldDevices = _.union _.keys(newRuntime), _.keys(oldRuntime)
+    _.each newAndOldDevices, (device) =>
+      newNodeIds = _.compact [].concat(newRuntime[device], oldRuntime[device])
+      newRuntime[device] = newNodeIds unless _.isEmpty newNodeIds
 
     return newRuntime
 
