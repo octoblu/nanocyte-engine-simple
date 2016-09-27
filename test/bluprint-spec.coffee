@@ -7,11 +7,14 @@ describe 'Bluprint', ->
       configSchema =
         type: 'object'
         properties:
-          whatKindaTriggerDoYouWant:
-            type: 'string'
-            "x-node-map": [
-              {id: '2bcc3810-29cc-11e6-9a5e-732530c82857', property: 'payloadType'}
-            ]
+          options:
+            type: 'object'
+            properties:
+              whatKindaTriggerDoYouWant:
+                type: 'string'
+                "x-node-map": [
+                  {id: '2bcc3810-29cc-11e6-9a5e-732530c82857', property: 'payloadType'}
+                ]
 
       config =
         whatKindaTriggerDoYouWant: 'warning'
@@ -41,15 +44,19 @@ describe 'Bluprint', ->
         configSchema =
           type: 'object'
           properties:
-            hueLight:
-              type: 'string'
-              "x-node-map": [
-                {id: 'the-node-id', property: 'uuid'}
-                {id: 'wrong-one', property: 'uuid'}
-              ]
+            options:
+              type: 'object'
+              properties:
+                hueLight:
+                  type: 'string'
+                  "x-node-map": [
+                    {id: 'the-node-id', property: 'uuid'}
+                    {id: 'wrong-one', property: 'uuid'}
+                  ]
 
         config =
-          hueLight: 'the-device-uuid'
+          options:
+            hueLight: 'the-device-uuid'
 
         sut = new Bluprint
         newRuntime = sut._applyConfigToEngineInput {
@@ -82,50 +89,54 @@ describe 'when given a runtime, configSchema, and config', ->
     configSchema =
       type: "object"
       properties:
-        room:
-          type: "string"
-          "x-meshblu-device-filter":
-            type: "device:conference-room"
-          format: "meshblu-device"
-          "x-node-map": [
-            {
-              id: "node-3"
-              property: "uuid"
-            }
-            {
-              id: "node-4"
-              property: "uuid"
-            }
-            {
-              id: "97fcbeb0-6a45-11e6-9866-6935a2d8bb28"
-              property: "right"
-            }
-            {
-              id: "af566020-6a45-11e6-9866-6935a2d8bb28"
-              property: "right"
-            }
-          ]
-          required: false
-          description: ""
-        hue:
-          type: "string"
-          "x-meshblu-device-filter":
-            type: "device:hue-light"
-          format: "meshblu-device"
-          "x-node-map": [
-            {
-              id: "node-1"
-              property: "uuid"
-            }
-            {
-              id: "node-2"
-              property: "uuid"
-            }
-          ]
+        options:
+          type: 'object'
+          properties:
+            room:
+              type: "string"
+              "x-meshblu-device-filter":
+                type: "device:conference-room"
+              format: "meshblu-device"
+              "x-node-map": [
+                {
+                  id: "node-3"
+                  property: "uuid"
+                }
+                {
+                  id: "node-4"
+                  property: "uuid"
+                }
+                {
+                  id: "97fcbeb0-6a45-11e6-9866-6935a2d8bb28"
+                  property: "right"
+                }
+                {
+                  id: "af566020-6a45-11e6-9866-6935a2d8bb28"
+                  property: "right"
+                }
+              ]
+              required: false
+              description: ""
+            hue:
+              type: "string"
+              "x-meshblu-device-filter":
+                type: "device:hue-light"
+              format: "meshblu-device"
+              "x-node-map": [
+                {
+                  id: "node-1"
+                  property: "uuid"
+                }
+                {
+                  id: "node-2"
+                  property: "uuid"
+                }
+              ]
 
     config =
-      room: "the-room"
-      hue: "the-hue"
+      options:
+        room: "the-room"
+        hue: "the-hue"
 
     sut = new Bluprint
     newRuntime = sut._applyConfigToEngineInput {

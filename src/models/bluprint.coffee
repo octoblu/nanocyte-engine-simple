@@ -3,6 +3,9 @@ _ = require 'lodash'
 class Bluprint
 
   applyConfigToRuntime: ({runtime, configSchema, config, toNodeId}) =>
+    configSchema = configSchema.properties.options if configSchema.properties?.options?
+    config = config.options if config.options?
+
     return @_applyConfigToEngineInput {runtime, configSchema, config} if toNodeId == 'engine-input'
     _.each configSchema.properties, (value, key) =>
       nodeMaps = _.filter value['x-node-map'], id: runtime.id
@@ -13,6 +16,10 @@ class Bluprint
 
   _applyConfigToEngineInput: ({runtime, configSchema, config}) =>
     return runtime if _.isEmpty config || _.isEmpty configSchema
+
+    configSchema = configSchema.properties.options if configSchema.properties?.options?
+    config = config.options if config.options?
+
     newRuntime = {}
     _.each configSchema.properties, (property, key) =>
       newDevice = config[key]
