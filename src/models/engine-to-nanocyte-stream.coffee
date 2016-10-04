@@ -50,7 +50,7 @@ class EngineToNanocyteStream extends Transform
       @datastore.hget @flowId, "#{@instanceId}/#{nodeId}/data", (error, data) =>
         return @_done next, error if error?
         data ?= {}
-        newMetadata = _.defaults {}, @metadata, bluprint: bluprintConfig.config
+        newMetadata = _.defaults {}, @metadata, bluprint: bluprintConfig?.config?.options
         @push {message, config, data, metadata: newMetadata}
         @_done next
 

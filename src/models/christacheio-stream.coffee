@@ -6,12 +6,12 @@ class ChristacheioStream extends Transform
   constructor: ({@flowId, @originalMessage, @metadata}) ->
     super objectMode: true
 
-  _transform: ({config, data, message}, enc, next) =>
-
-    if config.templateOriginalMessage    
-      context = _.defaults {msg: @originalMessage, @flowId, @metadata}, @originalMessage
+  _transform: ({config, data, message, metadata={}}, enc, next) =>
+    {bluprint} = metadata
+    if config.templateOriginalMessage
+      context = _.defaults {msg: @originalMessage, @flowId, @metadata, bluprint}, @originalMessage
     else
-      context = _.defaults {msg: message, @flowId, @metadata}, message
+      context = _.defaults {msg: message, @flowId, @metadata, bluprint}, message
 
     options = {recurseDepth:10}
     newConfig = christacheio config, context, options
