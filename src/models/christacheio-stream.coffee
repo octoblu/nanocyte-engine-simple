@@ -8,7 +8,7 @@ class ChristacheioStream extends Transform
 
   _transform: ({config, data, message}, enc, next) =>
 
-    if config.templateOriginalMessage
+    if config.templateOriginalMessage    
       context = _.defaults {msg: @originalMessage, @flowId, @metadata}, @originalMessage
     else
       context = _.defaults {msg: message, @flowId, @metadata}, message
