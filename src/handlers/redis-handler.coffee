@@ -1,3 +1,3 @@
-redis = require 'ioredis'
-client = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD, dropBufferSupport: true
+Redis = require 'ioredis'
+client = new Redis process.env.REDIS_URI, dropBufferSupport: true
 module.exports = client

@@ -1,6 +1,6 @@
 {Transform,PassThrough} = require 'stream'
 _                       = require 'lodash'
-redis                   = require 'ioredis'
+Redis                   = require 'ioredis'
 debug                   = require('debug')('engine-in-a-vat')
 uuid                    = require 'node-uuid'
 mongojs                 = require 'mongojs'
@@ -34,7 +34,7 @@ class EngineInAVat
     return new ConfigurationGenerator {@meshbluJSON}, channelConfig: new VatChannelConfig
 
   _createConfigurationSaver: =>
-      client    = redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD, dropBufferSupport: true
+      client    = new Redis process.env.REDIS_URI, dropBufferSupport: true
       db        = mongojs 'localhost/engine-in-a-vat', ['deploys']
       datastore = new Datastore database: db, collection: 'deploys'
 
@@ -74,7 +74,7 @@ class EngineInAVat
 
   @makeIotApp: ({flowId, instanceId, appId, version, configSchema, config}, callback) =>
     client =
-      redis.createClient process.env.REDIS_PORT, process.env.REDIS_HOST, auth_pass: process.env.REDIS_PASSWORD, dropBufferSupport: true
+      new Redis process.env.REDIS_URI, dropBufferSupport: true
 
     client.hset flowId, "#{instanceId}/bluprint/config", JSON.stringify({appId, version, configSchema, config}), callback
 
