@@ -15,8 +15,8 @@ class EngineOutput extends Transform
     meshbluHttp.message message, (error) =>
       if error?
         console.error error.stack
-      @push null
-      next?()
+    @push null
+    next?()
 
   _insertMetadata: (message, config) =>
     {fromNodeId}        = @metadata

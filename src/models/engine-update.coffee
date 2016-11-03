@@ -12,7 +12,8 @@ class EngineUpdate extends Transform
     {device, update} = message
     meshbluHttp = new @MeshbluHttp config
     meshbluHttp.updateDangerously device, update, (error) =>
-      @push null
-      next(error)
+      console.error error.stack if error?
+    @push null
+    next()
 
 module.exports = EngineUpdate
