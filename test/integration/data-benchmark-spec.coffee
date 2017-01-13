@@ -2,7 +2,7 @@ _ = require 'lodash'
 debug = require('debug')('data-benchmark')
 
 EngineInAVat = require '../../util/engine-in-a-vat/engine-in-a-vat'
-describe 'DataBenchmark', ->
+xdescribe 'DataBenchmark', ->
   @timeout 18000
   describe 'When instantiated with a flow', ->
     before (done)->
