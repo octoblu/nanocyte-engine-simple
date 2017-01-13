@@ -1,0 +1,192 @@
+{
+  "flowId": "e8656621-dada-465a-8232-e19778583d68",
+  "name": "Destructoplex",
+  "description": null,
+  "nodes": [
+    {
+      "name": "Demultiplex",
+      "class": "demultiplex",
+      "helpText": "Break an array of values into discreet messages",
+      "documentation": "https://octoblu-designer.readme.io/docs/demultiplex",
+      "type": "operation:demultiplex",
+      "category": "operation",
+      "uuid": "99b84aa0-338b-11e4-8c21-0800200c9a66",
+      "defaults": {},
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/demultiplexer_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-demultiplex"
+      },
+      "logo": "https://icons.octoblu.com/operation/demultiplex.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "id": "e5c7b790-d9e8-11e6-b0af-e9dae29558d7",
+      "x": 481.45361328125,
+      "y": 812.6544799804688,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false,
+      "value": "{{msg}}"
+    },
+    {
+      "name": "Function",
+      "class": "function",
+      "helpText": "Sends a custom message using javascript",
+      "documentation": "https://octoblu-designer.readme.io/docs/function",
+      "category": "operation",
+      "uuid": "37f0a3a8-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:function",
+      "defaults": {
+        "output": 1,
+        "func": "\nreturn msg;"
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/function_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-function"
+      },
+      "logo": "https://icons.octoblu.com/operation/function.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "id": "e7f60940-d9e8-11e6-b0af-e9dae29558d7",
+      "func": "return new Array(1000).fill(0)",
+      "x": 379.91424560546875,
+      "y": 701.2431640625,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "documentation": "https://octoblu-designer.readme.io/docs/trigger",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-trigger"
+      },
+      "logo": "https://icons.octoblu.com/operation/trigger.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "id": "ecad28b0-d9e8-11e6-b0af-e9dae29558d7",
+      "payloadType": "date",
+      "once": false,
+      "x": 266.1524963378906,
+      "y": 808.4236450195312,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "name": "Debug",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "documentation": "https://octoblu-designer.readme.io/docs/debug",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "nanocyte": {
+        "name": "nanocyte-node-debug"
+      },
+      "logo": "https://icons.octoblu.com/operation/debug.svg",
+      "omniboxItemTemplateUrl": "/pages/omnibox-flow-node.html",
+      "id": "f19913c0-d9e8-11e6-b0af-e9dae29558d7",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "x": 560.4287109375,
+      "y": 752.4829711914062,
+      "staticMessage": {},
+      "needsConfiguration": false,
+      "needsSetup": false
+    }
+  ],
+  "links": [
+    {
+      "from": "e7f60940-d9e8-11e6-b0af-e9dae29558d7",
+      "fromPort": 0,
+      "to": "e5c7b790-d9e8-11e6-b0af-e9dae29558d7",
+      "toPort": 0
+    },
+    {
+      "from": "ecad28b0-d9e8-11e6-b0af-e9dae29558d7",
+      "fromPort": 0,
+      "to": "e7f60940-d9e8-11e6-b0af-e9dae29558d7",
+      "toPort": 0
+    },
+    {
+      "from": "e5c7b790-d9e8-11e6-b0af-e9dae29558d7",
+      "fromPort": 0,
+      "to": "f19913c0-d9e8-11e6-b0af-e9dae29558d7",
+      "toPort": 0
+    }
+  ],
+  "hashable": true,
+  "sessionId": "483fedf0-d9eb-11e6-b4b0-71fa608e1583",
+  "devicesWithPermissions": [
+    {
+      "device": {
+        "owner": "9b47c2f1-9d9b-11e3-a443-ab1cdce04787",
+        "timestamp": "2015-07-13T23:53:37.848Z",
+        "token": "$2a$08$dQudltz8WLKeQB/CxeEcJuyQTOVEYqka8f1nZDzqPbpO026AlDa.m",
+        "uuid": "b560b6ee-c264-4ed9-b98e-e3376ce6ce64",
+        "sendWhitelist": [],
+        "discoverWhitelist": [
+          "*"
+        ],
+        "geo": {
+          "metro": 753,
+          "range": [
+            1221166080,
+            1221167103
+          ],
+          "country": "US",
+          "region": "AZ",
+          "city": "Chandler",
+          "ll": [
+            33.3062,
+            -111.8413
+          ]
+        },
+        "socketid": "4Q0Ml42nJmH8N4VcAAGr",
+        "meshblu": {
+          "updatedAt": "2016-05-03T22:31:23+00:00",
+          "hash": "9FnkPVhA5uUdGt2zxF0nNVKXd/xV9QLDg7GpX7P9Ee8="
+        },
+        "type": "trigger-service",
+        "tokens": [],
+        "name": "Trigger Service",
+        "configureWhitelist": [],
+        "ipAddress": "72.201.135.91",
+        "online": false,
+        "receiveWhitelist": [],
+        "logo": "https://icons.octoblu.com/trigger-service.svg"
+      },
+      "permissions": {
+        "messageToFlow": true
+      }
+    }
+  ],
+  "devicesNeedingPermission": [],
+  "pendingPermissions": false,
+  "selectedLink": null,
+  "selectedFlowNode": null
+}

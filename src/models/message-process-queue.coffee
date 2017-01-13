@@ -15,6 +15,7 @@ class MessageProcessQueue
   push: (task) =>
     return if @errorHandler.hasFatalError
     {transactionGroupId, transactionId} = task.envelope.metadata
+    return @errorHandler.fatalError new Error("messageCounter.max is too high!") if @messageCounter.max > 2000
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
       throw error if error?
       task.envelope.metadata.transactionId = transactionId
