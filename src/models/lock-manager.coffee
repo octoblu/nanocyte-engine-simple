@@ -8,8 +8,8 @@ class LockManager
     {@redlock, @client, @instanceCount, @messageCounter} = dependencies
     {redlock:redlockOptions} = options
     redlockOptions ?= {}
-    redlockOptions.retryCount ?= 60*50
-    redlockOptions.retryDelay ?= 20
+    redlockOptions.retryCount ?= 60*5
+    redlockOptions.retryDelay ?= 200
     @client ?= require '../handlers/redis-handler'
     @redlock ?= new Redlock [@client], redlockOptions
     @activeLocks = {}
