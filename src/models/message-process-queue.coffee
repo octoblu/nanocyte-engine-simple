@@ -15,7 +15,6 @@ class MessageProcessQueue
   push: (task) =>
     return if @errorHandler.hasFatalError
     {transactionGroupId, transactionId} = task.envelope.metadata
-    console.log(JSON.stringify(task.envelope.metadata, null, 2)) if transactionGroupId == '5a43807e-5594-4e07-b27b-b72e90b83769'
     @lockManager.lock transactionGroupId, transactionId, (error, transactionId) =>
       throw error if error?
       task.envelope.metadata.transactionId = transactionId
