@@ -2,10 +2,15 @@ debug = (require 'debug')('nanocyte-engine-simple:message-counter')
 
 class MessageCounter
   constructor: ->
+    @reset()
+
+  reset: =>
+    @max = 0
     @streamCount = 0
 
   add: =>
     @streamCount++
+    @max = @streamCount if @max < @streamCount
     debug "adding to #{@streamCount}"
 
   subtract: =>

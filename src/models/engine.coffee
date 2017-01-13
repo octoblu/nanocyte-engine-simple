@@ -50,8 +50,10 @@ class Engine
     @engineBatcher.shutdownFlushAll (flushError) =>
       console.error flushError if flushError?
       @flowTime.add()
+      { max } = @messageCounter
+      @messageCounter.reset()
       # @callback errorToSend
-      @callback()
+      @callback null, { maxMessageCount: max }
 
   _checkFlowTimedOut: (callback=->) =>
     @flowTime.addTimedOut (error, timedOut) =>
