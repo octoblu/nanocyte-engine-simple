@@ -1,6 +1,6 @@
 {
   "name": "@octoblu/nanocyte-engine-simple",
-  "version": "5.8.0",
+  "version": "5.8.1",
   "description": "Simple engine for nanocytes",
   "main": "index.js",
   "engines": {
@@ -30,7 +30,7 @@
   "dependencies": {
     "async": "^2.0.0",
     "callback-stream": "^1.1.0",
-    "christacheio": "^3.0.3",
+    "christacheio": "^3.0.5",
     "coffee-script": "^1.10.0",
     "colors": "^1.1.2",
     "debug": "^2.2.0",
