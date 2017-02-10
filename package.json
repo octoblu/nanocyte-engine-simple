@@ -1,6 +1,6 @@
 {
   "name": "@octoblu/nanocyte-engine-simple",
-  "version": "5.8.1",
+  "version": "5.9.0",
   "description": "Simple engine for nanocytes",
   "main": "index.js",
   "engines": {
